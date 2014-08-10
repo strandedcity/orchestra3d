@@ -61,6 +61,7 @@ namespace {
     "the file '" + OUT_FILE_POINTS + "'.\n";
 
     const int number = 10;
+    // The order of a NURBS curve defines the number of nearby control points that influence any given point on the curve.
     const int order = 4;
     
     double coef[] = {0,  0,   0,
@@ -74,7 +75,21 @@ namespace {
 		     0,  0,   4,
 		     1,  0, 4.5};
 
+//http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline#Knot_vector
+//The number of knots is always equal to the number of control points plus curve degree plus one (i.e. number of control points plus curve order)
+//For the purposes of representing shapes, however, only the ratios of the difference between the knot values matter; in that case, the knot vectors (0, 0, 1, 2, 3, 3) and (0, 0, 2, 4, 6, 6) produce the same curve.
     double knots[] = {0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7};
+
+    inline void write_basis(const int&n, const int& k, const double* knts)
+    {
+    cout << "Basis: ";
+	cout << n << ' ' << k << endl;
+	cout << "Knots: ";
+	for (int i = 0; i < n + k; ++i) {
+	    cout << knts[i] << ' ';
+	}
+	cout << endl;
+    }
 
 }; // end anonymous namespace 
 
@@ -106,7 +121,7 @@ int main(int avnum, char** vararg)
 //	}
 	
 	// write result to file
-//	writeGoCurve(curve, os_curve);
+	writeGoCurve(curve);
 	writeGoPoints(number, coef);
 
 	// cleaning up
@@ -134,7 +149,8 @@ void writeGoPoints(int num_points, double* coords)
 //	      << MINOR_VERSION << " 4 255 255 0 255\n";
 
     // write the number of points
-    cout << num_points << endl;
+    cout << endl;
+    cout << "points: " << num_points << endl;
 
     // write point coordinates
     for (int i = 0; i < num_points * 3; ++i) {
@@ -144,6 +160,36 @@ void writeGoPoints(int num_points, double* coords)
 	} else {
 	    cout << endl;
 	}
+    }
+    cout << endl;
+}
+
+//===========================================================================
+void writeGoCurve(SISLCurve* curve)
+//===========================================================================
+{
+    if (!curve) {
+	throw runtime_error("zero pointer given to writeGoCurve()");
+    }
+
+//    // write standard header
+//    go_stream << CURVE_INSTANCE_TYPE << ' ' << MAJOR_VERSION << ' '
+//	      << MINOR_VERSION << " 0\n";
+
+    // write basic curve properties
+    const int& dim = curve->idim;
+    const int rational = (curve->ikind % 2 == 0) ? 1 : 0;
+    cout << "Curve dimension: " << dim << " isRational: " << rational << '\n';
+
+    // write bspline basis information
+    write_basis(curve->in, curve->ik, curve->et);
+
+    // write control points
+    cout << "Control points: ";
+    int coef_size = curve->in * (rational ? (dim + 1) : dim);
+    const double* coef_pointer = rational ? curve->rcoef : curve->ecoef;
+    for (int i = 0; i < coef_size; ++i) {
+	cout << coef_pointer[i] << ' ';
     }
     cout << endl;
 }
