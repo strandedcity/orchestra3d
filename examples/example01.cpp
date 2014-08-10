@@ -43,7 +43,8 @@
 #include <stdexcept>
 
 #include "sisl.h"
-#include "GoReadWrite.h"
+//#include "GoReadWrite.h"
+#include "glue.h"
 
 using namespace std;
 
@@ -98,21 +99,21 @@ int main(int avnum, char** vararg)
 	    throw runtime_error("Error occured while generating curve.");
 	}
 	
-	ofstream os_curve(OUT_FILE_CURVE.c_str());
-	ofstream os_points(OUT_FILE_POINTS.c_str());
-	if (!os_curve || !os_points) {
-	    throw runtime_error("Unable to open output file.");
-	}
+//	ofstream os_curve(OUT_FILE_CURVE.c_str());
+//	ofstream os_points(OUT_FILE_POINTS.c_str());
+//	if (!os_curve || !os_points) {
+//	    throw runtime_error("Unable to open output file.");
+//	}
 	
 	// write result to file
-	writeGoCurve(curve, os_curve);
-	writeGoPoints(number, coef, os_points);
+//	writeGoCurve(curve, os_curve);
+	writeGoPoints(number, coef);
 
 	// cleaning up
-	freeCurve(curve);
-	os_curve.close();
-	os_points.close();
-
+//	freeCurve(curve);
+//	os_curve.close();
+//	os_points.close();
+//
     } catch (exception& e) {
 	cerr << "Exception thrown: " << e.what() << endl;
 	return 0;
@@ -120,3 +121,29 @@ int main(int avnum, char** vararg)
 
     return 1;
 };
+
+//===========================================================================
+void writeGoPoints(int num_points, double* coords)
+//===========================================================================
+{
+    if (!coords) {
+	throw runtime_error("zero coordinate pointer given to writeGoPoints.");
+    }
+    // write standard header
+//    go_stream << POINTCLOUD_INSTANCE_TYPE << ' ' << MAJOR_VERSION << ' '
+//	      << MINOR_VERSION << " 4 255 255 0 255\n";
+
+    // write the number of points
+    cout << num_points << endl;
+
+    // write point coordinates
+    for (int i = 0; i < num_points * 3; ++i) {
+	cout << coords[i];
+	if ((i+1) % 3) {
+	    cout << ' ';
+	} else {
+	    cout << endl;
+	}
+    }
+    cout << endl;
+}
