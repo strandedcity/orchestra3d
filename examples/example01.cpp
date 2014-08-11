@@ -119,7 +119,7 @@ int main(int avnum, char** vararg)
 //	if (!os_curve || !os_points) {
 //	    throw runtime_error("Unable to open output file.");
 //	}
-	
+	cout << "Pointer address: " << curve << endl;
 	// write result to file
 	writeGoCurve(curve);
 	writeGoPoints(number, coef);
