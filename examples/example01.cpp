@@ -80,17 +80,6 @@ namespace {
 //For the purposes of representing shapes, however, only the ratios of the difference between the knot values matter; in that case, the knot vectors (0, 0, 1, 2, 3, 3) and (0, 0, 2, 4, 6, 6) produce the same curve.
     double knots[] = {0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7};
 
-    inline void write_basis(const int&n, const int& k, const double* knts)
-    {
-    cout << "Basis: ";
-	cout << n << ' ' << k << endl;
-	cout << "Knots: ";
-	for (int i = 0; i < n + k; ++i) {
-	    cout << knts[i] << ' ';
-	}
-	cout << endl;
-    }
-
 }; // end anonymous namespace 
 
 //===========================================================================
@@ -121,8 +110,8 @@ int main(int avnum, char** vararg)
 //	}
 	cout << "Pointer address: " << curve << endl;
 	// write result to file
-	writeGoCurve(curve);
-	writeGoPoints(number, coef);
+	goCurve(curve);
+	goPoints(number, coef);
 
 	// cleaning up
 //	freeCurve(curve);
@@ -136,60 +125,3 @@ int main(int avnum, char** vararg)
 
     return 1;
 };
-
-//===========================================================================
-void writeGoPoints(int num_points, double* coords)
-//===========================================================================
-{
-    if (!coords) {
-	throw runtime_error("zero coordinate pointer given to writeGoPoints.");
-    }
-    // write standard header
-//    go_stream << POINTCLOUD_INSTANCE_TYPE << ' ' << MAJOR_VERSION << ' '
-//	      << MINOR_VERSION << " 4 255 255 0 255\n";
-
-    // write the number of points
-    cout << endl;
-    cout << "points: " << num_points << endl;
-
-    // write point coordinates
-    for (int i = 0; i < num_points * 3; ++i) {
-	cout << coords[i];
-	if ((i+1) % 3) {
-	    cout << ' ';
-	} else {
-	    cout << endl;
-	}
-    }
-    cout << endl;
-}
-
-//===========================================================================
-void writeGoCurve(SISLCurve* curve)
-//===========================================================================
-{
-    if (!curve) {
-	throw runtime_error("zero pointer given to writeGoCurve()");
-    }
-
-//    // write standard header
-//    go_stream << CURVE_INSTANCE_TYPE << ' ' << MAJOR_VERSION << ' '
-//	      << MINOR_VERSION << " 0\n";
-
-    // write basic curve properties
-    const int& dim = curve->idim;
-    const int rational = (curve->ikind % 2 == 0) ? 1 : 0;
-    cout << "Curve dimension: " << dim << " isRational: " << rational << '\n';
-
-    // write bspline basis information
-    write_basis(curve->in, curve->ik, curve->et);
-
-    // write control points
-    cout << "Control points: ";
-    int coef_size = curve->in * (rational ? (dim + 1) : dim);
-    const double* coef_pointer = rational ? curve->rcoef : curve->ecoef;
-    for (int i = 0; i < coef_size; ++i) {
-	cout << coef_pointer[i] << ' ';
-    }
-    cout << endl;
-}
