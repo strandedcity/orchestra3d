@@ -9,7 +9,7 @@
             );
 
             // Create example data to test float_multiply_array
-            var data = new Float32Array([1, 2.20, 3, 4, 5]);
+            var data = new Float32Array([1, 2, 3, 4, 5]);
 
             // Get data byte size, allocate memory on Emscripten heap, and get pointer
             var nDataBytes = data.length * data.BYTES_PER_ELEMENT;
@@ -23,10 +23,19 @@
             float_multiply_array(2, dataHeap.byteOffset, data.length);
             var result = new Float32Array(dataHeap.buffer, dataHeap.byteOffset, data.length);
 
-            console.log(result);
+//            console.log(result);
 
             // Free memory
             Module._free(dataHeap.byteOffset);
+        }
+
+        function copyArrayJSCompare() {
+            var arr = [1,2,3,4,5],
+                    factor = 2;
+            for (var i = 0; i <  arr.length; i++) {
+                arr[i] = factor * arr[i];
+            }
+            return arr;
         }
 
         function copyMatrixTest() {
@@ -76,6 +85,26 @@
             // Free memory
             Module._free(pointerHeap.byteOffset);
             Module._free(dataHeap.byteOffset);
+        }
+
+        function speedTest(){
+            var d = new Date();
+            var n = d.getMilliseconds();
+            console.log('js test:');
+            for (var i = 0; i < 100000; i++){
+                copyArrayJSCompare();
+            }
+            d = new Date();
+            console.log('time: ', d.getMilliseconds()-n);
+            n = d.getMilliseconds();
+            console.log('c test:');
+            for (var i = 0; i < 100000; i++){
+                copyArrayTest();
+            }
+            d = new Date().getMilliseconds()-n;
+            console.log('time: ', d);
+
+
         }
     </script>
 </head>
