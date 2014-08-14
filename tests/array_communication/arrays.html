@@ -30,12 +30,12 @@
         }
 
         function copyArrayJSCompare() {
-            var arr = [1,2,3,4,5],
-                    factor = 2;
-            for (var i = 0; i <  arr.length; i++) {
-                arr[i] = factor * arr[i];
+            var factor = 2;
+            window.arrTest = [1,2,3,4,5];
+            for (var i = 0; i <  window.arrTest.length; i++) {
+                window.arrTest[i] = factor * window.arrTest[i];
             }
-            return arr;
+            delete window.arrTest;
         }
 
         function copyMatrixTest() {
@@ -89,20 +89,17 @@
 
         function speedTest(){
             var d = new Date();
-            var n = d.getMilliseconds();
-            console.log('js test:');
-            for (var i = 0; i < 100000; i++){
+            var start = new Date().getTime();
+            for (var i = 0; i < 1000000; i++){
                 copyArrayJSCompare();
             }
-            d = new Date();
-            console.log('time: ', d.getMilliseconds()-n);
-            n = d.getMilliseconds();
-            console.log('c test:');
-            for (var i = 0; i < 100000; i++){
+            console.log('JS: ', new Date().getTime() - start);
+            start = new Date().getTime();
+
+            for (var i = 0; i < 1000000; i++){
                 copyArrayTest();
             }
-            d = new Date().getMilliseconds()-n;
-            console.log('time: ', d);
+            console.log('C: ', new Date().getTime()-start);
 
 
         }

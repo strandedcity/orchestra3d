@@ -1,4 +1,4 @@
-//emcc *.bc -o arrays.js -s EXPORTED_FUNCTIONS="['_float_multiply_array','_printArray','_float_multiply_matrix']" -v -O3
+//emcc *.bc -o arrays.js -s EXPORTED_FUNCTIONS="['_float_multiply_array','_printArray','_float_multiply_matrix']" -s TOTAL_MEMORY=536870912 -v -O3
 
 /* Get standard I/O library definitions */
 #include <stdio.h>
