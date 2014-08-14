@@ -1,3 +1,5 @@
+//emcc *.bc -o arrays.js -s EXPORTED_FUNCTIONS="['_float_multiply_array','_printArray','_float_multiply_matrix']" -v -O3
+
 /* Get standard I/O library definitions */
 #include <stdio.h>
 
@@ -28,4 +30,13 @@ int float_multiply_array(float factor, float *arr, int length) {
   return 0;
 }
 
-//emcc *.bc -o arrays.js -s EXPORTED_FUNCTIONS="['_float_multiply_array','_printArray']" -v -O3
+int float_multiply_matrix(float **arr, int ilength, int jlength) {
+  float *row;
+  for (int i = 0; i < ilength; i++) {
+    row = arr[i];
+    for (int j = 0; j < jlength; j++) {
+      row[j] = 2.0 * row[j];
+    }
+  }
+  return 0;
+}
