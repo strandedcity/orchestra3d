@@ -4,6 +4,9 @@
 // emcc *.c -o out.bc
 // emcc *.bc -o output.js -s EXPORTED_FUNCTIONS="['_testThis']" -s TOTAL_MEMORY=536870912 -s NO_EXIT_RUNTIME=1 -v -O3
 
+// OTHER USEFUL COMPILE SWITCHES HERE:
+// https://github.com/kripken/emscripten/blob/master/emcc#L86
+
 
 //#include <stdio.h>
 //
@@ -39,9 +42,13 @@ typedef struct rec
         char A;
 }RECORD;
 
+int testThis(RECORD *r);
+
+
+
 int main()
 {
-        RECORD *ptr_one;
+        RECORD *ptr_one; // ptr_one is a pointer to RECORD
 
         ptr_one = (RECORD *) malloc (sizeof(RECORD));
 
@@ -53,18 +60,27 @@ int main()
         printf("Second value: %f\n", (*ptr_one).PI);
         printf("Third value: %c\n", (*ptr_one).A);
 
-//        printf("Pointer: %p\n", *ptr_one);
+        printf("Pointer: %p\n", ptr_one);
+        printf("-----\n");
 
 //        free(ptr_one);
+        int blah = testThis(ptr_one);
 
         return 0;
 }
 
-int testThis(RECORD *ptr_one)
+int testThis(RECORD *r)
 {
-        printf("First value: %d\n",(*ptr_one).i);
-        printf("Second value: %f\n", (*ptr_one).PI);
-        printf("Third value: %c\n", (*ptr_one).A);
+        printf("First value: %d\n",r->i);
+        printf("Second value: %f\n", r->PI);
+        printf("Third value: %c\n", r->A);
 
-        return (*ptr_one).i;
+        return r->i;
 }
+
+// JS---
+//Module.ccall('testThis','number',['number'],[0x501030]);
+//->First value: 10 output.js:1
+//->Second value: 3.140000 output.js:1
+//->Third value: a output.js:1
+//->10
