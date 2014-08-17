@@ -1,3 +1,4 @@
+var Ant = Ant || {};
 var Output = Ant.Output = function(opts){
     // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
     // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
