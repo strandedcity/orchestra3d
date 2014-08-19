@@ -1,20 +1,35 @@
 var Ant = Ant || {};
-var Output = Ant.Output = function(opts){
+var Output = Ant.Output = function AntOutput(opts){
     // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
     // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
     // for some property and creating that array instead.
-    this.options = opts || {};
-    this.initialize.apply(this, arguments);
+    var args = _.extend(opts || {}, {/* default args */});
+    this.type = opts.type;
+    this.values = [];
+    this.referencedCPointer = null;
+    if (_.isUndefined(this.type)) {throw new Error("No type specified for Output");}
+//    this.initialize.apply(this, args);
 };
 _.extend(Output.prototype, Backbone.Events, {
-    retrieve: function(){
-        if (!_.isUndefined(this.options.retrieve)) {
-            return this.options.re
+    assignValues: function(valueArray){
+        if (!_.isArray(valueArray)) {
+            throw new Error("Cannot assign values outside of an array");
         }
+        _.each(valueArray,function(v){
+            if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly");}
+        });
+        this.values = valueArray;
+        this.trigger('change');
+    },
+    fetchValues: function(){
+        return this.values;
+    },
+    destroy: function(){
+        if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
     }
 });
 
-var Component = Ant.Component = function(opts){
+var Component = Ant.Component = function AntComponent(opts){
     /*
     *  A general function must be supplied for the calculation of the result objects.
     *  Generally, this function will wrap something in the SISL library
@@ -32,18 +47,119 @@ var Component = Ant.Component = function(opts){
     *  actual output objects.
     *
     * */
-    if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.resultFunction) || _.isUndefined(opts.outputs) ) {
-        throw new Error("Insufficient specifications for a Component");
-    }
-
-    // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
-    this.inputs = opts.inputs;
-    this.outputs = opts.outputs;
-    this.resultFunction = opts.resultFunction;
-
-    this.resultArray = []; // Contains raw result object pointers after async calculation completes.
-    this.initialize.apply(this, arguments);
+    this.base_init.apply(this, arguments);
 };
 
 // Mix in backbone events so this component can interact with other components
-_.extend(Component.prototype, Backbone.Events);
+_.extend(Component.prototype, Backbone.Events, {
+    base_init: function(opts){
+        if (_.isUndefined(opts) || _.isUndefined(opts.inputTypes) || _.isUndefined(opts.resultFunction) || _.isUndefined(opts.output) ) {
+            throw new Error("Insufficient specifications for a Component");
+        }
+
+        // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
+        this.inputTypes = opts.inputTypes;
+        this.inputs = {};
+        this.output = opts.output; // Contains raw result object pointers after async calculation completes.
+    },
+    assignInput: function(inputName, input){
+        if (_.isUndefined(inputName) || _.isUndefined(input)) {throw new Error("Unspecified Input");}
+        if (!_.has(this.inputTypes,inputName)) {throw new Error("Tried to specify an input that does not exist");}
+        if (this.inputTypes[inputName] !== input.type) {throw new Error("Tried to specify an input of the wrong type");}
+
+        // Still here? Cool. Just listen to the output for change events.
+        this.listenTo(input, 'change', this.recalculate);
+        this.inputs[inputName] = input; // keep a ref
+    },
+    destroy: function(){
+        this.stopListening();
+        _.each(this.inputs,function(input){
+            input.destroy();
+        });
+        delete this.inputs;
+        this.output.destroy();
+        delete this.output;
+    },
+    recalculate: function(){
+        this._recalculate();
+    },
+    _recalculate: function(){
+        // run whatever calculations are necessary, if all inputs are available
+        console.log('recalculating BASE');
+        this.output.trigger('change');
+    }
+});
+
+console.warn("This stuff should be a separate dependency!!");
+if (_.isUndefined(Module._newPoint)) console.warn("SISL routine newPoint is missing, but PointComponent depends on it.");
+//var _newPoint = Module.cwrap('newPoint','number',['number','number','number']);
+var SISL = {};
+
+SISL.Point = function SISLPoint(x, y, z){
+    // Construct C array of the point's coordinates. Optionally pass a 'pointer' to re-use C memory
+    var coordsPointer = Module.Utils.copyJSArrayToC([x,y,z]);
+//    this._pointer = _newPoint(coordsPointer,3,0);
+//    console.log(coordsPointer, this._pointer);
+    this._pointer = coordsPointer;
+};
+_.extend(SISL.Point.prototype,{
+    getPointer: function(){
+        return this._pointer;
+    },
+    getCoords: function(){
+//        console.log(this._pointer);
+        return new Float32Array(Module.HEAPU8.buffer, this._pointer, 3);
+    },
+    destroy: function(){
+        Module._free(this._pointer);
+    }
+});
+
+
+
+
+
+var PointComponent = Ant.PointComponent = function PointComponent(opts){
+    this.initialize.apply(this, arguments);
+};
+
+_.extend(PointComponent.prototype, Component.prototype,{
+    initialize: function(opts){
+        var output = new Ant.Output({type: 'SISLPoint'});
+
+        var args = _.extend(opts || {},{
+            inputTypes: {
+                "X": 'number',
+                "Y": 'number',
+                "Z": 'number'
+            },
+            output: output,
+            resultFunction: this.recalculate
+        });
+        this.base_init(args);
+    },
+    shortestInputLength: function(){
+        var shortestIpt = _.min(this.inputs,function(ipt){return ipt.values.length;});
+        return shortestIpt.values.length;
+    },
+    recalculate: function(){
+        console.log("TODO: CALCULATE SISLPOINT!",this.shortestInputLength());
+        var that = this;
+        for (var i=0; i < this.shortestInputLength(); i++) {
+            //SISLPoint *newPoint (double *ecoef, int idim, int icopy)
+            var point = new SISL.Point(
+                this.inputs["X"].values[i],
+                this.inputs["Y"].values[i],
+                this.inputs["Z"].values[i]
+            );
+//            console.log('POINTER: ',pointer);
+//            console.log("Has the curve already been allocated? Free it and replace it, or just reuse the memory");
+//            console.log("Allocate a new curve object into memory, execute 'newcurve' function in C using inputs at this index, store pointer in output.values array");
+            that.output.values.push(point);
+        }
+
+        this._recalculate();
+    }
+});
+
+
