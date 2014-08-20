@@ -92,23 +92,26 @@ _.extend(Component.prototype, Backbone.Events, {
 
 console.warn("This stuff should be a separate dependency!!");
 if (_.isUndefined(Module._newPoint)) console.warn("SISL routine newPoint is missing, but PointComponent depends on it.");
-//var _newPoint = Module.cwrap('newPoint','number',['number','number','number']);
+var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
 var SISL = {};
 
 SISL.Point = function SISLPoint(x, y, z){
     // Construct C array of the point's coordinates. Optionally pass a 'pointer' to re-use C memory
     var coordsPointer = Module.Utils.copyJSArrayToC([x,y,z]);
-//    this._pointer = _newPoint(coordsPointer,3,0);
+    this._pointer = newPoint(coordsPointer,3,0);
+    console.log('newPoint pointer: ',this._pointer);
 //    console.log(coordsPointer, this._pointer);
-    this._pointer = coordsPointer;
+//    this._pointer = coordsPointer;
 };
 _.extend(SISL.Point.prototype,{
     getPointer: function(){
         return this._pointer;
     },
     getCoords: function(){
-//        console.log(this._pointer);
-        return new Float32Array(Module.HEAPU8.buffer, this._pointer, 3);
+        console.log('point pointer',this._pointer);
+        var coordsPtr = Module.ccall('pointCoords','number',['number'],[this._pointer]);
+        console.log('coords pointer',coordsPtr);
+        return new Float32Array(Module.HEAPU8.buffer, coordsPtr, 3);
     },
     destroy: function(){
         Module._free(this._pointer);
@@ -152,6 +155,7 @@ _.extend(PointComponent.prototype, Component.prototype,{
                 this.inputs["Y"].values[i],
                 this.inputs["Z"].values[i]
             );
+            console.log(point.getCoords());
 //            console.log('POINTER: ',pointer);
 //            console.log("Has the curve already been allocated? Free it and replace it, or just reuse the memory");
 //            console.log("Allocate a new curve object into memory, execute 'newcurve' function in C using inputs at this index, store pointer in output.values array");
