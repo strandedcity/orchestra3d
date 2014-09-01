@@ -12,6 +12,8 @@ var Test = {};
 Test.Components = {};
 
 Test.Components.PointFromNumbers = function(){
+    // "outputs" are actually inputs to the "point" component. They are outputs
+    // in the sense that they are assumed to be emitted from a prior component.
     var outputX = new Ant.Output({type: 'number'}),
         outputY = new Ant.Output({type: 'number'}),
         outputZ = new Ant.Output({type: 'number'});
@@ -28,7 +30,19 @@ Test.Components.PointFromNumbers = function(){
     pointObject.assignInput("Z",outputZ);
 
     pointObject.recalculate();
-    console.log('calculation result: ',pointObject.output.fetchValues());
+    var pointers = pointObject.output.fetchValues();
+    var outputVals = [];
+    console.log('complete: ',pointObject.output.fetchValues()[0].getCoords());
+    _.each(pointers,function(point){
+        // Get normal array for easy round-trip-to-emscripten verification.
+        // This operation shouldn't be necessary in actual usage.
+        // point.getCoords() produces a float32array that can be used directly for most purposes.
+        var normalArray = Array.apply([],point.getCoords());
+        outputVals.push(normalArray);
+    });
+
+    console.log('calculation results: ', outputVals);
+    // TODO: Assert equal: outputVals === [[1,2,4],[2,4,8]]
 };
 
 Test.Components.PointFromNumbers();

@@ -13,10 +13,10 @@ var Output = Ant.Output = function AntOutput(opts){
 _.extend(Output.prototype, Backbone.Events, {
     assignValues: function(valueArray){
         if (!_.isArray(valueArray)) {
-            throw new Error("Cannot assign values outside of an array");
+            throw new Error("'Values' must be an array");
         }
         _.each(valueArray,function(v){
-            if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly");}
+            if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly. This includes ");}
         });
         this.values = valueArray;
         this.trigger('change');
