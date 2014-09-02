@@ -1,32 +1,8 @@
-requirejs.config({
-    // cache busting during development:
-    urlArgs: "bust=" + (new Date()).getTime(),
-
-    shim: {
-        'backbone': {
-            deps: ['underscore', 'jquery'],
-            exports: 'Backbone'
-
-        },
-        'underscore': {
-            exports: '_'
-        },
-        'jquery': {
-            exports: '$'
+require(["appconfig"],function(){
+    console.log("defined app config!");
+    require(        ['backbone',    'underscore',   'SISL', 'dataFlow'],
+        function(    Backbone,      _,              SISL,   dataFlow){
+            console.log('starting program!', SISL, dataFlow);
         }
-    },
-
-    paths: {
-        jquery: 'lib/jquery-2.1.1.min',
-        backbone: 'lib/backbone-min',
-        underscore: 'lib/underscore-min',
-        SISL: 'src/SISL/js/sisl_loader',
-        dataFlow: 'src/dataFlow/src/dataFlow_loader'
-    }
+    );
 });
-
-require(        ['backbone',    'underscore',   'SISL', 'dataFlow'],
-    function(    Backbone,      _,              SISL,   dataFlow){
-        console.log('starting program!', SISL, dataFlow);
-    }
-);
