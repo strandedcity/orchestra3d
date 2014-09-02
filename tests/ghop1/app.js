@@ -27,7 +27,6 @@ requirejs.config({
         underscore: 'lib/underscore-min',
         SISL: 'src/SISL/js/sisl_loader',
         dataFlow: 'src/dataFlow/src/dataFlow_loader',
-
         // SISL Module
 //        ems_sisl: "src/SISL/js/sisl",
 //        ems_utils: "src/SISL/js/emscripten_utils",

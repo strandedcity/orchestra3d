@@ -1,9 +1,9 @@
 define([
         "underscore",
         "src/SISL/js/sisl",
-        "src/SISL/js/emscripten_utils",
         "src/SISL/js/constructors"
-    ],function(){
-        console.log("LOADED SISL!",Module);
+    ],function(_,Module,SISL){
+        console.log("LOADED SISL:",SISL);
+//        window.SISL = SISL;
     }
 );
