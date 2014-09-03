@@ -90,7 +90,6 @@ define([
             },
             _recalculate: function(){
                 // run whatever calculations are necessary, if all inputs are available
-                console.log('recalculating BASE');
                 this.output.trigger('change');
             }
         });

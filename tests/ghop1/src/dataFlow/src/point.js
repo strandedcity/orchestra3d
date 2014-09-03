@@ -35,7 +35,7 @@ define([
                         this.inputs["Y"].values[i],
                         this.inputs["Z"].values[i]
                     );
-                    console.log(point.getCoords());
+                    //console.log(point.getCoords());
         //            console.log('POINTER: ',pointer);
         //            console.log("Has the curve already been allocated? Free it and replace it, or just reuse the memory");
         //            console.log("Allocate a new curve object into memory, execute 'newcurve' function in C using inputs at this index, store pointer in output.values array");
