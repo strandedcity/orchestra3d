@@ -52,6 +52,12 @@ define(["dataFlow"],function(dataFlow){
             expect(pointObject.inputs["Z"]).toEqual(outputZ);
         });
 
+        it("Calls _recalculate() in the superclass when recalculating",function(){
+            spyOn(pointObject, '_recalculate');
+            pointObject.recalculate();
+            expect(pointObject._recalculate).toHaveBeenCalled();
+        });
+
         pointObject.recalculate();
 
         console.warn("After recalculation, there's a lot of code here to read the values back out. These should move to a utility class somewhere, since they're going to be useful everywhere. PERHAPS MOVE ONTO THE POINT COMPONENT ITSELF!");
