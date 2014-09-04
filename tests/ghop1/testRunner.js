@@ -5,7 +5,11 @@ require(["appconfig"],function(){
 //            console.log('starting program!', SISL, dataFlow);
 //        }
 //    );
-    require(["spec/test_PointFromNumbers"],function(){
+    require([
+        "spec/dataFlow_core",
+        "spec/components/pointFromNumbers",
+        "spec/SISL_core",
+    ],function(){
         window.executeTests();
     });
 });

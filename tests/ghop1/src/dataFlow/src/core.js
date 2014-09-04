@@ -9,10 +9,10 @@ define([
             // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
             // for some property and creating that array instead.
             var args = _.extend(opts || {}, {/* default args */});
-            this.type = opts.type;
+            if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
+            this.type = args.type;
             this.values = [];
             this.referencedCPointer = null;
-            if (_.isUndefined(this.type)) {throw new Error("No type specified for Output");}
         //    this.initialize.apply(this, args);
         };
         _.extend(Output.prototype, Backbone.Events, {
