@@ -12,22 +12,32 @@ define([
             if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
             this.type = args.type;
             this.values = [];
+            this._isNull = true;
             this.referencedCPointer = null;
         //    this.initialize.apply(this, args);
         };
         _.extend(Output.prototype, Backbone.Events, {
             assignValues: function(valueArray){
                 if (!_.isArray(valueArray)) {
+                    this.setNull(true);
                     throw new Error("'Values' must be an array");
                 }
                 _.each(valueArray,function(v){
-                    if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly. This includes ");}
+                    if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly.");}
                 });
                 this.values = valueArray;
+                this.setNull(false);
                 this.trigger('change');
             },
+            setNull: function(val){
+                this._isNull = val;
+                this.trigger('change');
+            },
+            isNull: function(){
+                return this._isNull;
+            },
             fetchValues: function(){
-                return this.values;
+                return this._isNull ? null : this.values;
             },
             destroy: function(){
                 if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
@@ -84,6 +94,24 @@ define([
                 delete this.inputs;
                 this.output.destroy();
                 delete this.output;
+            },
+            hasSufficientInputs: function(){
+                var that = this, sufficient = true;
+                _.each(this.inputs,function(input){
+                    if (input.isNull() === true) {
+                        sufficient = false;
+                    }
+                });
+                // If an input is null, the output is null too, and no calculation should occur.
+                if (!sufficient) that.output.setNull(true);
+                return sufficient;
+            },
+            shortestInputLength: function(){
+                if (this.hasSufficientInputs() === false) return 0;
+
+                this.output.setNull(false);
+                var shortestIpt = _.min(this.inputs,function(ipt){return ipt.values.length;});
+                return shortestIpt.values.length;
             },
             recalculate: function(){
                 this._recalculate();

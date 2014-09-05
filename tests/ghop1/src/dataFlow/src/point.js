@@ -22,13 +22,10 @@ define([
                 });
                 this.base_init(args);
             },
-            shortestInputLength: function(){
-                var shortestIpt = _.min(this.inputs,function(ipt){return ipt.values.length;});
-                return shortestIpt.values.length;
-            },
             recalculate: function(){
-                var that = this;
-                for (var i=0; i < this.shortestInputLength(); i++) {
+                var that = this, shortestInput = this.shortestInputLength();
+                if (shortestInput === 0) return;
+                for (var i=0; i < shortestInput; i++) {
                     var point = new Geometry.Point(
                         this.inputs["X"].values[i],
                         this.inputs["Y"].values[i],

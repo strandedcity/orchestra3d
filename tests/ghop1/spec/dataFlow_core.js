@@ -37,6 +37,12 @@ define(["dataFlow"],function(dataFlow){
                 }).toThrow(new Error("'Values' must be an array"));
             });
             it("Re-uses C-memory when new values are assigned (pointer stays the same)",function(){});
-        })
+        });
+
+        describe("Component",function(){
+            it("Should have tests",function(){
+                
+            });
+        });
     }];
 });

@@ -66,11 +66,33 @@ console.warn("TEST IS A MESS. FIX.");
 
                 // assigning values to an input should update all the output values automatically
                 // IF there are sufficient inputs for the calculation to occur
+                spyOn(pointComponent,'_recalculate'); // spying on 'recalculate' won't work because of prototype inheritance
                 outputX.assignValues([8,8]);
+                expect(pointComponent._recalculate).toHaveBeenCalled();
                 expect(pointComponent.output.fetchValues()[0].getCoordsArray()).toEqual([8,2,4]);
                 expect(pointComponent.output.fetchValues()[1].getCoordsArray()).toEqual([8,4,8]);
             });
-            it("Should NOT recalculate when insufficient inputs are defined", function(){});
+            it("Should NOT recalculate when insufficient inputs are defined", function(){
+                assignInputs();
+                pointComponent.recalculate();
+
+                // null-out the Y-input:
+                outputY.setNull(true);
+
+                // assigning values to an input should update all the output values automatically
+                // IF there are sufficient inputs for the calculation to occur
+                spyOn(pointComponent,'_recalculate');
+                outputX.assignValues([8,8]);
+                expect(pointComponent._recalculate).not.toHaveBeenCalled();
+            });
+            it("Should have null output when any input is set to null", function(){
+                assignInputs();
+                pointComponent.recalculate();
+
+                // null-out the Y-input:
+                outputY.setNull(true);
+                expect(pointComponent.output.isNull()).toBe(true);
+            });
             it("Returns an array of xyz arrays fetchCoordinates() is called",function(){});
             it("Returns an array of output pointers when fetchPointers() is called",function(){});
         })
