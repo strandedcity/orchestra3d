@@ -1,5 +1,5 @@
 define(["dataFlow"],function(dataFlow){
-    return ["Core:",function(){
+    return ["Core -->",function(){
         describe("Output",function(){
             it("Instantiates a new 'number' output object",function(){
                 var outputX = new dataFlow.Output({type: 'number'});
@@ -38,10 +38,9 @@ define(["dataFlow"],function(dataFlow){
             });
             it("Re-uses C-memory when new values are assigned (pointer stays the same)",function(){});
         });
-
         describe("Component",function(){
             it("Should have tests",function(){
-                
+
             });
         });
     }];

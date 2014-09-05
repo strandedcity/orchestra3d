@@ -83,8 +83,14 @@ define([
                 if (this.inputTypes[inputName] !== input.type) {throw new Error("Tried to specify an input of the wrong type");}
 
                 // Still here? Cool. Just listen to the output for change events.
+                console.warn("Should STOP listening when an input is changed!!")
                 this.listenTo(input, 'change', this.recalculate);
                 this.inputs[inputName] = input; // keep a ref
+
+                // Does this addition of an input leave the component with all inputs satisfied?
+                if (this.hasSufficientInputs()){
+                    this.recalculate();
+                }
             },
             destroy: function(){
                 this.stopListening();
@@ -97,6 +103,15 @@ define([
             },
             hasSufficientInputs: function(){
                 var that = this, sufficient = true;
+
+                // first verify that all the inputs are even hooked up:
+                _.each(_.keys(this.inputTypes),function(inputName){
+                    if (!_.has(that.inputs,inputName)) {
+                        sufficient = false;
+                    }
+                });
+
+                // next, verify that none of the inputs are nulled-out:
                 _.each(this.inputs,function(input){
                     if (input.isNull() === true) {
                         sufficient = false;
@@ -119,6 +134,9 @@ define([
             _recalculate: function(){
                 // run whatever calculations are necessary, if all inputs are available
                 this.output.trigger('change');
+            },
+            fetchOutputs: function(){
+                return this.output.fetchValues();
             }
         });
 

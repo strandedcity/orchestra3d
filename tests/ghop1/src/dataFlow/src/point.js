@@ -9,7 +9,7 @@ define([
 
         _.extend(PointComponent.prototype, DataFlow.Component.prototype,{
             initialize: function(opts){
-                var output = new DataFlow.Output({type: 'SISLPoint'});
+                var output = new DataFlow.Output({type: 'GeoPoint'});
 
                 var args = _.extend(opts || {},{
                     inputTypes: {
@@ -38,6 +38,14 @@ define([
                     that.output.values[i] = point;
                 }
                 this._recalculate();
+            },
+            fetchPointCoordinates: function(){
+                var outputs = this.fetchOutputs(); // returns array of GeoPoints
+                var outputVals = [];
+                _.each(outputs,function(GeoPoint){
+                    outputVals.push(GeoPoint.getCoordsArray());
+                });
+                return outputVals;
             }
         });
 

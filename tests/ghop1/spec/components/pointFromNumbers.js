@@ -1,5 +1,5 @@
 define(["dataFlow"],function(dataFlow){
-    return ["Components:",function(){
+    return ["Components -->",function(){
         describe("PointComponent(x,y,z)",function(){
             var outputX, outputY, outputZ, pointComponent;
 
@@ -40,24 +40,6 @@ define(["dataFlow"],function(dataFlow){
                 pointComponent.recalculate();
                 expect(pointComponent._recalculate).toHaveBeenCalled();
             });
-            it("Creates an array of points with the correct xyz locations",function(){
-console.warn("TEST IS A MESS. FIX.");
-                assignInputs();
-                pointComponent.recalculate();
-
-                //console.warn("After recalculation, there's a lot of code here to read the values back out. These should move to a utility class somewhere, since they're going to be useful everywhere. PERHAPS MOVE ONTO THE POINT COMPONENT ITSELF!");
-                //console.warn("USE MOCK OBJECTS. See http://www.htmlgoodies.com/html5/javascript/spy-on-javascript-methods-using-the-jasmine-testing-framework.html#fbid=OUGNUC05Zto");
-
-                // pointObject.fetchValues() should provide access to the output's pointer list
-
-                var pointers = pointComponent.output.fetchValues();
-                var outputVals = [];
-                //console.log('complete: ',pointObject.output.fetchValues()[0].getCoords());
-                _.each(pointers,function(point){
-                    outputVals.push(point.getCoordsArray());
-                });
-                expect(outputVals).toEqual([[1,2,4],[2,4,8]]);
-            });
             it("Should trigger recalculation when an input value changes",function(){
                 assignInputs();
 
@@ -93,8 +75,47 @@ console.warn("TEST IS A MESS. FIX.");
                 outputY.setNull(true);
                 expect(pointComponent.output.isNull()).toBe(true);
             });
-            it("Returns an array of xyz arrays fetchCoordinates() is called",function(){});
-            it("Returns an array of output pointers when fetchPointers() is called",function(){});
+            it("Returns an array of xyz values when fetchPointCoordinates() is called",function(){
+                assignInputs();
+                pointComponent.recalculate();
+                var pointCoordinates = pointComponent.fetchPointCoordinates();
+                expect(pointCoordinates).toEqual([[1,2,4],[2,4,8]]);
+            });
+            it("Should calculate output when inputs are satisfied",function(){
+                // Test should be same as above, but without explicit calling of "recalculate".
+                // We're testing here to make sure the component knows to recalculate. Above, we're testing
+                // that it recalculates correctly.
+                spyOn(pointComponent, '_recalculate');
+                assignInputs();
+                expect(pointComponent._recalculate).toHaveBeenCalled();
+                var pointCoordinates = pointComponent.fetchPointCoordinates();
+                expect(pointCoordinates).toEqual([[1,2,4],[2,4,8]]);
+            });
+            it("Returns an array of GeoPoints when fetchOutputs() is called",function(){
+                assignInputs();
+                pointComponent.recalculate();
+                var outputs = pointComponent.fetchOutputs();
+                _.each(outputs,function(out){
+                    expect(out.constructor.name).toEqual("GeoPoint");
+                });
+                expect(outputs.length).toEqual(2);
+            });
+            it("Has a null output value until all inputs are assigned",function(){
+                spyOn(pointComponent, '_recalculate');
+                pointComponent.assignInput("X",outputX);
+                expect(pointComponent.output.isNull()).toBe(true);
+                expect(pointComponent._recalculate).not.toHaveBeenCalled();
+
+                pointComponent.assignInput("Y",outputY);
+                expect(pointComponent.output.isNull()).toBe(true);
+                expect(pointComponent._recalculate).not.toHaveBeenCalled();
+
+                // setting the z-input completes the inputs, and should trigger calculations:
+                pointComponent.assignInput("Z",outputZ);
+                expect(pointComponent.output.isNull()).toBe(false);
+                expect(pointComponent._recalculate).toHaveBeenCalled();
+                expect(pointComponent.fetchOutputs().length).toBe(2);
+            });
         })
     }];
 });
