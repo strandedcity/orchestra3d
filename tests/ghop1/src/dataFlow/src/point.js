@@ -29,7 +29,6 @@ define([
             recalculate: function(){
                 var that = this;
                 for (var i=0; i < this.shortestInputLength(); i++) {
-                    //SISLPoint *newPoint (double *ecoef, int idim, int icopy)
                     var point = new Geometry.Point(
                         this.inputs["X"].values[i],
                         this.inputs["Y"].values[i],
@@ -39,9 +38,8 @@ define([
         //            console.log('POINTER: ',pointer);
         //            console.log("Has the curve already been allocated? Free it and replace it, or just reuse the memory");
         //            console.log("Allocate a new curve object into memory, execute 'newcurve' function in C using inputs at this index, store pointer in output.values array");
-                    that.output.values.push(point);
+                    that.output.values[i] = point;
                 }
-
                 this._recalculate();
             }
         });

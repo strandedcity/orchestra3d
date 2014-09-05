@@ -1,69 +1,78 @@
-// Test routine:
-// 1) Create 3 JS arrays 'x', 'y', and 'z' with 2 integer entries each. Turn them into C arrays.
-// 2) Each array should be wrapped in an "output" object to simulate its being from a "number" component
-// 3) Register all three outputs as inputs for a "point" component
-// 4) Trigger "updated" event on one of these outputs
-//
-// Expected Result: 2 SISLPoints are created. A single array is returned, wrapped in an "output" object,
-// which should contain pointers to objects stored in C memory. Verify that the two c objects return appropriate
-// values for x, y, z when interrogated.
-
 define(["dataFlow"],function(dataFlow){
-    describe("Point From Numbers Component",function(){
+    return ["Components:",function(){
+        describe("PointComponent(x,y,z)",function(){
+            var outputX, outputY, outputZ, pointComponent;
 
-        // "outputs" are actually inputs to the "point" component. They are outputs
-        // in the sense that they are assumed to be emitted from a prior component.
-        var outputX = new dataFlow.Output({type: 'number'}),
-            outputY = new dataFlow.Output({type: 'number'}),
-            outputZ = new dataFlow.Output({type: 'number'});
+            beforeEach(function(){
+                // "outputs" are actually inputs to the "point" component. They are outputs
+                // in the sense that they are assumed to be emitted from a prior component.
+                // Output objects are tested separately in DataFlow --> Core --> Output Objects
+                outputX = new dataFlow.Output({type: 'number'});
+                outputY = new dataFlow.Output({type: 'number'});
+                outputZ = new dataFlow.Output({type: 'number'});
 
-        outputX.assignValues([1,2]);
-        outputY.assignValues([2,4]);
-        outputZ.assignValues([4,8]);
+                outputX.assignValues([1,2]);
+                outputY.assignValues([2,4]);
+                outputZ.assignValues([4,8]);
 
-        var pointObject = new dataFlow.PointComponent();
+                pointComponent = new dataFlow.PointComponent();
+            });
 
-        it("Creates a point object",function(){
-            expect(pointObject.constructor.name).toEqual("PointComponent");
-        });
+            // Each test is separate, but we'll need to assign inputs for several of them (not all)
+            var assignInputs = function(){
+                pointComponent.assignInput("X",outputX);
+                pointComponent.assignInput("Y",outputY);
+                pointComponent.assignInput("Z",outputZ);
+            };
 
-        pointObject.assignInput("X",outputX);
-        pointObject.assignInput("Y",outputY);
-        pointObject.assignInput("Z",outputZ);
+            it("Has a constructor named 'PointComponent'",function(){
+                expect(pointComponent.constructor.name).toEqual("PointComponent");
+            });
+            it("Should assign numerical inputs to the dataFlow Point object",function(){
+                assignInputs();
+                expect(pointComponent.inputs["X"]).toEqual(outputX);
+                expect(pointComponent.inputs["Y"]).toEqual(outputY);
+                expect(pointComponent.inputs["Z"]).toEqual(outputZ);
+            });
+            it("Should call _recalculate() in the superclass when recalculate() is called",function(){
+                assignInputs();
+                spyOn(pointComponent, '_recalculate');
+                pointComponent.recalculate();
+                expect(pointComponent._recalculate).toHaveBeenCalled();
+            });
+            it("Creates an array of points with the correct xyz locations",function(){
+console.warn("TEST IS A MESS. FIX.");
+                assignInputs();
+                pointComponent.recalculate();
 
-        it("Assigns numerical inputs to the dataFlow Point object",function(){
-            expect(pointObject.inputs["X"]).toEqual(outputX);
-            expect(pointObject.inputs["Y"]).toEqual(outputY);
-            expect(pointObject.inputs["Z"]).toEqual(outputZ);
-        });
+                //console.warn("After recalculation, there's a lot of code here to read the values back out. These should move to a utility class somewhere, since they're going to be useful everywhere. PERHAPS MOVE ONTO THE POINT COMPONENT ITSELF!");
+                //console.warn("USE MOCK OBJECTS. See http://www.htmlgoodies.com/html5/javascript/spy-on-javascript-methods-using-the-jasmine-testing-framework.html#fbid=OUGNUC05Zto");
 
-        it("Calls _recalculate() in the superclass when recalculating",function(){
-            spyOn(pointObject, '_recalculate');
-            pointObject.recalculate();
-            expect(pointObject._recalculate).toHaveBeenCalled();
-        });
+                // pointObject.fetchValues() should provide access to the output's pointer list
 
-        pointObject.recalculate();
+                var pointers = pointComponent.output.fetchValues();
+                var outputVals = [];
+                //console.log('complete: ',pointObject.output.fetchValues()[0].getCoords());
+                _.each(pointers,function(point){
+                    outputVals.push(point.getCoordsArray());
+                });
+                expect(outputVals).toEqual([[1,2,4],[2,4,8]]);
+            });
+            it("Should trigger recalculation when an input value changes",function(){
+                assignInputs();
 
-        //console.warn("After recalculation, there's a lot of code here to read the values back out. These should move to a utility class somewhere, since they're going to be useful everywhere. PERHAPS MOVE ONTO THE POINT COMPONENT ITSELF!");
-        //console.warn("USE MOCK OBJECTS. See http://www.htmlgoodies.com/html5/javascript/spy-on-javascript-methods-using-the-jasmine-testing-framework.html#fbid=OUGNUC05Zto");
+                // Just to make sure the decks are clear first.
+                pointComponent.recalculate();
 
-        // pointObject.fetchValues() should provide access to the output's pointer list
-
-        var pointers = pointObject.output.fetchValues();
-        var outputVals = [];
-        //console.log('complete: ',pointObject.output.fetchValues()[0].getCoords());
-        _.each(pointers,function(point){
-            // Get normal array for easy round-trip-to-emscripten verification.
-            // This operation shouldn't be necessary in actual usage.
-            // point.getCoords() produces a float32array that can be used directly for most purposes.
-            var normalArray = Array.apply([],point.getCoords());
-            outputVals.push(normalArray);
-        });
-
-        // Assert equal: outputVals === [[1,2,4],[2,4,8]]
-        it("Creates an array of points with the correct xyz locations",function(){
-            expect(outputVals).toEqual([[1,2,4],[2,4,8]]);
-        });
-    });
+                // assigning values to an input should update all the output values automatically
+                // IF there are sufficient inputs for the calculation to occur
+                outputX.assignValues([8,8]);
+                expect(pointComponent.output.fetchValues()[0].getCoordsArray()).toEqual([8,2,4]);
+                expect(pointComponent.output.fetchValues()[1].getCoordsArray()).toEqual([8,4,8]);
+            });
+            it("Should NOT recalculate when insufficient inputs are defined", function(){});
+            it("Returns an array of xyz arrays fetchCoordinates() is called",function(){});
+            it("Returns an array of output pointers when fetchPointers() is called",function(){});
+        })
+    }];
 });

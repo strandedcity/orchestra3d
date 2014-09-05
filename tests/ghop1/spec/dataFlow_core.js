@@ -1,6 +1,6 @@
 define(["dataFlow"],function(dataFlow){
-    describe("DataFlow Core:",function(){
-        describe("Output Objects",function(){
+    return ["Core:",function(){
+        describe("Output",function(){
             it("Instantiates a new 'number' output object",function(){
                 var outputX = new dataFlow.Output({type: 'number'});
                 expect(typeof outputX).toEqual("object");
@@ -36,6 +36,7 @@ define(["dataFlow"],function(dataFlow){
                     outputX.assignValues(1,2,3,4);
                 }).toThrow(new Error("'Values' must be an array"));
             });
-        });
-    });
+            it("Re-uses C-memory when new values are assigned (pointer stays the same)",function(){});
+        })
+    }];
 });

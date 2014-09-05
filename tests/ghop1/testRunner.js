@@ -1,7 +1,6 @@
 require(["appconfig"],function(){
     require([
-        "spec/dataFlow_core",
-        "spec/components/pointFromNumbers",
+        "spec/dataFlow",
         "spec/sisl",
     ],function(){
         window.executeTests();

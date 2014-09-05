@@ -14,16 +14,16 @@ body { overflow-y: scroll; }
 .jasmine_html-reporter .banner { margin-top: 14px; }
 .jasmine_html-reporter .duration { color: #aaaaaa; float: right; }
 .jasmine_html-reporter .symbol-summary { overflow: hidden; *zoom: 1; margin: 14px 0; }
-.jasmine_html-reporter .symbol-summary li { display: inline-block; height: 8px; width: 14px; font-size: 16px; }
-.jasmine_html-reporter .symbol-summary li.passed { font-size: 14px; }
+.jasmine_html-reporter .symbol-summary li { display: inline-block; height: 8px; width: 10px; font-size: 30px; }
+/*.jasmine_html-reporter .symbol-summary li.passed { font-size: 14px; }*/
 .jasmine_html-reporter .symbol-summary li.passed:before { color: #007069; content: "\02022"; }
 .jasmine_html-reporter .symbol-summary li.failed { line-height: 9px; }
-.jasmine_html-reporter .symbol-summary li.failed:before { color: #ca3a11; content: "\d7"; font-weight: bold; margin-left: -1px; }
-.jasmine_html-reporter .symbol-summary li.disabled { font-size: 14px; }
+.jasmine_html-reporter .symbol-summary li.failed:before { color: #ca3a11; content: "\02022"; font-weight: bold;  }
+/*.jasmine_html-reporter .symbol-summary li.disabled { font-size: 14px; }*/
 .jasmine_html-reporter .symbol-summary li.disabled:before { color: #bababa; content: "\02022"; }
-.jasmine_html-reporter .symbol-summary li.pending { line-height: 17px; }
+/*.jasmine_html-reporter .symbol-summary li.pending { line-height: 17px; }*/
 .jasmine_html-reporter .symbol-summary li.pending:before { color: #ba9d37; content: "*"; }
-.jasmine_html-reporter .symbol-summary li.empty { font-size: 14px; }
+/*.jasmine_html-reporter .symbol-summary li.empty { font-size: 14px; }*/
 .jasmine_html-reporter .symbol-summary li.empty:before { color: #ba9d37; content: "\02022"; }
 .jasmine_html-reporter .exceptions { color: #fff; float: right; margin-top: 5px; margin-right: 5px; }
 .jasmine_html-reporter .bar { line-height: 28px; font-size: 14px; display: block; color: #eee; }
