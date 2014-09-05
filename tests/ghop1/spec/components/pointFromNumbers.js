@@ -73,7 +73,7 @@ define(["dataFlow"],function(dataFlow){
 
                 // null-out the Y-input:
                 outputY.setNull(true);
-                expect(pointComponent.output.isNull()).toBe(true);
+                expect(pointComponent.isNull()).toBe(true);
             });
             it("Returns an array of xyz values when fetchPointCoordinates() is called",function(){
                 assignInputs();
@@ -100,19 +100,20 @@ define(["dataFlow"],function(dataFlow){
                 });
                 expect(outputs.length).toEqual(2);
             });
+            it("STOPS listening to an old input when that input is re-assigned");
             it("Has a null output value until all inputs are assigned",function(){
                 spyOn(pointComponent, '_recalculate');
                 pointComponent.assignInput("X",outputX);
-                expect(pointComponent.output.isNull()).toBe(true);
+                expect(pointComponent.isNull()).toBe(true);
                 expect(pointComponent._recalculate).not.toHaveBeenCalled();
 
                 pointComponent.assignInput("Y",outputY);
-                expect(pointComponent.output.isNull()).toBe(true);
+                expect(pointComponent.isNull()).toBe(true);
                 expect(pointComponent._recalculate).not.toHaveBeenCalled();
 
                 // setting the z-input completes the inputs, and should trigger calculations:
                 pointComponent.assignInput("Z",outputZ);
-                expect(pointComponent.output.isNull()).toBe(false);
+                expect(pointComponent.isNull()).toBe(false);
                 expect(pointComponent._recalculate).toHaveBeenCalled();
                 expect(pointComponent.fetchOutputs().length).toBe(2);
             });

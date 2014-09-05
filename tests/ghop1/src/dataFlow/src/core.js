@@ -82,10 +82,15 @@ define([
                 if (!_.has(this.inputTypes,inputName)) {throw new Error("Tried to specify an input that does not exist");}
                 if (this.inputTypes[inputName] !== input.type) {throw new Error("Tried to specify an input of the wrong type");}
 
+                // Stop listening to all inputs, then re-instate on current ones:
+                this.stopListening();
+
                 // Still here? Cool. Just listen to the output for change events.
-                console.warn("Should STOP listening when an input is changed!!")
-                this.listenTo(input, 'change', this.recalculate);
                 this.inputs[inputName] = input; // keep a ref
+                var that = this;
+                _.each(this.inputs,function(ipt){
+                    that.listenTo(ipt, 'change', that.recalculate);
+                });
 
                 // Does this addition of an input leave the component with all inputs satisfied?
                 if (this.hasSufficientInputs()){
@@ -94,9 +99,10 @@ define([
             },
             destroy: function(){
                 this.stopListening();
-                _.each(this.inputs,function(input){
-                    input.destroy();
-                });
+//                Can't destroy inputs just because this component doesn't need them anymore!!
+//                _.each(this.inputs,function(input){
+//                    input.destroy();
+//                });
                 delete this.inputs;
                 this.output.destroy();
                 delete this.output;
@@ -137,6 +143,9 @@ define([
             },
             fetchOutputs: function(){
                 return this.output.fetchValues();
+            },
+            isNull: function(){
+                return this.output.isNull();
             }
         });
 
