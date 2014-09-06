@@ -11,9 +11,6 @@ define(["src/SISL/js/sisl","underscore"],function(){
         // Construct C array of the point's coordinates. Optionally pass a 'pointer' to re-use C memory
         var coordsPointer = Module.Utils.copyJSArrayToC([x,y,z]);
         this._pointer = newPoint(coordsPointer,3,0);
-        //console.log('newPoint pointer: ',this._pointer);
-    //    console.log(coordsPointer, this._pointer);
-    //    this._pointer = coordsPointer;
     };
     _.extend(Geo.Point.prototype,{
         getPointer: function(){
@@ -32,6 +29,11 @@ define(["src/SISL/js/sisl","underscore"],function(){
             Module._free(this._pointer);
         }
     });
+
+    // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
+    // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
+    // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
+    Geo.Curve = function GeoCurve(controlPoints, degree, closed){};
 
     return Geo;
 });

@@ -136,6 +136,7 @@ define(["dataFlow"],function(dataFlow){
                 expect(pointComponent._recalculate).toHaveBeenCalled();
                 expect(pointComponent.fetchOutputs().length).toBe(2);
             });
+            it("Calls destroy() on Geo.Point when a point is replaced with a new point")
         })
     }];
 });

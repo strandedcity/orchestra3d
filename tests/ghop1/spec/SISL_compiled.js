@@ -8,5 +8,12 @@ define(["SISL"],function(SISL){
             var coordsPtr = Module.cwrap('pointCoords','number',['number']);
             expect(typeof coordsPtr).toBe("function");
         });
+        it("newCurve",function(){
+            // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
+            // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
+            // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
+            var ptr = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
+            expect(typeof ptr).toBe("function");
+        });
     }];
 });
