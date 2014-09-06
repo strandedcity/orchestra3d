@@ -1,5 +1,6 @@
 /*
  *  Glue code to provide access to basic SISL structs from JavaScript, post emscripten compile
+ *  source ~/emsdk-portable/emsdk_set_env.sh
  *  emcc *.c -o construct.bc -O3
  *  emcc *.bc -o ../js/compiled.js -s EXPORTED_FUNCTIONS="['_newPoint','_pointCoords','_newCurve']" -s TOTAL_MEMORY=536870912 -v -O3
  */
