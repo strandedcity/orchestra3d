@@ -100,7 +100,26 @@ define(["dataFlow"],function(dataFlow){
                 });
                 expect(outputs.length).toEqual(2);
             });
-            it("STOPS listening to an old input when that input is re-assigned");
+            it("Listens ONLY to a new input when that input is re-assigned",function(){
+                assignInputs();
+                spyOn(pointComponent, '_recalculate');
+
+                // create new input
+                var outputZReplacement = new dataFlow.Output({type: 'number'});
+                outputZReplacement.assignValues([9,10]);
+                pointComponent.assignInput("Z",outputZReplacement);
+
+                // Verify component has recalculated based on new input
+                expect(pointComponent._recalculate.calls.count()).toEqual(1);
+                expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
+
+                // verify we're NOT listening to the old input
+                // Documentation for spy usage at:
+                // http://jasmine.github.io/2.0/introduction.html#section-23
+                outputZ.assignValues([2,2]);
+                expect(pointComponent._recalculate.calls.count()).toEqual(1);
+                expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
+            });
             it("Has a null output value until all inputs are assigned",function(){
                 spyOn(pointComponent, '_recalculate');
                 pointComponent.assignInput("X",outputX);
