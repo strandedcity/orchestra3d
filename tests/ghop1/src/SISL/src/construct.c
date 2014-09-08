@@ -38,7 +38,7 @@
  */
 
 #include "sisl-copyright.h"
-
+#include <emscripten.h>
 /*
  *
  * $Id: construct.c,v 1.2 2001-03-19 15:58:39 afr Exp $
@@ -264,15 +264,15 @@ newbox (idim)
 SISLCurve *newCurve (int in, int ik, double *et, double *ecoef,
 	  int ikind, int idim, int icopy)
 #else
-SISLCurve *
-newCurve (in, ik, et, ecoef, ikind, idim, icopy)
-     int in;
-     int ik;
-     double *et;
-     double *ecoef;
-     int ikind;
-     int idim;
-     int icopy;
+//SISLCurve *
+//newCurve (in, ik, et, ecoef, ikind, idim, icopy)
+//     int in;
+//     int ik;
+//     double *et;
+//     double *ecoef;
+//     int ikind;
+//     int idim;
+//     int icopy;
 #endif
 /*
 *********************************************************************
@@ -328,6 +328,43 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
 *********************************************************************
 */
 {
+
+double x = EM_ASM_DOUBLE({
+  console.log('FROM EMSCRIPTEN----------');
+  console.log('Just printing values:');
+  console.log('ecoef vertices: ', $0, $1, $2, $3, $4, $5);
+  return $0;
+}, ecoef[0], ecoef[1], ecoef[2], ecoef[3], ecoef[4], ecoef[5]);
+
+int y = EM_ASM_INT({
+  console.log('knotvector et: ', $0, $1, $2, $3);
+  return $0;
+}, et[0], et[1], et[2], et[3]);
+//
+//ecoef[0] = 0;
+//ecoef[1] = 1;
+//ecoef[2] = 2;
+//ecoef[3] = 3;
+//ecoef[4] = 4;
+//ecoef[5] = 5;
+//
+//et[0] = 6;
+//et[1] = 7;
+//et[2] = 8;
+//et[3] = 9;
+//
+//double d = EM_ASM_DOUBLE({
+//
+//  console.log('values hard-coded in emscripten:');
+//  console.log('ecoef vertices: ', $0, $1, $2, $3, $4, $5);
+//  return $0;
+//}, ecoef[0], ecoef[1], ecoef[2], ecoef[3], ecoef[4], ecoef[5]);
+//
+//int s = EM_ASM_INT({
+//  console.log('knotvector et: ', $0, $1, $2, $3);
+//  return $0;
+//}, et[0], et[1], et[2], et[3]);
+
   SISLCurve *qnew;		/* Local pointer to new curve.  */
   int i, j, J, jj, k;		/* loop variables               */
   int k1,k2;                    /* Superflous knots in the ends. */
@@ -357,7 +394,7 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
   
   for (k2=0; k2<in; k2++)
      if (et[in] > et[in-1-k2]) break;
-  
+
   /* Reduce knots and vertices according to k1 and k2.  */
   
   if (k1 > 0)
@@ -366,11 +403,12 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
      memcopy(et,et+k1,in+ik-k1,DOUBLE);
   }
   in -= (k1+k2);
-
+EM_ASM( console.log('Gets here, checking if curve is still valid'); );
   /* Check if the curve is still valid. Otherwise return zero. */
   
   if (in < ik) goto err101;
-     
+
+EM_ASM( console.log('does not get here?'); );
   if (icopy == 1)
     {
 
@@ -390,7 +428,6 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
       st = et;
       scoef = ecoef;
     }
-
   /* Initialize new curve.  */
 
   qnew->in = in;
@@ -401,7 +438,7 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
   qnew->et = st;
   qnew->pdir = SISL_NULL;
   qnew->pbox = SISL_NULL;
-
+EM_ASM( console.log(1); );
   if (ikind == 2 || ikind == 4)
     {
       /* Calculate the weighted control points if the object is rational  */
@@ -424,11 +461,11 @@ newCurve (in, ik, et, ecoef, ikind, idim, icopy)
       qnew->ecoef = scoef;
       qnew->rcoef = SISL_NULL;
     }
-
+EM_ASM( console.log(1); );
 
   /* UJK, 92.03.27 Default value must be set for cuopen */
   qnew->cuopen = SISL_CRV_OPEN;
-
+EM_ASM( console.log(1); );
   /* Task done. */
   goto out;
 

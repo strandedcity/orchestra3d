@@ -68,22 +68,24 @@ define(["src/SISL/js/sisl","underscore"],function(){
         _.each(controlPoints,function(pt){
             vertices = vertices.concat(pt.getCoordsArray());
         });
-        verticesPointer = Module.Utils.copyJSArrayToC(vertices);
 
         // Pile up a generic knot vector. There are 2 zeros to start, and two of the last digit.
         // There should be even spacing between all numbers so that all control points have equal weight.
-        knotVector.push(0);
-        knotVector.push(0);
-        var i = 1;
-        // ... loop
-        i++;
-        knotVector.push(i);
-        knotVector.push(i);
+//        knotVector.push(0.01);
+//        knotVector.push(0.02);
+//        var i = 1;
+//        // ... loop
+//        i++;
+//        knotVector.push(i);
+//        knotVector.push(i);
+        knotVector = [6,7,8,9];
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
-        console.log('knot vect: ',knotVector,knotVectorPointer);
-        console.log('vertex vect: ',vertices,verticesPointer);
+        verticesPointer = Module.Utils.copyJSArrayToC(vertices);
+        console.log('vertices! ',vertices);
+        console.log('vertex vect: ',Module.Utils.copyCArrayToJS(verticesPointer, vertices.length),verticesPointer);
+        console.log('knot vect: ',Module.Utils.copyCArrayToJS(knotVectorPointer, knotVector.length),knotVectorPointer);
 console.log(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
         this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
         console.log('HARVESTED POINTER: ',this._pointer);

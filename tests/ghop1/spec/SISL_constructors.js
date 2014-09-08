@@ -42,8 +42,8 @@ define(["SISL"],function(Geo){
                 it("Throws error when passed a non-integer curve degree");
                 it("Throws error when passed a string or number for periodicity ");
                 it("Returns a pointer using 'getPointer' after being passed proper parameters",function(){
-                    var start = new Geo.Point(0,0,0),
-                        end = new Geo.Point(1,1,0),
+                    var start = new Geo.Point(0,1,2),
+                        end = new Geo.Point(3,4,5),
                         curve = new Geo.Curve([start,end],1,false);
 
                     expect(curve.getPointer()).not.toEqual(0);
