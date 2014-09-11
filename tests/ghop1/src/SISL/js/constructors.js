@@ -69,24 +69,25 @@ define(["src/SISL/js/sisl","underscore"],function(){
         knotVector.push(0);
         knotVector.push(0);
         var i = 1;
-        // ... loop
-        i++;
+        for (i; i<curveOrder+controlPoints.length-2;i++) {
+            knotVector.push(i);
+        }
         knotVector.push(i);
         knotVector.push(i);
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
         verticesPointer = Module.Utils.copyJSArrayToC(vertices);
-        console.log('vertices! ',vertices);
-        console.log('vertex vect: ',Module.Utils.copyCArrayToJS(verticesPointer, vertices.length),verticesPointer);
-        console.log('knot vect: ',Module.Utils.copyCArrayToJS(knotVectorPointer, knotVector.length),knotVectorPointer);
 
         this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
-        console.log('HARVESTED POINTER: ',this._pointer);
     };
     _.extend(Geo.Curve.prototype,{
         getLength: function(){
             // corresponds to s1240: void s1240(*curve, double precision, *result length, *result stat(>0= warning, 0=ok, <0=error))
+            var buffer = Module._malloc(16);
+            Module._s1240(this._pointer,0.01,buffer,0);
+            var length = Module.getValue(buffer,'double');
+            return length;
         },
         getPointer: function(){
             return this._pointer;

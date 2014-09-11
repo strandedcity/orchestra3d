@@ -41,7 +41,23 @@ define(["SISL"],function(Geo){
                     expect(curve.getPointer()).not.toEqual(0);
                     expect(typeof curve.getPointer()).toEqual("number");
                 });
-                it("Returns getLength() ~~ sqrt(2) when passed (0,0) and (1,1), degree 1, non-periodic")
+                it("Returns getLength() === sqrt(2) for a straight 1-unit line",function(){
+                    var start = new Geo.Point(1,1,0),
+                        end = new Geo.Point(2,2,0),
+                        curve = new Geo.Curve([start,end],1,false);
+
+                    // The length measurement for a straight line should be exact
+                    expect(curve.getLength()).toEqual(Math.sqrt(2));
+                })
+                it("Calculates accurate length for straight line defined by THREE points",function(){
+                    var start = new Geo.Point(1,1,0),
+                        mid = new Geo.Point(2,2,0),
+                        end = new Geo.Point(3,3,0),
+                        curve = new Geo.Curve([start,mid,end],1,false);
+
+                    // The length measurement for a straight line should be exact
+                    expect(curve.getLength()).toEqual(2* Math.sqrt(2));
+                })
             });
         }
     ]
