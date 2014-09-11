@@ -52,7 +52,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
         if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Geo.Point objects");}
         if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
         if (typeof periodic !== "boolean") {throw new Error("Periodic must be a boolean");}
-
+        if (degree >= controlPoints.length) {throw new Error("Curve degree must be smaller than the number of control points");}
         // By definition, from http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline
         // #knots = #control pts + curve order
         // curve order = degree + 1

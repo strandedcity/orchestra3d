@@ -48,7 +48,7 @@ define(["SISL"],function(Geo){
 
                     // The length measurement for a straight line should be exact
                     expect(curve.getLength()).toEqual(Math.sqrt(2));
-                })
+                });
                 it("Calculates accurate length for straight line defined by THREE points",function(){
                     var start = new Geo.Point(1,1,0),
                         mid = new Geo.Point(2,2,0),
@@ -57,7 +57,23 @@ define(["SISL"],function(Geo){
 
                     // The length measurement for a straight line should be exact
                     expect(curve.getLength()).toEqual(2* Math.sqrt(2));
-                })
+                });
+                it("Throws an error when curve degree is not smaller than the number of control points",function(){
+                    var p0 = new Geo.Point(1,1,0),
+                        p1 = new Geo.Point(2,2,0),
+                        p2 = new Geo.Point(3,3,0),
+                        p3 = new Geo.Point(4,4,0),
+                        p4 = new Geo.Point(5,5,0),
+                        p5 = new Geo.Point(6,6,0);
+
+                    // Verify both positive and negative cases for a variety of point and degree combos:
+                    expect(function(){new Geo.Curve([p0,p1,p2],3,false)}).toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1],2,false)}).toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],5,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],6,false)}).toThrowError("Curve degree must be smaller than the number of control points");
+                });
             });
         }
     ]
