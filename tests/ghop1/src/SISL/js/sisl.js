@@ -12,6 +12,7 @@ requirejs.config({
 });
 
 define(["sisl_emscripten"],function(){
+    console.warn('Hard-coded bytesize of 8 ??')
     var byteSize = 8;
     Module.Utils = {};
 

@@ -68,6 +68,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
             vertices = [], verticesPointer;
 
         // Pile control point values into a single array, push that to C heap. THIS SHOULD BE A C FUNCTION!
+        console.warn("Stacking points into a single array must be SUPER efficient.");
         _.each(controlPoints,function(pt){
             vertices = vertices.concat(pt.getCoordsArray());
         });
