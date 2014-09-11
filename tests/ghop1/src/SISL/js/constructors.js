@@ -1,7 +1,15 @@
 define(["src/SISL/js/sisl","underscore"],function(){
-    var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
-    var pointCoords = Module.cwrap('pointCoords','number',['number']);
-    var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
+    console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
+    var precision = 0.01;
+
+    try {
+        var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
+        var pointCoords = Module.cwrap('pointCoords','number',['number']);
+        var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
+        var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
+    } catch (e) {
+        throw new Error("Missing SISL dependency encountered.")
+    }
 
     var Geo = {};
 
@@ -85,9 +93,8 @@ define(["src/SISL/js/sisl","underscore"],function(){
         getLength: function(){
             // corresponds to s1240: void s1240(*curve, double precision, *result length, *result stat(>0= warning, 0=ok, <0=error))
             var buffer = Module._malloc(16);
-            Module._s1240(this._pointer,0.01,buffer,0);
-            var length = Module.getValue(buffer,'double');
-            return length;
+            s1240(this._pointer,precision,buffer,0);
+            return Module.getValue(buffer,'double');
         },
         getPointer: function(){
             return this._pointer;
