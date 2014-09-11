@@ -18,12 +18,8 @@ define(["src/SISL/js/sisl","underscore"],function(){
         getPointer: function(){
             return this._pointer;
         },
-        getCoords: function(){
-            var coordsPtr = pointCoords(this._pointer);
-            return new Float32Array(Module.HEAPU8.buffer, coordsPtr, 3);
-        },
         getCoordsArray: function(){
-            return Array.apply([],this.getCoords());
+            return Module.Utils.copyCArrayToJS(pointCoords(this._pointer),3);
         },
         destroy: function(){
             Module._free(this._pointer);
@@ -63,7 +59,6 @@ define(["src/SISL/js/sisl","underscore"],function(){
             knotVector = [], knotVectorPointer,
             vertices = [], verticesPointer;
 
-        console.warn("NEED A C FUNCTION THAT CAN TAKE LOTS OF ARRAY POINTERS AND PUT THOSE VALUES INTO A NEW SINGLE ARRAY OF VERTICES");
         // Pile control point values into a single array, push that to C heap. THIS SHOULD BE A C FUNCTION!
         _.each(controlPoints,function(pt){
             vertices = vertices.concat(pt.getCoordsArray());
@@ -71,14 +66,13 @@ define(["src/SISL/js/sisl","underscore"],function(){
 
         // Pile up a generic knot vector. There are 2 zeros to start, and two of the last digit.
         // There should be even spacing between all numbers so that all control points have equal weight.
-//        knotVector.push(0.01);
-//        knotVector.push(0.02);
-//        var i = 1;
-//        // ... loop
-//        i++;
-//        knotVector.push(i);
-//        knotVector.push(i);
-        knotVector = [6,7,8,9];
+        knotVector.push(0);
+        knotVector.push(0);
+        var i = 1;
+        // ... loop
+        i++;
+        knotVector.push(i);
+        knotVector.push(i);
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
@@ -86,7 +80,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
         console.log('vertices! ',vertices);
         console.log('vertex vect: ',Module.Utils.copyCArrayToJS(verticesPointer, vertices.length),verticesPointer);
         console.log('knot vect: ',Module.Utils.copyCArrayToJS(knotVectorPointer, knotVector.length),knotVectorPointer);
-console.log(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
+
         this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
         console.log('HARVESTED POINTER: ',this._pointer);
     };

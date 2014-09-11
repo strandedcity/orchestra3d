@@ -27,14 +27,6 @@ define(["SISL"],function(Geo){
                     expect(coordsArray[1]).toEqual(100000);
                     expect(coordsArray[2]).toEqual(-200);
                 });
-                it("Returns a float32Array object using 'getCoords'",function(){
-                    var point = new Geo.Point(3.1415,100000,-200);
-                    var float32arr = point.getCoords();
-                    expect(float32arr).toBeDefined();
-                    expect(typeof float32arr).toEqual("object");
-                    expect(typeof float32arr.byteLength).toEqual("number");
-                    expect(float32arr.byteLength).toEqual(3 * Float32Array.BYTES_PER_ELEMENT);
-                });
             });
             describe("GeoCurve",function(){
                 it("Throws error when passed generic objects for coordinates");
