@@ -84,7 +84,6 @@ define(["src/SISL/js/sisl","underscore"],function(){
         }
         knotVector.push(i);
         knotVector.push(i);
-        console.log(knotVector);
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
