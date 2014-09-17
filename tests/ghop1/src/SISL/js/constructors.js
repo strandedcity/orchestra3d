@@ -7,6 +7,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
         var pointCoords = Module.cwrap('pointCoords','number',['number']);
         var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
+        var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
