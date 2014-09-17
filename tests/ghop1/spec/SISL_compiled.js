@@ -15,5 +15,9 @@ define(["SISL"],function(SISL){
             var ptr = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
             expect(typeof ptr).toBe("function");
         });
+        it("s120 / getLength",function(){
+            var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
+            expect(typeof s1240).toBe("function");
+        });
     }];
 });

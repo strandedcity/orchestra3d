@@ -87,6 +87,26 @@ define(["SISL"],function(Geo){
                     expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],6,false)}).toThrowError("Curve degree must be smaller than the number of control points");
                     expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
                 });
+                it("Evaluates the correct position and tangent vector at the midpoint of a straight line",function(){
+                    var p0 = new Geo.Point(1,1,0),
+                        p1 = new Geo.Point(3,3,0),
+                        line = new Geo.Curve([p0,p1],1,false);
+
+                    // results
+                    var tangentVect = line.tangentAt(0.5),
+                        midPoint = line.positionAt(0.5);
+
+                    // midpoint should be where we think it should be
+                    expect(midPoint).not.toBeUndefined();
+                    expect(midPoint.constructor.name).toEqual("GeoPoint");
+                    expect(midPoint.getCoordsArray()).toEqual([2,2,0]);
+
+                    // tangent vect should just be (1,1,0);
+                    expect(tangentVect).not.toBeUndefined();
+                    expect(tangentVect.constructor.name).toEqual("GeoVect");
+                    expect(tangentVect.getCoordsArray()).toEqual([1,1,0]);
+                });
+                it("Evaluates the correct position and tangent vector for a degree 3 curve");
             });
         }
     ]
