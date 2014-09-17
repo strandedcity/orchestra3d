@@ -58,6 +58,18 @@ define(["SISL"],function(Geo){
                     // The length measurement for a straight line should be exact
                     expect(curve.getLength()).toEqual(2* Math.sqrt(2));
                 });
+                it("Curve length differs based on curve degree",function(){
+                    var start = new Geo.Point(1,1,0),
+                        mid = new Geo.Point(1.5,2.5,0),
+                        end = new Geo.Point(3,3,0),
+                        curve = new Geo.Curve([start,mid,end],1,false),
+                        curve2 = new Geo.Curve([start,mid,end],2,false);
+
+                    // If the two curves are really different, their lengths should differ.
+                    // Degree 1 curve should be longer since it describes a control polygon surrounding a curve.
+                    expect(curve.getLength()).not.toEqual(curve2.getLength());
+                    expect(curve.getLength()).toBeGreaterThan(curve2.getLength());
+                });
                 it("Throws an error when curve degree is not smaller than the number of control points",function(){
                     var p0 = new Geo.Point(1,1,0),
                         p1 = new Geo.Point(2,2,0),
@@ -73,6 +85,7 @@ define(["SISL"],function(Geo){
                     expect(function(){new Geo.Curve([p0,p1],2,false)}).toThrowError("Curve degree must be smaller than the number of control points");
                     expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],5,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
                     expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],6,false)}).toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
                 });
             });
         }

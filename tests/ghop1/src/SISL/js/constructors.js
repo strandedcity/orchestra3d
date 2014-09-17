@@ -1,6 +1,6 @@
 define(["src/SISL/js/sisl","underscore"],function(){
     console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
-    var precision = 0.01;
+    var precision = 0.00001;
 
     try {
         var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
@@ -83,6 +83,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
         }
         knotVector.push(i);
         knotVector.push(i);
+        console.log(knotVector);
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
