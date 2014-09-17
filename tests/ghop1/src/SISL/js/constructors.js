@@ -101,6 +101,13 @@ define(["src/SISL/js/sisl","underscore"],function(){
         getPointer: function(){
             return this._pointer;
         },
+        getPositionAt: function (param) {
+            if (typeof param === "undefined") {throw new Error("Curve parameter must be defined");}
+        },
+        getTangentAt: function(param){
+            if (typeof param === "undefined") {throw new Error("Curve parameter must be defined");}
+
+        },
         destroy: function(){
             Module._free(this._pointer);
         }

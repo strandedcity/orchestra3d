@@ -93,8 +93,8 @@ define(["SISL"],function(Geo){
                         line = new Geo.Curve([p0,p1],1,false);
 
                     // results
-                    var tangentVect = line.tangentAt(0.5),
-                        midPoint = line.positionAt(0.5);
+                    var tangentVect = line.getTangentAt(0.5),
+                        midPoint = line.getPositionAt(0.5);
 
                     // midpoint should be where we think it should be
                     expect(midPoint).not.toBeUndefined();
