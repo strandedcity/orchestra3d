@@ -123,7 +123,23 @@ define(["SISL"],function(Geo){
                     expect(tangentVect.getCoordsArray()[0]).toEqual(2);
                     expect(tangentVect.getCoordsArray()[1]).toEqual(2);
                 });
-                it("Evaluates the correct position and tangent vector for a degree 3 curve");
+                it("Evaluates the correct position and tangent vector for a degree 3 curve",function(){
+                    var start = new Geo.Point(1,1,0),
+                        mid = new Geo.Point(1,5,0),
+                        mid2 = new Geo.Point(3,5,0),
+                        end = new Geo.Point(3,1,0),
+                        curve = new Geo.Curve([start,mid,mid2,end],3,false);
+
+                    for (var i=0; i<5; i+=0.5){
+                        console.log(i+': ',curve.getPositionAt(i).getCoordsArray());
+                    }
+
+                    // at the top of a parabola-like curve (but degree 3), the tangent vector should point horizontally:
+                    var normalTangent = curve.getTangentAt(0.5).getNormalVectArray();
+                    expect(normalTangent[0]).toEqual(1);
+                    expect(normalTangent[1]).toEqual(0);
+                    expect(normalTangent[2]).toEqual(0);
+                });
             });
         }
     ]

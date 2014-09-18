@@ -46,7 +46,7 @@ define(["src/SISL/js/sisl","underscore"],function(){
             // downstream component should be able to change the value of an upstream component
             var coords = this.getCoordsArray(),
                 length = this.getLength();
-            console.log(coords,length,[coords[0]/length,coords[1]/length,coords[2]/length]);
+
             return [coords[0]/length,coords[1]/length,coords[2]/length];
         },
         getLength: function(){
