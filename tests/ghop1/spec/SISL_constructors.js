@@ -28,6 +28,17 @@ define(["SISL"],function(Geo){
                     expect(coordsArray[2]).toEqual(-200);
                 });
             });
+            describe("GeoVect",function(){
+                it ("Returns a COPY of the vector when normalized");
+                it ("Returns a correctly normalized vector",function(){
+                    var v0 = new Geo.Vect(2,2,0);
+                    var normalized = v0.getNormalVectArray();
+
+                    expect(normalized[0]).toBeCloseTo(Math.sqrt(2)/2);
+                    expect(normalized[1]).toBeCloseTo(Math.sqrt(2)/2);
+                    expect(normalized[2]).toBeCloseTo(0);
+                });
+            });
             describe("GeoCurve",function(){
                 it("Throws error when passed generic objects for coordinates");
                 it("Throws error when passed a single GeoPoint not inside an array");
@@ -101,10 +112,16 @@ define(["SISL"],function(Geo){
                     expect(midPoint.constructor.name).toEqual("GeoPoint");
                     expect(midPoint.getCoordsArray()).toEqual([2,2,0]);
 
-                    // tangent vect should just be (1,1,0);
+                    // tangent vect should be a 2d vector @45 degrees: (sqrt(2)/2,sqrt(2)/2,0);
+                    // In the case of this particular line, its magnitude should be
                     expect(tangentVect).not.toBeUndefined();
                     expect(tangentVect.constructor.name).toEqual("GeoVect");
-                    expect(tangentVect.getCoordsArray()).toEqual([1,1,0]);
+                    expect(tangentVect.getCoordsArray()[0]).toEqual(tangentVect.getCoordsArray()[1]);
+                    expect(tangentVect.getCoordsArray()[2]).toEqual(0);
+
+                    // In this case, the actual magnitude of the vector is easy to know as well
+                    expect(tangentVect.getCoordsArray()[0]).toEqual(2);
+                    expect(tangentVect.getCoordsArray()[1]).toEqual(2);
                 });
                 it("Evaluates the correct position and tangent vector for a degree 3 curve");
             });
