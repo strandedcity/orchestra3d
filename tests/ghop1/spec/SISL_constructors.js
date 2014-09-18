@@ -128,12 +128,12 @@ define(["SISL"],function(Geo){
 
                     // Verify both positive and negative cases for a variety of point and degree combos:
                     expect(function(){new Geo.Curve([p0,p1,p2],3,false)}).toThrowError("Curve degree must be smaller than the number of control points");
-                    expect(function(){new Geo.Curve([p0,p1,p2,p3],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
-                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3],3,false)}).not.toThrowError();
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4],3,false)}).not.toThrowError();
                     expect(function(){new Geo.Curve([p0,p1],2,false)}).toThrowError("Curve degree must be smaller than the number of control points");
-                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],5,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],5,false)}).not.toThrowError();
                     expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],6,false)}).toThrowError("Curve degree must be smaller than the number of control points");
-                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],3,false)}).not.toThrowError("Curve degree must be smaller than the number of control points");
+                    expect(function(){new Geo.Curve([p0,p1,p2,p3,p4,p5],3,false)}).not.toThrowError();
                 });
                 it("Evaluates the correct position and tangent vector at the midpoint of a straight line",function(){
                     var p0 = new Geo.Point(1,1,0),
