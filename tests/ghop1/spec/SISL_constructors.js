@@ -40,10 +40,47 @@ define(["SISL"],function(Geo){
                 });
             });
             describe("GeoCurve",function(){
-                it("Throws error when passed generic objects for coordinates");
-                it("Throws error when passed a single GeoPoint not inside an array");
-                it("Throws error when passed a non-integer curve degree");
-                it("Throws error when passed a string or number for periodicity ");
+                it("Throws error when passed generic arrays for coordinates",function(){
+                    expect(function(){
+                        new Geo.Curve([[1,3,4],[1,5,6],[6,3,0]],2,false);
+                    }).toThrowError("Controlpoints must be an array of at least 2 Geo.Point objects");
+                });
+                it("Throws error when passed a single Geo.Point",function(){
+                    expect(function(){
+                        new Geo.Curve([new Geo.Point(2,2,0)],2,false);
+                    }).toThrowError("Controlpoints must be an array of at least 2 Geo.Point objects");
+                });
+                it("Throws error when passed a non-integer curve degree",function(){
+                    var start = new Geo.Point(1,1,0),
+                        mid = new Geo.Point(2,2,0),
+                        end = new Geo.Point(3,3,0);
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],1.32,false);
+                    }).toThrowError("Curve degree must be an integer");
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],false,false);
+                    }).toThrowError("Curve degree must be an integer");
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],"2",false);
+                    }).toThrowError("Curve degree must be an integer");
+                });
+                it("Throws error when passed a string or number for periodicity",function(){
+                    var start = new Geo.Point(1,1,0),
+                        mid = new Geo.Point(2,2,0),
+                        end = new Geo.Point(3,3,0);
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],1,1);
+                    }).toThrowError("Periodic must be a boolean");
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],1,0);
+                    }).toThrowError("Periodic must be a boolean");
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],1,false);
+                    }).not.toThrowError();
+                    expect(function(){
+                        new Geo.Curve([start,mid,end],1,true);
+                    }).not.toThrowError();
+                });
                 it("Returns a pointer using 'getPointer' after being passed proper parameters",function(){
                     var start = new Geo.Point(0,1,2),
                         end = new Geo.Point(3,4,5),
