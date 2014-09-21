@@ -1,5 +1,5 @@
 define([
-    "spec/dataFlow_core",
+    "./dataFlow_core",
     "spec/components/pointFromNumbers"
     ],function(core,pointComponent){
     describe("--------------- DataFlow ---------------",function(){
