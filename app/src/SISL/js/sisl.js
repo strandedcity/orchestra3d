@@ -1,17 +1,4 @@
-// sisl_emscripten uses a requirejs shim because it binds to window.Module.
-// Extend the requirejs configuration to include a shim for the emscripten code
-requirejs.config({
-    shim: {
-        sisl_emscripten: {
-            exports: 'Module'
-        }
-    },
-    paths: {
-        sisl_emscripten: 'src/SISL/js/compiled'
-    }
-});
-
-define(["sisl_emscripten"],function(){
+define(["sisl_emscripten"],function(Module){
     console.warn('Hard-coded bytesize of 8 ??')
     var byteSize = 8;
     Module.Utils = {};

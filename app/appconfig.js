@@ -1,5 +1,6 @@
 requirejs.config({
     // cache busting during development:
+    baseUrl: './',
     urlArgs: "bust=" + (new Date()).getTime(),
 
     shim: {
@@ -13,6 +14,9 @@ requirejs.config({
         },
         'jquery': {
             exports: '$'
+        },
+        sisl_emscripten: {
+            exports: 'Module'
         }
     },
 
@@ -21,6 +25,7 @@ requirejs.config({
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
         SISL: 'src/SISL/js/sisl_loader',
+        sisl_emscripten: 'src/SISL/js/compiled', // sisl_emscripten uses a requirejs shim because it binds to window.Module.
         dataFlow: 'src/dataFlow/src/dataFlow_loader'
     }
 });
