@@ -25,7 +25,6 @@ requirejs.config({
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
         SISL: 'src/SISL/sisl_loader',
-//        sisl_emscripten: 'src/SISL/compiled', // sisl_emscripten uses a requirejs shim because it binds to window.Module.
         dataFlow: 'src/dataFlow/dataFlow_loader'
     }
 });

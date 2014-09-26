@@ -1,7 +1,7 @@
 require([
         "appconfig",
-        "spec/dataFlow",
-        "spec/sisl",
+        "spec/dataFlow/dataFlow_loader",
+        "spec/SISL/sisl_loader",
     ],function(){
         window.executeTests();
 });
