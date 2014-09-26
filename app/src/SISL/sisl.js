@@ -1,6 +1,7 @@
-define(["sisl_emscripten"],function(Module){
+define(["src/SISL/compiled"],function(){
     console.warn('Hard-coded bytesize of 8 ??')
     var byteSize = 8;
+    var Module = window.Module || {};
     Module.Utils = {};
 
     Module.Utils.copyJSArrayToC = function(array){

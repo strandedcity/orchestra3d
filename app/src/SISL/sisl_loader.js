@@ -1,7 +1,7 @@
 define([
         "underscore",
-        "src/SISL/js/sisl",
-        "src/SISL/js/constructors"
+        "src/SISL/sisl",
+        "src/SISL/constructors"
     ],function(_,Module,constructors){
         var SISL = {};
         SISL["Module"] = Module; // emscripten binds to window.Module, which we'll use inside AMD modules like this

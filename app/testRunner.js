@@ -1,8 +1,7 @@
-require(["appconfig"],function(){
-    require([
+require([
+        "appconfig",
         "spec/dataFlow",
         "spec/sisl",
     ],function(){
         window.executeTests();
-    });
 });

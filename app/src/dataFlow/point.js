@@ -1,6 +1,6 @@
 define([
         "underscore",
-        "src/dataFlow/src/core",
+        "src/dataFlow/core",
         "SISL"
     ],function(_,DataFlow,Geometry){
         var PointComponent = DataFlow.PointComponent = function PointComponent(opts){

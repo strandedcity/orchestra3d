@@ -1,6 +1,6 @@
 define([
-        "src/dataFlow/src/core",
-        "src/dataFlow/src/point"
+        "src/dataFlow/core",
+        "src/dataFlow/point"
     ],function(core,point){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
