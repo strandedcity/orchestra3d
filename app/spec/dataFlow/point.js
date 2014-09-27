@@ -1,4 +1,4 @@
-define(["dataFlow"],function(dataFlow){
+define(["dataFlow/dataFlow_loader"],function(dataFlow){
     return ["Components -->",function(){
         describe("PointComponent(x,y,z)",function(){
             var outputX, outputY, outputZ, pointComponent;

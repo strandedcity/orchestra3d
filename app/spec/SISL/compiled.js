@@ -1,4 +1,4 @@
-define(["SISL"],function(SISL){
+define(["SISL/sisl_loader"],function(SISL){
     return ["Compiled JS Function Signatures:", function(){
         it("newPoint",function(){
             var newPoint = Module.cwrap('newPoint','number',['number','number','number']);

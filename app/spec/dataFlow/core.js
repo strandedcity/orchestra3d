@@ -1,4 +1,4 @@
-define(["dataFlow"],function(dataFlow){
+define(["dataFlow/dataFlow_loader"],function(dataFlow){
     return ["Core -->",function(){
         describe("Output",function(){
             it("Instantiates a new 'number' output object",function(){

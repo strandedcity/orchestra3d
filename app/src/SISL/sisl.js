@@ -1,4 +1,4 @@
-define(["src/SISL/compiled"],function(){
+define(["./compiled"],function(){
     console.warn('Hard-coded bytesize of 8 ??')
     var byteSize = 8;
     var Module = window.Module || {};

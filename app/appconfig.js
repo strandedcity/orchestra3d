@@ -24,7 +24,7 @@ requirejs.config({
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
-        SISL: 'src/SISL/sisl_loader',
-        dataFlow: 'src/dataFlow/dataFlow_loader'
+        SISL: 'src/SISL',
+        dataFlow: 'src/dataFlow'
     }
 });

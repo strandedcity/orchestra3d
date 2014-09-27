@@ -1,4 +1,4 @@
-define(["SISL","underscore"],function(){
+define(["SISL/sisl_loader","underscore"],function(){
     console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
     var precision = 0.00001;
 

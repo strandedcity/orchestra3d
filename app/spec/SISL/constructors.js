@@ -1,4 +1,4 @@
-define(["SISL"],function(Geo){
+define(["SISL/sisl_loader"],function(Geo){
     return [
         "Wrapper Functions -->",
         function(){

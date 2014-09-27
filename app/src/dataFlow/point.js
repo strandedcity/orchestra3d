@@ -1,7 +1,7 @@
 define([
         "underscore",
-        "src/dataFlow/core",
-        "SISL"
+        "dataFlow/core",
+        "SISL/sisl_loader"
     ],function(_,DataFlow,Geometry){
         var PointComponent = DataFlow.PointComponent = function PointComponent(opts){
             this.initialize.apply(this, arguments);
