@@ -167,10 +167,6 @@ define(["SISL/sisl_loader"],function(Geo){
                         end = new Geo.Point(3,1,0),
                         curve = new Geo.Curve([start,mid,mid2,end],3,false);
 
-                    for (var i=0; i<5; i+=0.5){
-                        console.log(i+': ',curve.getPositionAt(i).getCoordsArray());
-                    }
-
                     // at the top of a parabola-like curve (but degree 3), the tangent vector should point horizontally:
                     var normalTangent = curve.getTangentAt(0.5).getNormalVectArray();
                     expect(normalTangent[0]).toEqual(1);
