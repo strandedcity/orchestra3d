@@ -70,10 +70,10 @@ require(["appconfig"],function(){
 
             var geometry = new THREE.Geometry();
 
-            // Step through the curve. At present, its knot vector is 0,0,0,0,1,2,3,4,5,6,7,7,7,7
-            // Which means it's parameterized from 0 --> 7
-            // My own knot-vector calculator is currently broken, but all curves should end up evenly parameterized from 0 --> 1 eventually
-            for(var i = 0; i < 7; i+=0.05){
+            // Curves parameterized 0 --> 1.
+            // Step through parameters to get points, draw connecting lines
+            // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
+            for(var i = 0; i < 1; i+=0.01){
                 var pt = curve.getPositionAt(i).getCoordsArray();
                 geometry.vertices.push(new THREE.Vector3(pt[0],pt[1],pt[2]));
             }

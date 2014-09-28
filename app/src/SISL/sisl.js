@@ -26,6 +26,28 @@ define(["./compiled"],function(){
         Module._free(pointer);
     };
 
+    Module.Utils.generateUniformKnotVector = function(numControlPoints,curveOrder){
+        // http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/INT-APP/PARA-knot-generation.html
+        // #knots = #control pts + curve order
+        // curve order = degree + 1
+        // the first p+1 and last p+1 knots are 0's and 1's, respectively, where p=degree=order-1
+        var knotVector = [];
+
+        for (var a=0; a < curveOrder; a++){
+            knotVector.push(0);
+        }
+        var internalKnotCount = (numControlPoints + curveOrder) - 2 * curveOrder + 1;
+        var i = 0;
+        for (i; i<internalKnotCount;i++) {
+            knotVector.push((i+1)/internalKnotCount);
+        }
+        for (var b=0; b < curveOrder; b++){
+            knotVector.push(1);
+        }
+
+        return knotVector;
+    };
+
     return Module;
 });
 
