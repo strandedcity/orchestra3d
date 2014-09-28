@@ -18,3 +18,22 @@
 // to maintain separation of data and view, the 'viewer' package should be dependent on the 'dataflow' and 'geometry' packages, but not the other way around.
 // ... is this possible?
 
+//({
+//    appDir: "webapp",
+//    baseUrl: "scripts",
+//    dir: "webapp-build",
+//    optimize: "none",
+//    modules: [
+//        {
+//            name: "appcommon"
+//        },
+//        {
+//            name: "page1",
+//            exclude: ["appcommon"]
+//        },
+//        {
+//            name: "page2",
+//            exclude: ["appcommon"]
+//        }
+//    ]
+//})

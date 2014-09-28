@@ -82,9 +82,9 @@ define(["SISL/sisl_loader","underscore"],function(){
         // Preparing data for geometry library:
         var vertexCount = controlPoints.length,
             curveOrder = degree + 1,
-            ikind = 3, // polynomial bezier by default?
+            ikind = 1,
             dimension = 3, // always
-            icopy = 0,
+            icopy = 0, // we're making a copy from the javascript already.
             knotVector = [], knotVectorPointer,
             vertices = [], verticesPointer;
 
@@ -94,16 +94,33 @@ define(["SISL/sisl_loader","underscore"],function(){
             vertices = vertices.concat(pt.getCoordsArray());
         });
 
-        // Pile up a generic knot vector. There are 2 zeros to start, and two of the last digit.
-        // There should be even spacing between all numbers so that all control points have equal weight.
-        knotVector.push(0);
-        knotVector.push(0);
+//        // Pile up a generic knot vector. There are 2 zeros to start, and two of the last digit.
+//        // There should be even spacing between all numbers so that all control points have equal weight.
+//        knotVector.push(0);
+//        knotVector.push(0);
+//        var i = 1;
+//        for (i; i<curveOrder+controlPoints.length-2;i++) {
+//            knotVector.push(i);
+//        }
+//        knotVector.push(i);
+//        knotVector.push(i);
+
+///////////////////////////////////////////////
+// ALTERNATE! BREAKS FUNCTIONALITY!
+// Pile up a generic knot vector. There are [curve order] zeros to start, and [curve order] of the last digit.
+// There should be even spacing between all numbers so that all control points have equal weight.
+// See http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/INT-APP/PARA-knot-generation.html
+        for (var a=0; a < curveOrder; a++){
+            knotVector.push(0);
+        }
         var i = 1;
-        for (i; i<curveOrder+controlPoints.length-2;i++) {
+        for (i; i<curveOrder+controlPoints.length-7;i++) {
             knotVector.push(i);
         }
-        knotVector.push(i);
-        knotVector.push(i);
+        for (var a=0; a < curveOrder; a++){
+            knotVector.push(i);
+        }
+//        knotVector = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7];
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);

@@ -17,18 +17,27 @@ requirejs.config({
         'threejs': {
             exports: 'THREE'
         },
+        'OrbitControls': {
+            deps: ['threejs']
+        },
         sisl_emscripten: {
             exports: 'Module'
         }
     },
 
     paths: {
+        // 3d viewer
+        viewer: 'src/viewer',
         threejs: 'src/viewer/three.min',
+        OrbitControls: 'src/viewer/OrbitControls',
+
+        // general libraries
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
+
+        // geometry & dataflow
         SISL: 'src/SISL',
-        dataFlow: 'src/dataFlow',
-        viewer: 'src/viewer'
+        dataFlow: 'src/dataFlow'
     }
 });
