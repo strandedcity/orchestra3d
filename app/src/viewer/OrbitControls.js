@@ -328,10 +328,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function onMouseDown( event ) {
 
 		if ( scope.enabled === false ) return;
-		event.preventDefault();
 
-		if ( event.button === 0 ) {
+		if ( event.button === 0 && scope.noRotate === false) {
 			if ( scope.noRotate === true ) return;
+            event.preventDefault();
 
 			state = STATE.ROTATE;
 
@@ -339,6 +339,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		} else if ( event.button === 1 ) {
 			if ( scope.noZoom === true ) return;
+            event.preventDefault();
 
 			state = STATE.DOLLY;
 
@@ -346,6 +347,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		} else if ( event.button === 2 ) {
 			if ( scope.noPan === true ) return;
+            event.preventDefault();
 
 			state = STATE.PAN;
 

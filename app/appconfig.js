@@ -20,6 +20,9 @@ requirejs.config({
         'OrbitControls': {
             deps: ['threejs']
         },
+        'CSS3DRenderer': {
+            deps: ['threejs']
+        },
         sisl_emscripten: {
             exports: 'Module'
         }
@@ -38,6 +41,7 @@ requirejs.config({
 
         // geometry & dataflow
         SISL: 'src/SISL',
-        dataFlow: 'src/dataFlow'
+        dataFlow: 'src/dataFlow',
+        CSS3DRenderer: 'src/dataFlow/UI/CSS3DRenderer'
     }
 });
