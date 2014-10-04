@@ -1,43 +1,46 @@
 define(["threejs","OrbitControls"],function(){
-    // This module loads three.js, then provides a function to perform the basic setup of a scene. It returns three.js variables needed to access that scene.
-    var scene = new THREE.Scene(),
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
-        renderer = new THREE.WebGLRenderer(),
-        animating = true;
+    function ModelSpace(){
+        // This module loads three.js, then provides a function to perform the basic setup of a scene. It returns three.js variables needed to access that scene.
+        this.scene = new THREE.Scene(),
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
+        this.renderer = new THREE.WebGLRenderer(),
+        this.animating = true;
+        this.createScene();
+    }
 
-    var createScene = function(){
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+    ModelSpace.prototype.createScene = function(){
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(this.renderer.domElement);
 
-        var controls = new THREE.OrbitControls( camera );
-// THIS APPROACH IS MUCH BETTER --- NO REASON TO ANIMATE IF NOTHING IS MOVING
-//        controls.addEventListener( 'change', render );
+        this.controls = new THREE.OrbitControls( this.camera );
+//THIS APPROACH IS MUCH BETTER --- NO REASON TO ANIMATE IF NOTHING IS MOVING
+        var that = this;
+        this.controls.addEventListener( 'change', function(){
+            that.render.call(that);
+        } );
 
-        camera.position.z = 7;
-        camera.position.y = 0;
+        this.camera.position.z = 7;
+        this.camera.position.y = 0;
 
-        animating = true;
-
-        render();
+        this.animating = true;
     };
 
-    var render = function () {
-        if (animating === false) return;
-        requestAnimationFrame(render);
+    ModelSpace.prototype.render = function(){
+        if ( this.animating === false) return;
+//        var that = this;
+//        requestAnimationFrame(that.render);
 
-        renderer.render(scene, camera);
+        this.renderer.render( this.scene,  this.camera);
     };
 
-    var setAnimating = function(val){
-        animating = val;
-        if (animating === true) render();
+    ModelSpace.prototype.setAnimating = function(val){
+        this.animating = val;
+        if ( this.animating === true)  this.render();
     };
 
-    return {
-        createScene: createScene,
-        setAnimating: setAnimating,
-        scene: scene,
-        camera: camera,
-        renderer: renderer
-    };
+    ModelSpace.prototype.enableControls = function(value){
+        this.controls.enabled = value;
+    }
+
+    return new ModelSpace();
 });

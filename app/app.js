@@ -12,7 +12,7 @@ require(["appconfig"],function(){
             workspace
         ){
             // Set up DOM, threejs, camera controls, etc. Then hit go!
-            viewer.createScene();
+//            viewer.createScene();
 
             // THREEJS includes a number of useless curve geometries. Ultimately, they just provide
             // duplicate but inferior functionality to SISL's, and to plot them you have to pull points manually anyways.
@@ -66,13 +66,15 @@ require(["appconfig"],function(){
                 });
                 var line2 = new THREE.Line(endPointGeo, mat2);
                 viewer.scene.add(line2);
+                viewer.render();
             }
 
             // Test object
             showTestCurve();
 
             // The control workspace needs to be initialized, too:
-//            workspace.enableControls(false);
+            workspace.enableControls(false);
+            viewer.enableControls(true);
         }
     );
 });

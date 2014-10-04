@@ -10,8 +10,6 @@ define([
     "CSS3DRenderer",
     "OrbitControls"
 ],function(){
-    var instance = undefined;
-
     function Workspace(){
         this.init();
     };
@@ -68,7 +66,5 @@ define([
         this.controls.enabled = value;
     };
 
-    instance = new Workspace();
-
-    return instance;
+    return new Workspace();
 });
