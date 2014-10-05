@@ -75,8 +75,8 @@ require(["appconfig"],function(){
             showTestCurve();
 
             // The control workspace needs to be initialized, too:
-            workspace.enableControls(false);
-            viewer.enableControls(false);
+//            workspace.enableControls(false);
+//            viewer.enableControls(true);
         }
     );
 });

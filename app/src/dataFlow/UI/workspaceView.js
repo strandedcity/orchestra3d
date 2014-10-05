@@ -55,7 +55,7 @@ define([
         var render = function(){
             that.renderer.render(that.scene,that.camera);
         };
-        this.controls = new THREE.OrbitControls( this.camera );
+        this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', render );

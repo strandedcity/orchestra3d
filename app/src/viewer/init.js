@@ -12,7 +12,7 @@ define(["threejs","OrbitControls"],function(){
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        this.controls = new THREE.OrbitControls( this.camera );
+        this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
 //THIS APPROACH IS MUCH BETTER --- NO REASON TO ANIMATE IF NOTHING IS MOVING
         var that = this;
         this.controls.addEventListener( 'change', function(){
