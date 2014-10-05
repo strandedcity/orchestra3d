@@ -43,6 +43,7 @@ requirejs.config({
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
         bootstrap: 'lib/bootstrap.min',
+        'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
 
         // geometry & dataflow
         SISL: 'src/SISL',
