@@ -14,6 +14,9 @@ requirejs.config({
         'jquery': {
             exports: '$'
         },
+        'bootstrap': {
+            deps: ['jquery']
+        },
         'threejs': {
             exports: 'THREE'
         },
@@ -29,15 +32,17 @@ requirejs.config({
     },
 
     paths: {
-        // 3d viewer
+        // UI
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
+        windowControls: 'src/application/windowControls',
 
         // general libraries
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
         underscore: 'lib/underscore-min',
+        bootstrap: 'lib/bootstrap.min',
 
         // geometry & dataflow
         SISL: 'src/SISL',

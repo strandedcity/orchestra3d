@@ -3,13 +3,15 @@ require(["appconfig"],function(){
             'SISL/sisl_loader',
             'dataFlow/dataFlow_loader',
             "viewer/init",
-            "dataFlow/UI/workspaceView"
+            "dataFlow/UI/workspaceView",
+            "windowControls"
         ],
         function(
             Geo,
             dataFlow,
             viewer,
-            workspace
+            workspace,
+            windowControls
         ){
             // Set up DOM, threejs, camera controls, etc. Then hit go!
 //            viewer.createScene();
@@ -74,7 +76,7 @@ require(["appconfig"],function(){
 
             // The control workspace needs to be initialized, too:
             workspace.enableControls(false);
-            viewer.enableControls(true);
+            viewer.enableControls(false);
         }
     );
 });
