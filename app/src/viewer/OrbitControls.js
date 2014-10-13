@@ -100,7 +100,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var lastPosition = new THREE.Vector3();
 	var lastQuaternion = new THREE.Quaternion();
 
-	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5 };
+	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5, DRAG: 6 };
 
 	var state = STATE.NONE;
 
@@ -169,7 +169,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		pan.add( panOffset );
 
 	};
-	
+
 	// pass in x,y of change desired in pixel space,
 	// right and down are positive
 	this.pan = function ( deltaX, deltaY ) {
@@ -204,6 +204,38 @@ THREE.OrbitControls = function ( object, domElement ) {
 		}
 
 	};
+
+
+    // pass in x,y of change desired in pixel space,
+    // right and down are positive
+    this.drag = function ( clientX, clientY ) {
+        // figure out world XY position of clientX clientY of current drag event position. Broadcast as an event.
+        // drag and drop should not be handled by orbitControls, but it can provide the basic functionality to build off of
+
+        var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+        if ( scope.object.fov !== undefined ) {
+            var vector = new THREE.Vector3(
+                    ( clientX / element.clientWidth ) * 2 - 1,
+                    - ( clientY / element.clientHeight ) * 2 + 1,
+                0.5 );
+
+            var projector = new THREE.Projector();
+            projector.unprojectVector( vector, scope.object );
+            var dir = vector.sub( scope.object.position ).normalize();
+
+            var distance = - scope.object.position.z  / dir.z;
+
+            var pos = scope.object.position.clone().add( dir.multiplyScalar( distance ) );
+
+            // I completely don't understand why this line works. For some reason, inside orbit controls,
+            // the x-value of the position calculated by common methods is off by the target x-position.
+            // Y-values are unaffected!
+            pos.add(new THREE.Vector3(this.target.x,0,0));
+            console.log(pos);
+
+        }
+    };
 
 	this.dollyIn = function ( dollyScale ) {
 
@@ -329,13 +361,19 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		if ( event.button === 0 && scope.noRotate === false) {
-			if ( scope.noRotate === true ) return;
+		if ( event.button === 0) {
             event.preventDefault();
-
-			state = STATE.ROTATE;
-
-			rotateStart.set( event.clientX, event.clientY );
+			if ( scope.noRotate === true ) {
+                // if no rotation, drag can be enabled for "draggable" elements
+                var appliedClasses = event.target.className + event.target.parentNode.className;
+                if (appliedClasses.indexOf('draggable') !== -1) {
+                    state = STATE.DRAG;
+                }
+            } else {
+                // regular rotational behavior
+                state = STATE.ROTATE;
+                rotateStart.set( event.clientX, event.clientY );
+            }
 
 		} else if ( event.button === 1 ) {
 			if ( scope.noZoom === true ) return;
@@ -414,7 +452,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			panStart.copy( panEnd );
 
-		}
+		} else if ( state === STATE.DRAG ) {
+            scope.drag (event.clientX, event.clientY);
+        }
 
 		scope.update();
 
