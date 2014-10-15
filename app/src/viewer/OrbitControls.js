@@ -206,9 +206,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 	};
 
 
-    // pass in x,y of change desired in pixel space,
-    // right and down are positive
     this.drag = function ( clientX, clientY ) {
+        var pos = scope.xyPositionForMouse(clientX,clientY);
+        scope.dispatchEvent(new CustomEvent('drag',{detail: {x: pos.x, y: pos.y}}));
+    };
+
+    this.xyPositionForMouse = function (clientX, clientY){
         // figure out world XY position of clientX clientY of current drag event position. Broadcast as an event.
         // drag and drop should not be handled by orbitControls, but it can provide the basic functionality to build off of
 
@@ -223,17 +226,9 @@ THREE.OrbitControls = function ( object, domElement ) {
             var projector = new THREE.Projector();
             projector.unprojectVector( vector, scope.object );
             var dir = vector.sub( scope.object.position ).normalize();
-
             var distance = - scope.object.position.z  / dir.z;
 
-            var pos = scope.object.position.clone().add( dir.multiplyScalar( distance ) );
-
-            // I completely don't understand why this line works. For some reason, inside orbit controls,
-            // the x-value of the position calculated by common methods is off by the target x-position.
-            // Y-values are unaffected!
-            pos.add(new THREE.Vector3(this.target.x,0,0));
-            console.log(pos);
-
+            return scope.object.position.clone().add( dir.multiplyScalar( distance ) );
         }
     };
 
@@ -368,6 +363,12 @@ THREE.OrbitControls = function ( object, domElement ) {
                 var appliedClasses = event.target.className + event.target.parentNode.className;
                 if (appliedClasses.indexOf('draggable') !== -1) {
                     state = STATE.DRAG;
+                    scope.dispatchEvent(new CustomEvent('dragStart',{
+                        detail: {
+                            startPosition: scope.xyPositionForMouse(event.clientX,event.clientY),
+                            target: event.target.parentNode.id
+                        }
+                    }));
                 }
             } else {
                 // regular rotational behavior

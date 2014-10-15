@@ -8,7 +8,8 @@
 define([
     "threejs",
     "CSS3DRenderer",
-    "OrbitControls"
+    "OrbitControls",
+    "underscore"
 ],function(){
     function Workspace(){
         this.init();
@@ -16,13 +17,21 @@ define([
 
     Workspace.prototype.init = function(){
         console.log('Creating workspace!!');
-        this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 5000 );
+
+        // drag and drop related
+        _.bindAll(this, "startDrag", "drag", "render");
+        this.dragObject = null;
+        this.dragOffset = [0,0];
+
+        var width = window.innerWidth / 2,
+            height = window.innerHeight;
+        this.camera = new THREE.PerspectiveCamera( 70, width / height, 1, 5000 );
         this.camera.position.z = 800;
 
         this.scene = new THREE.Scene();
 
         this.renderer = new THREE.CSS3DRenderer();
-        this.renderer.setSize( window.innerWidth/2, window.innerHeight );
+        this.renderer.setSize( width, height );
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
 
@@ -107,19 +116,38 @@ define([
         object.position.y = y || 0;
         object.position.z = 0;
 
+        element.id = object.id; // so the object is identifiable later for drag/drop operations
+
         return object;
     };
 
+    Workspace.prototype.render = function(){
+        this.renderer.render(this.scene,this.camera);
+    };
+
     Workspace.prototype.attachControls = function(){
-        var that = this;
-        var render = function(){
-            that.renderer.render(that.scene,that.camera);
-        };
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
-        this.controls.addEventListener( 'change', render );
-        render();
+        this.controls.addEventListener( 'change', this.render );
+        this.controls.addEventListener( 'drag', this.drag );
+        this.controls.addEventListener( 'dragStart', this.startDrag);
+        this.render();
+    };
+
+    Workspace.prototype.startDrag = function(e){
+        // the three.js object id is passed back by the start drag event.
+        var draggingId = parseInt(e.detail.target);
+        this.dragObject = this.scene.getObjectById(draggingId);
+
+        // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
+        // and the center of the dragging object
+        this.dragOffset = {x: e.detail.startPosition.x - this.dragObject.position.x, y: e.detail.startPosition.y - this.dragObject.position.y};
+    };
+
+    Workspace.prototype.drag = function(e){
+        this.dragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
+        this.render();
     };
 
     Workspace.prototype.enableControls = function(value){
