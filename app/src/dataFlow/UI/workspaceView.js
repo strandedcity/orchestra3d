@@ -52,53 +52,6 @@ define([
         this.scene.add(number2);
         var number3 = this.createElementWithNamePosition("Number",-400,300);
         this.scene.add(number3);
-
-//        console.log(pointxyz);
-//        $(pointxyz.element).draggable({
-//            start: function () {
-//                /* Temporarily revert the transform so drag and dropping works as expected */
-////                var parentRect = $(this).parent()[0].getBoundingClientRect();
-//                var rect = this.getBoundingClientRect();
-//                console.log(rect);
-//                /* cssBrowserPrefix is one of: -moz -webkit -o */
-////                $(this).css(cssBrowserPrefix + 'transition', 'all 0 ease 0');
-////                $(this).css('transform', 'none');
-////                $(this).css('left', rect['left'] - parentRect['left']);
-//            },
-//            stop: function () {
-//                /* Revert the transformation changes done on start, if needed */
-//            }
-//        });
-
-        // from http://mdqinc.com/blog/2013/01/css3-transforms-vs-jquery-draggable/
-//        var dragging = false;
-//        pointxyz.element.addEventListener('mousedown',function(){
-//            document.addEventListener('mousemove',function(e){console.log(e.clientX, e.clientY);});
-//        });
-
-
-
-
-
-
-
-
-
-
-
-        // NEXT APPROACH!
-        // Get the delta of the drag DIRECTLY from inside orbit controls
-        // Move the threeJS object accordingly if there's an intersection on mousedown.
-
-        // find startpoint raycasted intersection with xy plane
-
-        // on mousemove, find raycasted intersection with xy plane
-
-        // report drag event location
-
-
-
-
     };
 
     Workspace.prototype.createElementWithNamePosition = function(name, x, y){
