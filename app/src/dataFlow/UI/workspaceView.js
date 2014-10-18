@@ -19,7 +19,7 @@ define([
         console.log('Creating workspace!!');
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render");
+        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -28,9 +28,16 @@ define([
         this.camera = new THREE.PerspectiveCamera( 70, width / height, 1, 5000 );
         this.camera.position.z = 800;
 
-        this.scene = new THREE.Scene();
+        // GL scene handles drag & drop, mouse/touch events, and drawing of connections
+        this.glscene = new THREE.Scene();
+        this.glrenderer = new THREE.WebGLRenderer();
+        this.glrenderer.setSize( width, height );
+        document.body.appendChild( this.glrenderer.domElement );
+        this.glrenderer.domElement.className = "TOP";
 
-        this.renderer = new THREE.CSS3DRenderer();
+        // CSS scene handles standard DOM elements and styling, such as <input> fields, drop-downs, etc.
+        this.scene = new THREE.Scene();
+        this.renderer = new THREE.CSS3DRenderer({ alpha: true });
         this.renderer.setSize( width, height );
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
@@ -52,6 +59,17 @@ define([
         this.scene.add(number2);
         var number3 = this.createElementWithNamePosition("Number",-400,300);
         this.scene.add(number3);
+
+        var that = this;
+        _.defer(function(){
+            that.createGLElementToMatch(number1);
+            that.createGLElementToMatch(number2);
+            that.createGLElementToMatch(number3);
+            that.createGLElementToMatch(pointxyz);
+
+            that.render();
+        });
+
     };
 
     Workspace.prototype.createElementWithNamePosition = function(name, x, y){
@@ -68,14 +86,36 @@ define([
         object.position.x = x || 0;
         object.position.y = y || 0;
         object.position.z = 0;
-
         element.id = object.id; // so the object is identifiable later for drag/drop operations
-
         return object;
+    };
+
+    // We need the css renderer so that standard DOM components like inputs can be usable, and scaled
+    // all the hit calculation and drawing of connections, however, happens in webgl.
+    Workspace.prototype.createGLElementToMatch = function(cssElement){
+        var width = cssElement.element.clientWidth, height = cssElement.element.clientHeight;
+
+        // it's possible to hit this line before the css element renders.
+        if (width === 0 || height === 0) { throw new Error("CSS Element Must be allowed to render before polling for its size."); }
+
+        var rectShape = new THREE.Shape();
+        rectShape.moveTo( 0, 0 );
+        rectShape.lineTo( 0, height );
+        rectShape.lineTo( width, height );
+        rectShape.lineTo( width, 0 );
+        rectShape.lineTo( 0, 0 );
+
+        var geometry = new THREE.ShapeGeometry( rectShape );
+        geometry.applyMatrix( new THREE.Matrix4().makeTranslation( - width/2,  - height/2, 0) ); // the corresponding css element centers itself on the 3js position
+        var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true }) );
+        mesh.position.set(cssElement.position.x,cssElement.position.y,0);
+        cssElement.element.glid = mesh.id; // keep a reference to the mesh "tracker" in the GL Scene
+        this.glscene.add(mesh);
     };
 
     Workspace.prototype.render = function(){
         this.renderer.render(this.scene,this.camera);
+        this.glrenderer.render(this.glscene,this.camera);
     };
 
     Workspace.prototype.attachControls = function(){
@@ -83,8 +123,8 @@ define([
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', this.render );
-        this.controls.addEventListener( 'drag', this.drag );
         this.controls.addEventListener( 'dragStart', this.startDrag);
+        this.controls.addEventListener( 'drag', this.drag );
         this.render();
     };
 
@@ -92,6 +132,7 @@ define([
         // the three.js object id is passed back by the start drag event.
         var draggingId = parseInt(e.detail.target);
         this.dragObject = this.scene.getObjectById(draggingId);
+        this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
 
         // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
         // and the center of the dragging object
@@ -100,6 +141,7 @@ define([
 
     Workspace.prototype.drag = function(e){
         this.dragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
+        this.glDragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
         this.render();
     };
 

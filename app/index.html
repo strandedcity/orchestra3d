@@ -24,7 +24,7 @@
         }
 
         input.number {
-            border: none;
+            border: 1px solid black;
             border-radius: 60px;
             height: 80px;
             width: 240px;
@@ -33,6 +33,12 @@
         }
         input.number:focus {
             outline: none;
+        }
+        input.number:hover {
+            border: 10px solid orange;
+        }
+        .dragging {
+            pointer-events: none;
         }
     </style>
     <script data-main="app" type="text/javascript" src="lib/require.js"></script>
