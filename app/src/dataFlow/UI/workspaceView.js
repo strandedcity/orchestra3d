@@ -11,6 +11,28 @@ define([
     "OrbitControls",
     "underscore"
 ],function(){
+
+    var Object3DExtensions = _.extend({},{
+        addDraggableScopes: function(scopes){
+            this.draggableScopes = this.draggableScopes || [];
+            this.draggableScopes = _.union(this.draggableScopes,scopes);
+        },
+        addDroppableScopes: function(scopes){
+            this.dropableScopes = this.dropableScopes || [];
+            this.dropableScopes = _.union(this.dropableScopes,scopes);
+        },
+        getDroppableScopes: function(){
+            return this.dropableScopes || [];
+        },
+        getDraggableScopes: function(){
+            return this.draggableScopes || [];
+        },
+        isDroppableForScopes: function(scopeNames){
+            return _.intersection(this.dropableScopes,scopeNames).length > 0;
+        },
+    });
+
+
     function Workspace(){
         this.dragObject = null;
         this.init();
@@ -18,6 +40,9 @@ define([
 
     Workspace.prototype.init = function(){
         console.log('Creating workspace!!');
+
+        // Extensions to enable drag & drop
+        _.extend(THREE.Object3D.prototype, Object3DExtensions);
 
         // drag and drop related
         _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseDown", "mouseUp", "clearHover");
@@ -52,26 +77,20 @@ define([
     Workspace.prototype.testElement = function(){
 
         var pointxyz = this.createElementWithNamePosition("Point (x,y,z)", 0, 0);
-        this.scene.add( pointxyz );
+        pointxyz.addDroppableScopes(["num"]);
 
         var number1 = this.createElementWithNamePosition("Number",-300,-200);
-        this.scene.add(number1);
         var number2 = this.createElementWithNamePosition("Number",-350,-50);
-        this.scene.add(number2);
         var number3 = this.createElementWithNamePosition("Number",-400,300);
-        this.scene.add(number3);
+        number1.addDraggableScopes(["num"]);
+        number2.addDraggableScopes(["num"]);
+        number2.addDroppableScopes(["num"]);
+        number3.addDraggableScopes(["num"]);
 
-        var that = this;
-        _.defer(function(){
-            that.createGLElementToMatch(number1);
-            that.createGLElementToMatch(number2);
-            that.createGLElementToMatch(number3);
-            that.createGLElementToMatch(pointxyz);
-
-            that.render();
-        });
+        this.render();
 
     };
+
 
     Workspace.prototype.createElementWithNamePosition = function(name, x, y){
         var element = document.createElement( 'div' );
@@ -88,6 +107,13 @@ define([
         object.position.y = y || 0;
         object.position.z = 0;
         element.id = object.id; // so the object is identifiable later for drag/drop operations
+
+        this.scene.add(object);
+        var that = this;
+        _.defer(function(){
+            that.createGLElementToMatch(object);
+        });
+
         return object;
     };
 
@@ -145,14 +171,13 @@ define([
     /* Drag and drop */
 
     Workspace.prototype.mouseDown = function(event){
-        console.warn('wait 150ms before initializing drag-pickup stuff? You should be able to click on elements normally');
-
         if ( this.controls.enabled === false ) return;
 
         if ( event.button === 0) {
             event.preventDefault();
 
             if (this.startDrag(event) === true) {
+                console.warn('wait 150ms before initializing drag-pickup stuff? You should be able to click on elements normally');
                 this.renderer.domElement.addEventListener("mousemove",this.drag);
                 this.renderer.domElement.addEventListener("mouseup",this.mouseUp);
             }
@@ -192,11 +217,28 @@ define([
             this.dragOffset = {x: mousePosition.x - this.dragObject.position.x, y: mousePosition.y - this.dragObject.position.y};
 
             // store the list of intersection objects once to avoid doing it on every move event. Don't intersect with the object you're dragging.
-            this.intersectionObjects = _.without(this.glscene.children, this.glDragObject);
+            this.intersectionObjects = this.computeDroppableObjects();
 
             return true;
         }
         return false; // nothing to pick up -- no drag started
+    };
+
+    Workspace.prototype.computeDroppableObjects = function(){
+        var droppables = []; //_.without(this.glscene.children, this.glDragObject);
+
+        var draggableScopes = this.scene.getObjectById(this.glDragObject.cssId).getDraggableScopes();
+
+        var that = this;
+        _.each(this.glscene.children,function(glObject){
+            if (glObject !== that.glDragObject) { // draggable never droppable on itself
+                if (that.scene.getObjectById(glObject.cssId).isDroppableForScopes(draggableScopes)){
+                    droppables.push(glObject);
+                }
+            }
+        });
+
+        return droppables;
     };
 
     Workspace.prototype.drag = function(e){
