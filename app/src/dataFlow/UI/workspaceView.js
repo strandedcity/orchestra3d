@@ -20,7 +20,7 @@ define([
         console.log('Creating workspace!!');
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseDown", "mouseUp");
+        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseDown", "mouseUp", "clearHover");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -111,6 +111,7 @@ define([
         var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true }) );
         mesh.position.set(cssElement.position.x,cssElement.position.y,0);
         cssElement.element.glid = mesh.id; // keep a reference to the mesh "tracker" in the GL Scene
+        mesh.cssId = cssElement.id;
         this.glscene.add(mesh);
     };
 
@@ -166,6 +167,11 @@ define([
             this.renderer.domElement.removeEventListener("mousemove",this.drag);
             this.renderer.domElement.removeEventListener("mouseup",this.mouseUp);
         };
+
+        if (!_.isNull(this.hoverObject)) {
+            console.log('drop! ',this.hoverObject);
+            this.clearHover();
+        }
     };
 
     Workspace.prototype.startDrag = function(e){
@@ -178,6 +184,8 @@ define([
             var draggingId = parseInt(e.target.parentNode.id);
             this.dragObject = this.scene.getObjectById(draggingId);
             this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
+            this.hoverObject = null;
+            this.glHoverObject = null;
 
             // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
             // and the center of the dragging object
@@ -231,13 +239,25 @@ define([
         // create an array containing all objects in the scene with which the ray intersects
         var intersects = ray.intersectObjects( this.intersectionObjects, true );
 
-        if (intersects.length > 0) {
-            // do something with the hover object(s)
-            _.each(intersects,function(intersection){
-                console.log(intersection.object);
-            });
+        if (intersects.length > 0 && _.isNull(this.hoverObject)) {
+            // TODO: What happens with multiple intersection objects? Handling multiples here can result in some 'stuck' hover classes being added
+            var intersection = intersects[0];
+            this.glHoverObject = intersection.object;
+            this.hoverObject = this.scene.getObjectById(this.glHoverObject.cssId);
+            this.hoverObject.element.className += ' glHover';
         }
 
+//        if (!_.isNull(this.hoverObject) && intersects.length === 0) {
+//            this.clearHover();
+//        }
+        if (!_.isNull(this.hoverObject) && (intersects.length === 0 || intersects[0].object !== this.glHoverObject) ) this.clearHover();
+    };
+
+    Workspace.prototype.clearHover = function(){
+        // clear hover status
+        this.hoverObject.element.className = this.hoverObject.element.className.replace(' glHover','');
+        this.glHoverObject = null;
+        this.hoverObject = null;
     };
 
     return new Workspace();
