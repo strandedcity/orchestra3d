@@ -100,7 +100,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var lastPosition = new THREE.Vector3();
 	var lastQuaternion = new THREE.Quaternion();
 
-	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5, DRAG: 6 };
+	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5 };
 
 	var state = STATE.NONE;
 
@@ -204,33 +204,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 		}
 
 	};
-
-
-    this.drag = function ( clientX, clientY ) {
-        var pos = scope.xyPositionForMouse(clientX,clientY);
-        scope.dispatchEvent(new CustomEvent('drag',{detail: {x: pos.x, y: pos.y}}));
-    };
-
-    this.xyPositionForMouse = function (clientX, clientY){
-        // figure out world XY position of clientX clientY of current drag event position. Broadcast as an event.
-        // drag and drop should not be handled by orbitControls, but it can provide the basic functionality to build off of
-
-        var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
-        if ( scope.object.fov !== undefined ) {
-            var vector = new THREE.Vector3(
-                    ( clientX / element.clientWidth ) * 2 - 1,
-                    - ( clientY / element.clientHeight ) * 2 + 1,
-                0.5 );
-
-            var projector = new THREE.Projector();
-            projector.unprojectVector( vector, scope.object );
-            var dir = vector.sub( scope.object.position ).normalize();
-            var distance = - scope.object.position.z  / dir.z;
-
-            return scope.object.position.clone().add( dir.multiplyScalar( distance ) );
-        }
-    };
 
 	this.dollyIn = function ( dollyScale ) {
 
@@ -358,23 +331,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		if ( event.button === 0) {
             event.preventDefault();
-			if ( scope.noRotate === true ) {
-                // if no rotation, drag can be enabled for "draggable" elements
-                var appliedClasses = event.target.className + event.target.parentNode.className;
-                if (appliedClasses.indexOf('draggable') !== -1) {
-                    state = STATE.DRAG;
-                    scope.dispatchEvent(new CustomEvent('dragStart',{
-                        detail: {
-                            startPosition: scope.xyPositionForMouse(event.clientX,event.clientY),
-                            target: event.target.parentNode.id
-                        }
-                    }));
-                }
-            } else {
-                // regular rotational behavior
-                state = STATE.ROTATE;
-                rotateStart.set( event.clientX, event.clientY );
-            }
+			if ( scope.noRotate === true ) return;
+
+            // regular rotational behavior
+            state = STATE.ROTATE;
+            rotateStart.set( event.clientX, event.clientY );
 
 		} else if ( event.button === 1 ) {
 			if ( scope.noZoom === true ) return;
@@ -453,9 +414,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			panStart.copy( panEnd );
 
-		} else if ( state === STATE.DRAG ) {
-            scope.drag (event.clientX, event.clientY);
-        }
+		}
 
 		scope.update();
 

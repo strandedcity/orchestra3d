@@ -12,6 +12,7 @@ define([
     "underscore"
 ],function(){
     function Workspace(){
+        this.dragObject = null;
         this.init();
     };
 
@@ -19,7 +20,7 @@ define([
         console.log('Creating workspace!!');
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseMove");
+        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseDown", "mouseUp");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -41,7 +42,6 @@ define([
         this.renderer.setSize( width, height );
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
-        this.renderer.domElement.addEventListener("mousemove",this.mouseMove);
 
         // for testing!
         this.testElement();
@@ -124,44 +124,81 @@ define([
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', this.render );
-        this.controls.addEventListener( 'dragStart', this.startDrag);
-        this.controls.addEventListener( 'drag', this.drag );
         this.render();
-    };
 
-    Workspace.prototype.startDrag = function(e){
-        // the three.js object id is passed back by the start drag event.
-        var draggingId = parseInt(e.detail.target);
-        this.dragObject = this.scene.getObjectById(draggingId);
-        this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
-
-        // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
-        // and the center of the dragging object
-        this.dragOffset = {x: e.detail.startPosition.x - this.dragObject.position.x, y: e.detail.startPosition.y - this.dragObject.position.y};
-    };
-
-    Workspace.prototype.drag = function(e){
-        this.dragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
-        this.glDragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
-        this.findIntersections(e.detail.x, e.detail.y);
-        this.render();
+        // listen for click events, which could be drag-starts
+        this.renderer.domElement.addEventListener("mousedown",this.mouseDown);
     };
 
     Workspace.prototype.enableControls = function(value){
         this.controls.enabled = value;
     };
 
-    Workspace.prototype.mouseMove = function(e){
-        this.findIntersections(e.clientX, e.clientY);
+
+
+
+
+
+
+
+    /* Drag and drop */
+
+    Workspace.prototype.mouseDown = function(event){
+        console.warn('wait 150ms before initializing drag-pickup stuff? You should be able to click on elements normally');
+
+        if ( this.controls.enabled === false ) return;
+
+        if ( event.button === 0) {
+            event.preventDefault();
+
+            if (this.startDrag(event) === true) {
+                this.renderer.domElement.addEventListener("mousemove",this.drag);
+                this.renderer.domElement.addEventListener("mouseup",this.mouseUp);
+            }
+        }
     };
 
-    Workspace.prototype.findIntersections = function(x,y){
-        // find intersections
+    Workspace.prototype.mouseUp = function(event){
+        if (!_.isNull(this.dragObject)) {
+            this.dragObject = null;
+            this.glDragObject = null;
+            this.dragOffset = {};
+            this.renderer.domElement.removeEventListener("mousemove",this.drag);
+            this.renderer.domElement.removeEventListener("mouseup",this.mouseUp);
+        };
+    };
 
-        // create a Ray with origin at the mouse position
-        //   and direction into the scene (camera direction)
+    Workspace.prototype.startDrag = function(e){
+        var appliedClasses = e.target.parentNode.className;
+        if (appliedClasses.indexOf('draggable') !== -1) {
+            var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY),
+            mousePosition = this.mouseWorldXYPosition(unprojectedVector);
+
+            // the three.js object id is passed back by the start drag event.
+            var draggingId = parseInt(e.target.parentNode.id);
+            this.dragObject = this.scene.getObjectById(draggingId);
+            this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
+
+            // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
+            // and the center of the dragging object
+            this.dragOffset = {x: mousePosition.x - this.dragObject.position.x, y: mousePosition.y - this.dragObject.position.y};
+
+            return true;
+        }
+        return false; // nothing to pick up -- no drag started
+    };
+
+    Workspace.prototype.drag = function(e){
+        var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY);
+        var worldPosition = this.mouseWorldXYPosition(unprojectedVector);
+        this.dragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
+        this.glDragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
+        this.findIntersections(unprojectedVector);
+        this.render();
+    };
+
+    Workspace.prototype.unprojectMouse = function(x,y){
         var projector = new THREE.Projector();
-        var vector = new THREE.Vector3( x, y, 1 );
 
         var vector = new THREE.Vector3(
                 ( x / this.glrenderer.domElement.clientWidth ) * 2 - 1,
@@ -169,7 +206,24 @@ define([
             0.5 );
 
         projector.unprojectVector( vector, this.camera );
-        var ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
+        return vector
+    };
+
+    Workspace.prototype.mouseWorldXYPosition = function(unprojected){
+        // figure out world XY position of clientX clientY of current drag event position. Broadcast as an event.
+        // drag and drop should not be handled by orbitControls, but it can provide the basic functionality to build off of
+
+        if ( this.camera.fov !== undefined ) {
+            var dir = unprojected.clone().sub( this.camera.position ).normalize();
+            var distance = - this.camera.position.z  / dir.z;
+
+            return this.camera.position.clone().add( dir.multiplyScalar( distance ) );
+        }
+    };
+
+    Workspace.prototype.findIntersections = function(unprojectVector){
+        var ray = new THREE.Raycaster( this.camera.position, unprojectVector.clone().sub( this.camera.position ).normalize() );
 
         var objects = [];
         _.each(this.glscene.children,function(el){
@@ -178,39 +232,8 @@ define([
 
         // create an array containing all objects in the scene with which the ray intersects
         var intersects = ray.intersectObjects( objects, true );
-console.log( x, y, intersects);
-//        console.log(intersects);
-        // INTERSECTED = the object in the scene currently closest to the camera
-        //		and intersected by the Ray projected from the mouse position
-//var INTERSECTED = null;
-//        // if there is one (or more) intersections
-//        if ( intersects.length > 0 )
-//        {
-//            // if the closest object intersected is not the currently stored intersection object
-//            if ( intersects[ 0 ].object != INTERSECTED )
-//            {
-//                // restore previous intersection object (if it exists) to its original color
-//                if ( INTERSECTED )
-//                    INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-//                // store reference to closest object as current intersection object
-//                INTERSECTED = intersects[ 0 ].object;
-//                console.log(INTERSECTED);
-//                // store color of closest object (for later restoration)
-//                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-//                // set a new color for closest object
-//                INTERSECTED.material.color.setHex( 0xffff00 );
-//            }
-//        }
-//        else // there are no intersections
-//        {
-//            console.log('no intersections');
-//            // restore previous intersection object (if it exists) to its original color
-//            if ( INTERSECTED )
-//                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-//            // remove previous intersection object reference
-//            //     by setting current intersection object to "nothing"
-//            INTERSECTED = null;
-//        }
+
+        console.log(intersects);
     };
 
     return new Workspace();
