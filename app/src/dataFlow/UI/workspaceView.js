@@ -108,7 +108,7 @@ define([
 
         var geometry = new THREE.ShapeGeometry( rectShape );
         geometry.applyMatrix( new THREE.Matrix4().makeTranslation( - width/2,  - height/2, 0) ); // the corresponding css element centers itself on the 3js position
-        var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true }) );
+        var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true, opacity: 0.0 }) );
         mesh.position.set(cssElement.position.x,cssElement.position.y,0);
         cssElement.element.glid = mesh.id; // keep a reference to the mesh "tracker" in the GL Scene
         mesh.cssId = cssElement.id;
