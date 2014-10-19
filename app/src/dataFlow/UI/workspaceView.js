@@ -183,6 +183,9 @@ define([
             // and the center of the dragging object
             this.dragOffset = {x: mousePosition.x - this.dragObject.position.x, y: mousePosition.y - this.dragObject.position.y};
 
+            // store the list of intersection objects once to avoid doing it on every move event. Don't intersect with the object you're dragging.
+            this.intersectionObjects = _.without(this.glscene.children, this.glDragObject);
+
             return true;
         }
         return false; // nothing to pick up -- no drag started
@@ -225,15 +228,16 @@ define([
     Workspace.prototype.findIntersections = function(unprojectVector){
         var ray = new THREE.Raycaster( this.camera.position, unprojectVector.clone().sub( this.camera.position ).normalize() );
 
-        var objects = [];
-        _.each(this.glscene.children,function(el){
-            objects.push(el);
-        });
-
         // create an array containing all objects in the scene with which the ray intersects
-        var intersects = ray.intersectObjects( objects, true );
+        var intersects = ray.intersectObjects( this.intersectionObjects, true );
 
-        console.log(intersects);
+        if (intersects.length > 0) {
+            // do something with the hover object(s)
+            _.each(intersects,function(intersection){
+                console.log(intersection.object);
+            });
+        }
+
     };
 
     return new Workspace();
