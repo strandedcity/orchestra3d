@@ -19,7 +19,7 @@ define([
         console.log('Creating workspace!!');
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch");
+        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseMove");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -41,6 +41,7 @@ define([
         this.renderer.setSize( width, height );
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
+        this.renderer.domElement.addEventListener("mousemove",this.mouseMove);
 
         // for testing!
         this.testElement();
@@ -142,11 +143,74 @@ define([
     Workspace.prototype.drag = function(e){
         this.dragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
         this.glDragObject.position.set(e.detail.x - this.dragOffset.x, e.detail.y - this.dragOffset.y, 0);
+        this.findIntersections(e.detail.x, e.detail.y);
         this.render();
     };
 
     Workspace.prototype.enableControls = function(value){
         this.controls.enabled = value;
+    };
+
+    Workspace.prototype.mouseMove = function(e){
+        this.findIntersections(e.clientX, e.clientY);
+    };
+
+    Workspace.prototype.findIntersections = function(x,y){
+        // find intersections
+
+        // create a Ray with origin at the mouse position
+        //   and direction into the scene (camera direction)
+        var projector = new THREE.Projector();
+        var vector = new THREE.Vector3( x, y, 1 );
+
+        var vector = new THREE.Vector3(
+                ( x / this.glrenderer.domElement.clientWidth ) * 2 - 1,
+                - ( y / this.glrenderer.domElement.clientHeight ) * 2 + 1,
+            0.5 );
+
+        projector.unprojectVector( vector, this.camera );
+        var ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
+        var objects = [];
+        _.each(this.glscene.children,function(el){
+            objects.push(el);
+        });
+
+        // create an array containing all objects in the scene with which the ray intersects
+        var intersects = ray.intersectObjects( objects, true );
+console.log( x, y, intersects);
+//        console.log(intersects);
+        // INTERSECTED = the object in the scene currently closest to the camera
+        //		and intersected by the Ray projected from the mouse position
+//var INTERSECTED = null;
+//        // if there is one (or more) intersections
+//        if ( intersects.length > 0 )
+//        {
+//            // if the closest object intersected is not the currently stored intersection object
+//            if ( intersects[ 0 ].object != INTERSECTED )
+//            {
+//                // restore previous intersection object (if it exists) to its original color
+//                if ( INTERSECTED )
+//                    INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+//                // store reference to closest object as current intersection object
+//                INTERSECTED = intersects[ 0 ].object;
+//                console.log(INTERSECTED);
+//                // store color of closest object (for later restoration)
+//                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+//                // set a new color for closest object
+//                INTERSECTED.material.color.setHex( 0xffff00 );
+//            }
+//        }
+//        else // there are no intersections
+//        {
+//            console.log('no intersections');
+//            // restore previous intersection object (if it exists) to its original color
+//            if ( INTERSECTED )
+//                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+//            // remove previous intersection object reference
+//            //     by setting current intersection object to "nothing"
+//            INTERSECTED = null;
+//        }
     };
 
     return new Workspace();
