@@ -40,12 +40,12 @@ define([
 
     Workspace.prototype.init = function(){
         // "Global" dictionary to store draggable objects across two threejs scenes: a CSS scene and a WebGL scene
-        this.objectDictionary = {};
-        console.warn("DONT SET OBJECT DICTIONARY GLOBALLY");
-        window.objectDictionary = this.objectDictionary;
+        this.objectDictionary = {}; // find any object from its UUID, regardless of the scene it's in
+        this.cssObjectsByGLId = {}; // look up a CSS object from the id of the corresponding GL object
+        this.glObjectsByCSSId = {}; // look up a GL object from the id of its corresponding CSS object
 
         // Extensions to enable drag & drop
-        _.extend(THREE.Object3D.prototype, Object3DExtensions);
+        _.extend(THREE.CSS3DObject.prototype, Object3DExtensions);
 
         // drag and drop related
         _.bindAll(this, "startDrag", "drag", "render","createComponentWithNamePosition", "createGLElementToMatch","_createIOWithNameAndParent", "mouseDown", "mouseUp", "clearHover");
@@ -109,9 +109,9 @@ define([
         object.position.x = x || 0;
         object.position.y = y || 0;
         object.position.z = 0;
-        element.id = object.id; // so the object is identifiable later for drag/drop operations
 
         this.scene.add(object);
+        element.uuid = object.uuid; // so the object is identifiable later for drag/drop operations
         this.objectDictionary[object.uuid] = object;
         var that = this;
         _.defer(function(){
@@ -185,9 +185,14 @@ define([
         geometry.applyMatrix( new THREE.Matrix4().makeTranslation( - width/2,  - height/2, 0) ); // the corresponding css element centers itself on the 3js position
         var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true, opacity: 0.0 }) );
         mesh.position.set(cssElement.position.x,cssElement.position.y,0);
-        cssElement.element.glid = mesh.id; // keep a reference to the mesh "tracker" in the GL Scene
-        mesh.cssId = cssElement.id;
+        cssElement.element.uuid = cssElement.uuid;
+
+        // enable easy lookups in all directions:
         this.objectDictionary[mesh.uuid] = mesh;
+        this.objectDictionary[cssElement.uuid] = cssElement;
+        this.cssObjectsByGLId[mesh.uuid] = cssElement;
+        this.glObjectsByCSSId[cssElement.uuid] = mesh;
+
         this.glscene.add(mesh);
     };
 
@@ -259,9 +264,8 @@ define([
             mousePosition = this.mouseWorldXYPosition(unprojectedVector);
 
             // the three.js object id is passed back by the start drag event.
-            var draggingId = parseInt(nodeToDrag.id);
-            this.dragObject = this.scene.getObjectById(draggingId);
-            this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
+            this.dragObject = this.objectDictionary[nodeToDrag.uuid];
+            this.glDragObject = this.glObjectsByCSSId[nodeToDrag.uuid];
             this.hoverObject = null;
             this.glHoverObject = null;
 
@@ -278,14 +282,13 @@ define([
     };
 
     Workspace.prototype.computeDroppableObjects = function(){
-        var droppables = []; //_.without(this.glscene.children, this.glDragObject);
-
-        var draggableScopes = this.scene.getObjectById(this.glDragObject.cssId).getDraggableScopes();
+        var droppables = [];
+        var draggableScopes = this.dragObject.getDraggableScopes();
 
         var that = this;
         _.each(this.glscene.children,function(glObject){
             if (glObject !== that.glDragObject) { // draggable never droppable on itself
-                if (that.scene.getObjectById(glObject.cssId).isDroppableForScopes(draggableScopes)){
+                if (that.cssObjectsByGLId[glObject.uuid].isDroppableForScopes(draggableScopes)){
                     droppables.push(glObject);
                 }
             }
@@ -338,13 +341,10 @@ define([
             // TODO: What happens with multiple intersection objects? Handling multiples here can result in some 'stuck' hover classes being added
             var intersection = intersects[0];
             this.glHoverObject = intersection.object;
-            this.hoverObject = this.scene.getObjectById(this.glHoverObject.cssId);
+            this.hoverObject = this.cssObjectsByGLId[intersection.object.uuid];
             this.hoverObject.element.className += ' glHover';
         }
 
-//        if (!_.isNull(this.hoverObject) && intersects.length === 0) {
-//            this.clearHover();
-//        }
         if (!_.isNull(this.hoverObject) && (intersects.length === 0 || intersects[0].object !== this.glHoverObject) ) this.clearHover();
     };
 
