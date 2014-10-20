@@ -35,10 +35,11 @@
             outline: none;
         }
         input.number:hover {
-            border: 10px solid orange;
+            border: 5px solid orange;
         }
 
         div.IO {
+            box-sizing: border-box;
             position: absolute;
             display: block;
             background-color: #ffff00;
@@ -54,8 +55,19 @@
             text-align: center;
             font-weight: bold;
         }
-        div.inputIO.IO {
-            left: -50px;
+        div.IO:hover {
+            box-sizing: border-box;
+            border: 5px solid orange;
+            cursor: pointer;
+        }
+        /*div.inputIO.IO {*/
+            /*left: -150px;*/
+        /*}*/
+        /*div.outputIO.IO {*/
+            /*left: 150px;*/
+        /*}*/
+        div.IO.glHover {
+            background-color: red;
         }
 
         .glHover input {

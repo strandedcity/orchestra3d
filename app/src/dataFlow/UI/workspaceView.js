@@ -79,16 +79,20 @@ define([
 
     Workspace.prototype.testElement = function(){
 
-        var pointxyz = this.createComponentWithNamePosition("Point (x,y,z)", 0, 0);
-        pointxyz.addDroppableScopes(["num"]);
+        var pointxyz = this.createComponentWithNamePosition("Point (x,y,z)", 200, 0);
+        this.createInputWithNameAndParent("x","num",pointxyz,60);
+        this.createInputWithNameAndParent("y","num",pointxyz,0);
+        this.createInputWithNameAndParent("z","num",pointxyz,-60);
+        this.createOutputWithNameAndParent("pt","point",pointxyz,0);
 
         var number1 = this.createComponentWithNamePosition("Number",-300,-200);
+        this.createOutputWithNameAndParent("#","num",number1,0);
+
         var number2 = this.createComponentWithNamePosition("Number",-350,-50);
+        this.createOutputWithNameAndParent("#","num",number2,0);
+
         var number3 = this.createComponentWithNamePosition("Number",-400,300);
-        number1.addDraggableScopes(["num"]);
-        number2.addDraggableScopes(["num"]);
-        number2.addDroppableScopes(["num"]);
-        number3.addDraggableScopes(["num"]);
+        this.createOutputWithNameAndParent("#","num",number3,0);
 
         this.render();
 
@@ -118,26 +122,12 @@ define([
             that.createGLElementToMatch(cssObject);
         });
 
-        this.createInputWithNameAndParent("x",cssObject);
-//        this.createInputWithNameAndParent("y",element);
-//        this.createInputWithNameAndParent("z",element);
-
-//
-//        var inputList = document.createElement('ul');
-//        inputList.className = 'inputList';
-//        element.appendChild(inputList);
-//
-//        var input1 = document.createElement('li');
-////        input1.textContent = "INPUT";
-//        inputList.appendChild(input1);
-
-
         return cssObject;
     };
 
     Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement){
         var element = document.createElement("div");
-        element.className = 'draggable inputIO IO';
+        element.className = 'draggable IO';
         element.textContent = name;
         parentCSSElement.element.appendChild(element);
 
@@ -146,17 +136,33 @@ define([
         this.objectDictionary[cssObject.uuid] = cssObject;
         parentCSSElement.add(cssObject);
 
-        element.style.top = "-40px";
-
         var that = this;
         _.defer(function(){that.createGLElementToMatch( cssObject );});
 
         return cssObject;
     };
-    Workspace.prototype.createInputWithNameAndParent = function(name, parentCSSElement){
+    Workspace.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
         var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
-        ioElement.addDraggableScopes(["input","num"]);
-        ioElement.addDroppableScopes(["output"]);
+        ioElement.position.y = verticalOffset;
+        ioElement.position.x = -150;
+        ioElement.position.z = 0;
+//        ioElement.element.style.top = verticalOffset + "px";
+        ioElement.element.className += ' inputIO';
+        ioElement.addDraggableScopes(["input",dragScope]);
+        ioElement.addDroppableScopes(["output",dragScope]);
+        var that = this;
+        _.defer(function(){that.createGLElementToMatch(ioElement)});
+        return ioElement;
+    };
+    Workspace.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
+        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
+        ioElement.position.y = verticalOffset;
+        ioElement.position.x = 150;
+        ioElement.position.z = 0;
+//        ioElement.element.style.top = verticalOffset + "px";
+        ioElement.element.className += ' outputIO';
+        ioElement.addDroppableScopes(["input",dragScope]);
+        ioElement.addDraggableScopes(["output",dragScope]);
         var that = this;
         _.defer(function(){that.createGLElementToMatch(ioElement)});
         return ioElement;
@@ -189,7 +195,16 @@ define([
         this.cssObjectsByGLId[mesh.uuid] = cssElement;
         this.glObjectsByCSSId[cssElement.uuid] = mesh;
 
-        this.glscene.add(mesh);
+        // Add to scene if this is a top-level element, otherwise mimick the css-object hierarchy to keep pieces moving together!
+        // TODO: Find a better test for "is a THREE.CSS3DObject"
+        if (!_.isUndefined(cssElement.parent.element)) {
+            // look up the right GL parent:
+//            console.log(cssElement.element.clientOffset);
+            this.glObjectsByCSSId[cssElement.parent.uuid].add(mesh);
+        } else {
+            this.glscene.add(mesh);
+        }
+
     };
 
     Workspace.prototype.render = function(){
@@ -282,13 +297,17 @@ define([
         var draggableScopes = this.dragObject.getDraggableScopes();
 
         var that = this;
-        _.each(this.glscene.children,function(glObject){
-            if (glObject !== that.glDragObject) { // draggable never droppable on itself
+
+        // a little messy recursion here to make sure we intersect with GL Objects' children
+        function testAndAdd(glObject){
+            if (glObject !== that.glDragObject && glObject !== that.glscene) { // draggable never droppable on itself
                 if (that.cssObjectsByGLId[glObject.uuid].isDroppableForScopes(draggableScopes)){
                     droppables.push(glObject);
                 }
             }
-        });
+            _.each(glObject.children,testAndAdd);
+        }
+        testAndAdd(that.glscene);
 
         return droppables;
     };
@@ -336,6 +355,7 @@ define([
         if (intersects.length > 0 && _.isNull(this.hoverObject)) {
             // TODO: What happens with multiple intersection objects? Handling multiples here can result in some 'stuck' hover classes being added
             var intersection = intersects[0];
+//            console.log(intersects);
             this.glHoverObject = intersection.object;
             this.hoverObject = this.cssObjectsByGLId[intersection.object.uuid];
             this.hoverObject.element.className += ' glHover';
