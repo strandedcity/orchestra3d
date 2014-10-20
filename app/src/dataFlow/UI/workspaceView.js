@@ -105,20 +105,20 @@ define([
         number.value = name;
         element.appendChild( number );
 
-        var object = new THREE.CSS3DObject( element );
-        object.position.x = x || 0;
-        object.position.y = y || 0;
-        object.position.z = 0;
+        var cssObject = new THREE.CSS3DObject( element );
+        cssObject.position.x = x || 0;
+        cssObject.position.y = y || 0;
+        cssObject.position.z = 0;
 
-        this.scene.add(object);
-        element.uuid = object.uuid; // so the object is identifiable later for drag/drop operations
-        this.objectDictionary[object.uuid] = object;
+        this.scene.add(cssObject);
+        element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
+        this.objectDictionary[cssObject.uuid] = cssObject;
         var that = this;
         _.defer(function(){
-            that.createGLElementToMatch(object);
+            that.createGLElementToMatch(cssObject);
         });
 
-        this.createInputWithNameAndParent("x",object);
+        this.createInputWithNameAndParent("x",cssObject);
 //        this.createInputWithNameAndParent("y",element);
 //        this.createInputWithNameAndParent("z",element);
 
@@ -132,7 +132,7 @@ define([
 //        inputList.appendChild(input1);
 
 
-        return object;
+        return cssObject;
     };
 
     Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement){
@@ -141,25 +141,21 @@ define([
         element.textContent = name;
         parentCSSElement.element.appendChild(element);
 
-        var object = new THREE.CSS3DObject( element );
+        var cssObject = new THREE.CSS3DObject( element );
 
-        this.objectDictionary[object.uuid] = object;
-//        object.position.x = parentCSSElement.position.x;
-//        object.position.y = 100;
-//        object.position.z = 0;
-//        element.id = object.id;
-        parentCSSElement.add(object);
+        this.objectDictionary[cssObject.uuid] = cssObject;
+        parentCSSElement.add(cssObject);
 
         element.style.top = "-40px";
 
         var that = this;
-        _.defer(function(){that.createGLElementToMatch( object );});
+        _.defer(function(){that.createGLElementToMatch( cssObject );});
 
-        return object;
+        return cssObject;
     };
     Workspace.prototype.createInputWithNameAndParent = function(name, parentCSSElement){
         var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
-        ioElement.addDraggableScopes(["input"]);
+        ioElement.addDraggableScopes(["input","num"]);
         ioElement.addDroppableScopes(["output"]);
         var that = this;
         _.defer(function(){that.createGLElementToMatch(ioElement)});
