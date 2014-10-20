@@ -39,13 +39,16 @@ define([
     };
 
     Workspace.prototype.init = function(){
-        console.log('Creating workspace!!');
+        // "Global" dictionary to store draggable objects across two threejs scenes: a CSS scene and a WebGL scene
+        this.objectDictionary = {};
+        console.warn("DONT SET OBJECT DICTIONARY GLOBALLY");
+        window.objectDictionary = this.objectDictionary;
 
         // Extensions to enable drag & drop
         _.extend(THREE.Object3D.prototype, Object3DExtensions);
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render", "createGLElementToMatch", "mouseDown", "mouseUp", "clearHover");
+        _.bindAll(this, "startDrag", "drag", "render","createComponentWithNamePosition", "createGLElementToMatch","_createIOWithNameAndParent", "mouseDown", "mouseUp", "clearHover");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -76,12 +79,12 @@ define([
 
     Workspace.prototype.testElement = function(){
 
-        var pointxyz = this.createElementWithNamePosition("Point (x,y,z)", 0, 0);
+        var pointxyz = this.createComponentWithNamePosition("Point (x,y,z)", 0, 0);
         pointxyz.addDroppableScopes(["num"]);
 
-        var number1 = this.createElementWithNamePosition("Number",-300,-200);
-        var number2 = this.createElementWithNamePosition("Number",-350,-50);
-        var number3 = this.createElementWithNamePosition("Number",-400,300);
+        var number1 = this.createComponentWithNamePosition("Number",-300,-200);
+        var number2 = this.createComponentWithNamePosition("Number",-350,-50);
+        var number3 = this.createComponentWithNamePosition("Number",-400,300);
         number1.addDraggableScopes(["num"]);
         number2.addDraggableScopes(["num"]);
         number2.addDroppableScopes(["num"]);
@@ -92,9 +95,9 @@ define([
     };
 
 
-    Workspace.prototype.createElementWithNamePosition = function(name, x, y){
+    Workspace.prototype.createComponentWithNamePosition = function(name, x, y){
         var element = document.createElement( 'div' );
-        element.className = 'draggable element';
+        element.className = 'draggable';
 
         var number = document.createElement( 'input' );
         number.type = "text";
@@ -109,12 +112,58 @@ define([
         element.id = object.id; // so the object is identifiable later for drag/drop operations
 
         this.scene.add(object);
+        this.objectDictionary[object.uuid] = object;
         var that = this;
         _.defer(function(){
             that.createGLElementToMatch(object);
         });
 
+        this.createInputWithNameAndParent("x",object);
+//        this.createInputWithNameAndParent("y",element);
+//        this.createInputWithNameAndParent("z",element);
+
+//
+//        var inputList = document.createElement('ul');
+//        inputList.className = 'inputList';
+//        element.appendChild(inputList);
+//
+//        var input1 = document.createElement('li');
+////        input1.textContent = "INPUT";
+//        inputList.appendChild(input1);
+
+
         return object;
+    };
+
+    Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement){
+        var element = document.createElement("div");
+        element.className = 'draggable inputIO IO';
+        element.textContent = name;
+        parentCSSElement.element.appendChild(element);
+
+        var object = new THREE.CSS3DObject( element );
+
+        this.objectDictionary[object.uuid] = object;
+//        object.position.x = parentCSSElement.position.x;
+//        object.position.y = 100;
+//        object.position.z = 0;
+//        element.id = object.id;
+        parentCSSElement.add(object);
+
+        element.style.top = "-40px";
+
+        var that = this;
+        _.defer(function(){that.createGLElementToMatch( object );});
+
+        return object;
+    };
+    Workspace.prototype.createInputWithNameAndParent = function(name, parentCSSElement){
+        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
+        ioElement.addDraggableScopes(["input"]);
+        ioElement.addDroppableScopes(["output"]);
+        var that = this;
+        _.defer(function(){that.createGLElementToMatch(ioElement)});
+        return ioElement;
     };
 
     // We need the css renderer so that standard DOM components like inputs can be usable, and scaled
@@ -138,6 +187,7 @@ define([
         mesh.position.set(cssElement.position.x,cssElement.position.y,0);
         cssElement.element.glid = mesh.id; // keep a reference to the mesh "tracker" in the GL Scene
         mesh.cssId = cssElement.id;
+        this.objectDictionary[mesh.uuid] = mesh;
         this.glscene.add(mesh);
     };
 
@@ -200,13 +250,16 @@ define([
     };
 
     Workspace.prototype.startDrag = function(e){
-        var appliedClasses = e.target.parentNode.className;
-        if (appliedClasses.indexOf('draggable') !== -1) {
+        var nodeToDrag = null;
+        if (e.target.className.indexOf('draggable') !== -1) {nodeToDrag = e.target;}
+        if (_.isNull(nodeToDrag) && e.target.parentNode.className.indexOf('draggable') !== -1) {nodeToDrag = e.target.parentNode;}
+
+        if (!_.isNull(nodeToDrag)) {
             var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY),
             mousePosition = this.mouseWorldXYPosition(unprojectedVector);
 
             // the three.js object id is passed back by the start drag event.
-            var draggingId = parseInt(e.target.parentNode.id);
+            var draggingId = parseInt(nodeToDrag.id);
             this.dragObject = this.scene.getObjectById(draggingId);
             this.glDragObject = this.glscene.getObjectById(this.dragObject.element.glid);
             this.hoverObject = null;
