@@ -28,8 +28,13 @@ define([
             return this.draggableScopes || [];
         },
         isDroppableForScopes: function(scopeNames){
-            return _.intersection(this.dropableScopes,scopeNames).length > 0;
-        },
+            // "input" or "output" is required to match
+            if ( this.getDroppableScopes().indexOf("input") !== -1 && scopeNames.indexOf("input") === -1){  return false; }
+            else if (this.getDroppableScopes().indexOf("output") !== -1 && scopeNames.indexOf("output") === -1) { return false; }
+
+            // to be a valid drop target, the input/output setting must match PLUS at least one other scope.
+            return  _.without(_.intersection(this.getDroppableScopes(),scopeNames),"input","output").length > 0;
+        }
     });
 
 
