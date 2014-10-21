@@ -12,7 +12,8 @@ define([
     "underscore"
 ],function(){
 
-    var Object3DExtensions = _.extend({},{
+    // Helpers for drag-and-drop scopes
+    _.extend(THREE.CSS3DObject.prototype,{
         addDraggableScopes: function(scopes){
             this.draggableScopes = this.draggableScopes || [];
             this.draggableScopes = _.union(this.draggableScopes,scopes);
@@ -48,9 +49,6 @@ define([
         this.objectDictionary = {}; // find any object from its UUID, regardless of the scene it's in
         this.cssObjectsByGLId = {}; // look up a CSS object from the id of the corresponding GL object
         this.glObjectsByCSSId = {}; // look up a GL object from the id of its corresponding CSS object
-
-        // Extensions to enable drag & drop
-        _.extend(THREE.CSS3DObject.prototype, Object3DExtensions);
 
         // drag and drop related
         _.bindAll(this, "startDrag", "drag", "render","createComponentWithNamePosition", "createGLElementToMatch","_createIOWithNameAndParent", "mouseDown", "mouseUp", "clearHover");
@@ -100,6 +98,39 @@ define([
         this.createOutputWithNameAndParent("#","num",number3,0);
 
         this.render();
+
+
+        // Test drawing a line between components. Must find a way for this line to auto-update when components move...
+        var that = this;
+        _.defer(function(){
+            var material = new THREE.LineBasicMaterial({
+                color: 0xffffff
+            });
+            var geometry = new THREE.Geometry();
+            geometry.vertices.push(number1.position);
+            geometry.vertices.push(pointxyz.position);
+            that.glObjectsByCSSId[pointxyz.uuid].addEventListener('changePosition',function(e){
+                geometry.vertices[1].x=this.position.x;
+                geometry.vertices[1].y=this.position.y;
+
+                //https://github.com/mrdoob/three.js/wiki/Updates
+                geometry.verticesNeedUpdate = true;
+            });
+            that.glObjectsByCSSId[number1.uuid].addEventListener('changePosition',function(e){
+                geometry.vertices[0].x=this.position.x;
+                geometry.vertices[0].y=this.position.y;
+
+                //https://github.com/mrdoob/three.js/wiki/Updates
+                geometry.verticesNeedUpdate = true;
+            });
+            var line = new THREE.Line(geometry, material);
+
+            that.glscene.add(line);
+
+
+            that.render();
+        });
+
 
     };
 
@@ -305,7 +336,7 @@ define([
 
         // a little messy recursion here to make sure we intersect with GL Objects' children
         function testAndAdd(glObject){
-            if (glObject !== that.glDragObject && glObject !== that.glscene) { // draggable never droppable on itself
+            if (glObject !== that.glDragObject && glObject !== that.glscene && !_.isUndefined(that.cssObjectsByGLId[glObject.uuid])) { // draggable never droppable on itself
                 if (that.cssObjectsByGLId[glObject.uuid].isDroppableForScopes(draggableScopes)){
                     droppables.push(glObject);
                 }
@@ -322,6 +353,7 @@ define([
         var worldPosition = this.mouseWorldXYPosition(unprojectedVector);
         this.dragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
         this.glDragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
+        this.glDragObject.dispatchEvent({ type: 'changePosition' });
         this.findIntersections(unprojectedVector);
         this.render();
     };
