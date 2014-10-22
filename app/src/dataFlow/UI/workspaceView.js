@@ -100,38 +100,62 @@ define([
         this.render();
 
 
+        function drawCurveFromPointToPoint(startPoint,endPoint, mesh){
+            // smooth my curve over this many points
+            var numPoints = 50;
+
+            // calculate intermediate point positions:
+            var m1 = new THREE.Vector3(startPoint.x + 3*(endPoint.x - startPoint.x)/4, startPoint.y , 0),
+                m2 = new THREE.Vector3(endPoint.x - 3*(endPoint.x - startPoint.x)/4, endPoint.y, 0),
+                spline = new THREE.CubicBezierCurve3(
+                    startPoint,
+                    m1,
+                    m2,
+                    endPoint
+                );
+
+            var material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+            });
+
+            var geometry, splinePoints = spline.getPoints(numPoints);
+            if (_.isUndefined(mesh)) {
+                geometry = new THREE.Geometry();
+                for(var i = 0; i < splinePoints.length; i++){
+                    geometry.vertices.push(splinePoints[i]);
+                }
+                return new THREE.Line(geometry, material);
+            } else {
+                geometry = mesh.geometry;
+                for(var i = 0; i < splinePoints.length; i++){
+                    geometry.vertices[i]=splinePoints[i];
+                }
+
+                //https://github.com/mrdoob/three.js/wiki/Updates
+                geometry.verticesNeedUpdate = true;
+                return mesh;
+            }
+        };
+
         // Test drawing a line between components. Must find a way for this line to auto-update when components move...
         var that = this;
         _.defer(function(){
-            var material = new THREE.LineBasicMaterial({
-                color: 0xffffff
-            });
-            var geometry = new THREE.Geometry();
-            geometry.vertices.push(number1.position);
-            geometry.vertices.push(pointxyz.position);
-            that.glObjectsByCSSId[pointxyz.uuid].addEventListener('changePosition',function(e){
-                geometry.vertices[1].x=this.position.x;
-                geometry.vertices[1].y=this.position.y;
+            // Create the curved connection. Because the curves will be "oriented" it's important to start at the OUTPUT of the component
+            // and end at the INPUT of the connected component.
+            var mesh = drawCurveFromPointToPoint(number1.position, pointxyz.position);
 
-                //https://github.com/mrdoob/three.js/wiki/Updates
-                geometry.verticesNeedUpdate = true;
+            that.glObjectsByCSSId[pointxyz.uuid].addEventListener('changePosition',function(e){
+                // Adjust the curved connection during drag events for each end
+                drawCurveFromPointToPoint(number1.position, this.position, mesh);
             });
             that.glObjectsByCSSId[number1.uuid].addEventListener('changePosition',function(e){
-                geometry.vertices[0].x=this.position.x;
-                geometry.vertices[0].y=this.position.y;
-
-                //https://github.com/mrdoob/three.js/wiki/Updates
-                geometry.verticesNeedUpdate = true;
+                drawCurveFromPointToPoint(this.position, pointxyz.position, mesh);
             });
-            var line = new THREE.Line(geometry, material);
 
-            that.glscene.add(line);
-
+            that.glscene.add(mesh);
 
             that.render();
         });
-
-
     };
 
 
