@@ -102,11 +102,11 @@ define([
 
         function drawCurveFromPointToPoint(startPoint,endPoint, mesh){
             // smooth my curve over this many points
-            var numPoints = 50;
+            var numPoints = 25;
 
             // calculate intermediate point positions:
-            var m1 = new THREE.Vector3(startPoint.x + 3*(endPoint.x - startPoint.x)/4, startPoint.y , 0),
-                m2 = new THREE.Vector3(endPoint.x - 3*(endPoint.x - startPoint.x)/4, endPoint.y, 0),
+            var m1 = new THREE.Vector3(startPoint.x + 2*(endPoint.x - startPoint.x)/3, startPoint.y , 0),
+                m2 = new THREE.Vector3(endPoint.x - 2*(endPoint.x - startPoint.x)/3, endPoint.y, 0),
                 spline = new THREE.CubicBezierCurve3(
                     startPoint,
                     m1,
@@ -115,7 +115,7 @@ define([
                 );
 
             var material = new THREE.LineBasicMaterial({
-                color: 0xffffff,
+                color: 0xffffff
             });
 
             var geometry, splinePoints = spline.getPoints(numPoints);
@@ -142,14 +142,14 @@ define([
         _.defer(function(){
             // Create the curved connection. Because the curves will be "oriented" it's important to start at the OUTPUT of the component
             // and end at the INPUT of the connected component.
-            var mesh = drawCurveFromPointToPoint(number1.position, pointxyz.position);
+            var mesh = drawCurveFromPointToPoint(number1.position.clone().add(new THREE.Vector3(150,0,0)), pointxyz.position.clone().sub(new THREE.Vector3(150,0,0)));
 
             that.glObjectsByCSSId[pointxyz.uuid].addEventListener('changePosition',function(e){
                 // Adjust the curved connection during drag events for each end
-                drawCurveFromPointToPoint(number1.position, this.position, mesh);
+                drawCurveFromPointToPoint(number1.position.clone().add(new THREE.Vector3(150,0,0)), this.position.clone().sub(new THREE.Vector3(150,0,0)), mesh);
             });
             that.glObjectsByCSSId[number1.uuid].addEventListener('changePosition',function(e){
-                drawCurveFromPointToPoint(this.position, pointxyz.position, mesh);
+                drawCurveFromPointToPoint(this.position.clone().add(new THREE.Vector3(150,0,0)), pointxyz.position.clone().sub(new THREE.Vector3(150,0,0)), mesh);
             });
 
             that.glscene.add(mesh);
