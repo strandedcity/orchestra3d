@@ -57,7 +57,8 @@ define([
 
         var width = window.innerWidth / 2,
             height = window.innerHeight;
-        this.camera = new THREE.PerspectiveCamera( 70, width / height, 1, 5000 );
+        /* THIS IS IMPORTANT! Large "far" value keeps connection curves from disappearing when you zoom way out on the workspace. */
+        this.camera = new THREE.PerspectiveCamera( 70, width / height, 1, 1000000 );
         this.camera.position.z = 800;
 
         // GL scene handles drag & drop, mouse/touch events, and drawing of connections
@@ -99,14 +100,13 @@ define([
 
         this.render();
 
-
         function drawCurveFromPointToPoint(startPoint,endPoint, mesh){
             // smooth my curve over this many points
             var numPoints = 25;
 
             // calculate intermediate point positions:
-            var m1 = new THREE.Vector3(startPoint.x + 2*(endPoint.x - startPoint.x)/3, startPoint.y , 0),
-                m2 = new THREE.Vector3(endPoint.x - 2*(endPoint.x - startPoint.x)/3, endPoint.y, 0),
+            var m1 = new THREE.Vector3(Math.max(startPoint.x +200,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
+                m2 = new THREE.Vector3(Math.min(endPoint.x-200,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
                 spline = new THREE.CubicBezierCurve3(
                     startPoint,
                     m1,
@@ -124,7 +124,9 @@ define([
                 for(var i = 0; i < splinePoints.length; i++){
                     geometry.vertices.push(splinePoints[i]);
                 }
-                return new THREE.Line(geometry, material);
+                var newMesh = new THREE.Line(geometry, material);
+                newMesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
+                return newMesh;
             } else {
                 geometry = mesh.geometry;
                 for(var i = 0; i < splinePoints.length; i++){
