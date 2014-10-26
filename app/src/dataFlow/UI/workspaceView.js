@@ -15,12 +15,10 @@ define([
     // Helpers for drag-and-drop scopes
     _.extend(THREE.CSS3DObject.prototype,{
         addDraggableScopes: function(scopes){
-            this.draggableScopes = this.draggableScopes || [];
-            this.draggableScopes = _.union(this.draggableScopes,scopes);
+            this.draggableScopes = _.union(this.draggableScopes || [],scopes);
         },
         addDroppableScopes: function(scopes){
-            this.dropableScopes = this.dropableScopes || [];
-            this.dropableScopes = _.union(this.dropableScopes,scopes);
+            this.dropableScopes = _.union(this.dropableScopes || [],scopes);
         },
         getDroppableScopes: function(){
             return this.dropableScopes || [];
