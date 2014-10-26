@@ -84,10 +84,10 @@ define([
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
 
+        this.attachControls();
+
         // for testing!
         this.testElement();
-
-        this.attachControls();
     };
 
     Workspace.prototype.testElement = function(){
@@ -264,7 +264,20 @@ define([
             // snap-back behavior requires IO elements to know their own home positions
             // note that these positions will be with reference to the parent, not the world.
             glObject.setHomePosition();
+
+            // Outputs, when dragged, should draw "stretchy" lines from  their "home" positions to the drag position.
+            // When dropped on an acceptable input, this line will be drawn as a permanent "connection" instead
+            var stretchy = that.drawCurveFromPointToPoint(glObject.getHomePosition(), glObject.position);
+            glObject.parent.add(stretchy);
+            glObject.addEventListener('changePosition',function(e){
+                that.drawCurveFromPointToPoint(glObject.getHomePosition(), glObject.position, stretchy);
+                // TODO: When there's a connection to this node, the INTERNAL line SHOULD NOT be redrawn when the overall component is moved!!
+                // OBSERVE WHEN THIS IS CALLED
+                console.log('redraw');
+            });
         });
+
+
         return ioElement;
     };
 
