@@ -167,26 +167,25 @@ define([
                 endPoint
             );
 
-        var geometry, splinePoints = spline.getPoints(numPoints);
-        if (_.isUndefined(mesh)) {
-            geometry = new THREE.Geometry();
-            for(var i = 0; i < splinePoints.length; i++){
-                geometry.vertices.push(splinePoints[i]);
-            }
-            var material = new THREE.LineBasicMaterial({ color: 0xffffff });
-            var newMesh = new THREE.Line(geometry, material);
-            newMesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
-            return newMesh;
-        } else {
-            geometry = mesh.geometry;
-            for(var i = 0; i < splinePoints.length; i++){
-                geometry.vertices[i]=splinePoints[i];
-            }
+        var createNew = _.isUndefined(mesh),
+            geometry = createNew ? new THREE.Geometry : mesh.geometry,
+            splinePoints = spline.getPoints(numPoints);
 
-            //https://github.com/mrdoob/three.js/wiki/Updates
-            geometry.verticesNeedUpdate = true;
-            return mesh;
+        // approximate the curve in numPoints line segments
+        for(var i = 0; i < splinePoints.length; i++){
+            geometry.vertices[i]=splinePoints[i];
         }
+
+        // For re-used meshes: https://github.com/mrdoob/three.js/wiki/Updates
+        geometry.verticesNeedUpdate = true;
+
+        if (createNew) {
+            var material = new THREE.LineBasicMaterial({ color: 0xffffff });
+            var mesh = new THREE.Line(geometry, material);
+            mesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
+        }
+
+        return mesh;
     };
 
     Workspace.prototype.createComponentWithNamePosition = function(name, x, y){
