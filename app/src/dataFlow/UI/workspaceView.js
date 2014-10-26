@@ -157,8 +157,9 @@ define([
         var numPoints = 30;
 
         // calculate intermediate point positions:
-        var m1 = new THREE.Vector3(Math.max(startPoint.x +200,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
-            m2 = new THREE.Vector3(Math.min(endPoint.x-200,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
+        var minControlpointDist = Math.min(200,Math.sqrt( Math.pow((endPoint.x - startPoint.x),2) + Math.pow((endPoint.y - startPoint.y),2)  ));
+        var m1 = new THREE.Vector3(Math.max(startPoint.x +minControlpointDist,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
+            m2 = new THREE.Vector3(Math.min(endPoint.x-minControlpointDist,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
             spline = new THREE.CubicBezierCurve3(
                 startPoint,
                 m1,
