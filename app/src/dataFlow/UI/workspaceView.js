@@ -207,7 +207,7 @@ define([
         return cssObject;
     };
 
-    Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement){
+    Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement, verticalOffset){
         var element = document.createElement("div");
         element.className = 'draggable IO';
         element.textContent = name;
@@ -221,14 +221,13 @@ define([
         var that = this;
         _.defer(function(){that.createGLElementToMatch( cssObject );});
 
+        cssObject.position.z = 0;
+        cssObject.position.y = verticalOffset;
         return cssObject;
     };
     Workspace.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
-        ioElement.position.y = verticalOffset;
+        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset);
         ioElement.position.x = -150;
-        ioElement.position.z = 0;
-//        ioElement.element.style.top = verticalOffset + "px";
         ioElement.element.className += ' inputIO';
         ioElement.addDraggableScopes(["input",dragScope]);
         ioElement.addDroppableScopes(["output",dragScope]);
@@ -237,11 +236,8 @@ define([
         return ioElement;
     };
     Workspace.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement);
-        ioElement.position.y = verticalOffset;
+        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset);
         ioElement.position.x = 150;
-        ioElement.position.z = 0;
-//        ioElement.element.style.top = verticalOffset + "px";
         ioElement.element.className += ' outputIO';
         ioElement.addDroppableScopes(["input",dragScope]);
         ioElement.addDraggableScopes(["output",dragScope]);
