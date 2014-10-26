@@ -115,10 +115,10 @@ define([
 
             // Makes the I/O's move with their wires AND the components they're attached to. Seems really inefficient though.
             that.glObjectsByCSSId[pointxyz.uuid].addEventListener("changePosition",function(){
-                that.glObjectsByCSSId[pointX.uuid].dispatchEvent({ type: 'changePosition' });
+                that.glObjectsByCSSId[pointX.uuid].dispatchEvent({ type: 'changeComponentPosition' });
             });
             that.glObjectsByCSSId[number1.uuid].addEventListener("changePosition",function(){
-                that.glObjectsByCSSId[number1Out.uuid].dispatchEvent({ type: 'changePosition' });
+                that.glObjectsByCSSId[number1Out.uuid].dispatchEvent({ type: 'changeComponentPosition' });
             });
 
 
@@ -134,13 +134,13 @@ define([
 
             var mesh = that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld);
 
-            that.glObjectsByCSSId[pointX.uuid].addEventListener('changePosition',function(e){
+            that.glObjectsByCSSId[pointX.uuid].addEventListener('changeComponentPosition',function(e){
                 // Adjust the curved connection during drag events for each end
                 endVectorWorld.setFromMatrixPosition(this.matrixWorld);
                 that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
                 _.defer(function(){that.render()});
             });
-            that.glObjectsByCSSId[number1Out.uuid].addEventListener('changePosition',function(e){
+            that.glObjectsByCSSId[number1Out.uuid].addEventListener('changeComponentPosition',function(e){
                 startVectWorld.setFromMatrixPosition(this.matrixWorld);
                 that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
                 _.defer(function(){that.render()}); // necessary so that wires are re-drawn after drop events
@@ -248,10 +248,9 @@ define([
             var curveArguments = [glObject.position, glObject.getHomePosition()];
             if (!isInput) {curveArguments.reverse();}
             glObject.addEventListener('changePosition',function(e){
+                // NOTE: When there's a connection to this node, the INTERNAL line SHOULD NOT be redrawn when the overall component is moved!
+                // Currently, is is achieved by having separate events for "IO is moving" and "component on which IO lives is moving"
                 that.drawCurveFromPointToPoint(curveArguments[0], curveArguments[1], stretchy);
-                // TODO: When there's a connection to this node, the INTERNAL line SHOULD NOT be redrawn when the overall component is moved!!
-                // OBSERVE WHEN THIS IS CALLED
-                console.log('redraw');
             });
         });
 
