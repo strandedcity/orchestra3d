@@ -76,6 +76,8 @@ define([
                 this.inputTypes = opts.inputTypes;
                 this.inputs = {};
                 this.output = opts.output; // Contains raw result object pointers after async calculation completes.
+                this.componentPrettyName = opts.componentPrettyName;
+                this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
             },
             assignInput: function(inputName, input){
                 if (_.isUndefined(inputName) || _.isUndefined(input)) {throw new Error("Unspecified Input");}

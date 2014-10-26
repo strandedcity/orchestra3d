@@ -18,7 +18,8 @@ define([
                         "Z": 'number'
                     },
                     output: output,
-                    resultFunction: this.recalculate
+                    resultFunction: this.recalculate,
+                    componentPrettyName: "Point(x,y,z)"
                 });
                 this.base_init(args);
             },

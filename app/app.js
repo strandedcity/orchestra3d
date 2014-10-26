@@ -4,14 +4,16 @@ require(["appconfig"],function(){
             'dataFlow/dataFlow_loader',
             "viewer/init",
             "dataFlow/UI/workspaceView",
-            "windowControls" // File, Model, Settings, Login, etc.... the top bar
+            "windowControls", // File, Model, Settings, Login, etc.... the top bar
+            "underscore"
         ],
         function(
             Geo,
             dataFlow,
             viewer,
             workspace,
-            windowControls
+            windowControls,
+            _
         ){
             function App(){
                 this.init();
@@ -24,7 +26,34 @@ require(["appconfig"],function(){
 
                 // Demonstration programs...
                 this.showSISLTestCurve();
-                this.showDataflowTestComponents();
+                //this.showDataflowTestComponents();
+                this.componentViewTest();
+            };
+
+            App.prototype.componentViewTest = function(){
+                var inputHeight = 60;
+
+                var ptComponent = new dataFlow.PointComponent();
+
+                var ptComponentView = workspace.createComponentWithNamePosition(ptComponent.componentPrettyName, ptComponent.position.x, ptComponent.position.y);
+
+                // calculate start position for inputs:
+                var inputs = ptComponent.inputTypes,
+                    inputNames = _.keys(inputs);
+                var verticalStart = inputHeight * (_.keys(inputs).length - 1) / 2;
+
+                // add each input:
+                _.each(inputNames, function(ipt,idx){
+                    workspace.createInputWithNameAndParent(ipt,inputs[ipt],ptComponentView, verticalStart - idx * inputHeight );
+                });
+
+                // add each output:
+                //var outputs = ptComponent.output
+
+
+                // call once at the end!
+                workspace.render();
+
             };
 
             App.prototype.showDataflowTestComponents = function(){

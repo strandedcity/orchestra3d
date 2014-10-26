@@ -139,6 +139,8 @@ define([
         this.scene.add(cssObject);
         element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
         this.objectDictionary[cssObject.uuid] = cssObject;
+
+        this.render(); /* When initialized from a dataflow component, the render doesn't seem to occur in time for the defer right below */
         var that = this;
         _.defer(function(){
             that.createGLElementToMatch(cssObject);
