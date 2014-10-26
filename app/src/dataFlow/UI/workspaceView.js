@@ -167,16 +167,13 @@ define([
                 endPoint
             );
 
-        var material = new THREE.LineBasicMaterial({
-            color: 0xffffff
-        });
-
         var geometry, splinePoints = spline.getPoints(numPoints);
         if (_.isUndefined(mesh)) {
             geometry = new THREE.Geometry();
             for(var i = 0; i < splinePoints.length; i++){
                 geometry.vertices.push(splinePoints[i]);
             }
+            var material = new THREE.LineBasicMaterial({ color: 0xffffff });
             var newMesh = new THREE.Line(geometry, material);
             newMesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
             return newMesh;
