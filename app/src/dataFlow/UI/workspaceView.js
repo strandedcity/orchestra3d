@@ -109,45 +109,6 @@ define([
 
         this.render();
 
-        function drawCurveFromPointToPoint(startPoint,endPoint, mesh){
-            // smooth my curve over this many points
-            var numPoints = 25;
-
-            // calculate intermediate point positions:
-            var m1 = new THREE.Vector3(Math.max(startPoint.x +200,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
-                m2 = new THREE.Vector3(Math.min(endPoint.x-200,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
-                spline = new THREE.CubicBezierCurve3(
-                    startPoint,
-                    m1,
-                    m2,
-                    endPoint
-                );
-
-            var material = new THREE.LineBasicMaterial({
-                color: 0xffffff
-            });
-
-            var geometry, splinePoints = spline.getPoints(numPoints);
-            if (_.isUndefined(mesh)) {
-                geometry = new THREE.Geometry();
-                for(var i = 0; i < splinePoints.length; i++){
-                    geometry.vertices.push(splinePoints[i]);
-                }
-                var newMesh = new THREE.Line(geometry, material);
-                newMesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
-                return newMesh;
-            } else {
-                geometry = mesh.geometry;
-                for(var i = 0; i < splinePoints.length; i++){
-                    geometry.vertices[i]=splinePoints[i];
-                }
-
-                //https://github.com/mrdoob/three.js/wiki/Updates
-                geometry.verticesNeedUpdate = true;
-                return mesh;
-            }
-        };
-
         // Test drawing a line between components. Must find a way for this line to auto-update when components move...
         var that = this;
         _.defer(function(){
@@ -171,17 +132,17 @@ define([
             var endVectorWorld = new THREE.Vector3();
             endVectorWorld.setFromMatrixPosition(pointX.matrixWorld);
 
-            var mesh = drawCurveFromPointToPoint(startVectWorld, endVectorWorld);
+            var mesh = that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld);
 
             that.glObjectsByCSSId[pointX.uuid].addEventListener('changePosition',function(e){
                 // Adjust the curved connection during drag events for each end
                 endVectorWorld.setFromMatrixPosition(this.matrixWorld);
-                drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
+                that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
                 _.defer(function(){that.render()});
             });
             that.glObjectsByCSSId[number1Out.uuid].addEventListener('changePosition',function(e){
                 startVectWorld.setFromMatrixPosition(this.matrixWorld);
-                drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
+                that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
                 _.defer(function(){that.render()}); // necessary so that wires are re-drawn after drop events
             });
 
@@ -191,6 +152,44 @@ define([
         });
     };
 
+    Workspace.prototype.drawCurveFromPointToPoint = function(startPoint,endPoint, mesh){
+        // Smoothness of connecting curves.
+        var numPoints = 30;
+
+        // calculate intermediate point positions:
+        var m1 = new THREE.Vector3(Math.max(startPoint.x +200,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
+            m2 = new THREE.Vector3(Math.min(endPoint.x-200,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
+            spline = new THREE.CubicBezierCurve3(
+                startPoint,
+                m1,
+                m2,
+                endPoint
+            );
+
+        var material = new THREE.LineBasicMaterial({
+            color: 0xffffff
+        });
+
+        var geometry, splinePoints = spline.getPoints(numPoints);
+        if (_.isUndefined(mesh)) {
+            geometry = new THREE.Geometry();
+            for(var i = 0; i < splinePoints.length; i++){
+                geometry.vertices.push(splinePoints[i]);
+            }
+            var newMesh = new THREE.Line(geometry, material);
+            newMesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
+            return newMesh;
+        } else {
+            geometry = mesh.geometry;
+            for(var i = 0; i < splinePoints.length; i++){
+                geometry.vertices[i]=splinePoints[i];
+            }
+
+            //https://github.com/mrdoob/three.js/wiki/Updates
+            geometry.verticesNeedUpdate = true;
+            return mesh;
+        }
+    };
 
     Workspace.prototype.createComponentWithNamePosition = function(name, x, y){
         var element = document.createElement( 'div' );
