@@ -217,7 +217,7 @@ define([
         return cssObject;
     };
 
-    Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement, verticalOffset){
+    Workspace.prototype._createIOWithNameAndParent = function(name, parentCSSElement, verticalOffset, isInput, dragScope){
         var element = document.createElement("div");
         element.className = 'draggable IO';
         element.textContent = name;
@@ -229,56 +229,42 @@ define([
         parentCSSElement.add(cssObject);
 
         var that = this;
-        _.defer(function(){that.createGLElementToMatch( cssObject );});
 
         cssObject.position.z = 0;
         cssObject.position.y = verticalOffset;
-        return cssObject;
-    };
-    Workspace.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset);
-        ioElement.position.x = -150;
-        ioElement.element.className += ' inputIO';
-        ioElement.addDraggableScopes(["input",dragScope]);
-        ioElement.addDroppableScopes(["output",dragScope]);
-        var that = this;
-        _.defer(function(){
-            var glObject = that.createGLElementToMatch(ioElement);
+        cssObject.position.x = isInput ? -150 : 150;
+        cssObject.element.className += isInput ? ' inputIO' : ' outputIO';
+        cssObject.addDraggableScopes([isInput ? "input":"output", dragScope]);
+        cssObject.addDroppableScopes([isInput ? "output":"input", dragScope]);
 
-            // snap-back behavior requires IO elements to know their own home positions
-            // note that these positions will be with reference to the parent, not the world.
-            glObject.setHomePosition();
-        });
-        return ioElement;
-    };
-    Workspace.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var ioElement = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset);
-        ioElement.position.x = 150;
-        ioElement.element.className += ' outputIO';
-        ioElement.addDroppableScopes(["input",dragScope]);
-        ioElement.addDraggableScopes(["output",dragScope]);
-        var that = this;
         _.defer(function(){
-            var glObject = that.createGLElementToMatch(ioElement);
-
-            // snap-back behavior requires IO elements to know their own home positions
-            // note that these positions will be with reference to the parent, not the world.
-            glObject.setHomePosition();
+            var glObject = that.createGLElementToMatch(cssObject);
+            glObject.setHomePosition(); // snap-back behavior requires IO elements to know their own home positions. With reference to parent, not world!
 
             // Outputs, when dragged, should draw "stretchy" lines from  their "home" positions to the drag position.
             // When dropped on an acceptable input, this line will be drawn as a permanent "connection" instead
             var stretchy = that.drawCurveFromPointToPoint(glObject.getHomePosition(), glObject.position);
             glObject.parent.add(stretchy);
+
+            // NOTE! We DO NOT DO NOT want to test 'isInput' inside the wire-drawing callback. So the arguments for drawCurveFromPointToPoint
+            // need to be defined a scope outside. Testing inside the callback will just re-run the same test for every frame during drag events.
+            var curveArguments = [glObject.position, glObject.getHomePosition()];
+            if (!isInput) {curveArguments.reverse();}
             glObject.addEventListener('changePosition',function(e){
-                that.drawCurveFromPointToPoint(glObject.getHomePosition(), glObject.position, stretchy);
+                that.drawCurveFromPointToPoint(curveArguments[0], curveArguments[1], stretchy);
                 // TODO: When there's a connection to this node, the INTERNAL line SHOULD NOT be redrawn when the overall component is moved!!
                 // OBSERVE WHEN THIS IS CALLED
                 console.log('redraw');
             });
         });
 
-
-        return ioElement;
+        return cssObject;
+    };
+    Workspace.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
+        return this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, true, dragScope);
+    };
+    Workspace.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
+        return this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, false, dragScope);
     };
 
     // We need the css renderer so that standard DOM components like inputs can be usable, and scaled
