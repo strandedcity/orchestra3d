@@ -84,13 +84,13 @@ define([
     Workspace.prototype.testElement = function(){
 
         var pointxyz = this.createComponentWithNamePosition("Point (x,y,z)", 200, 0);
-        this.createInputWithNameAndParent("x","num",pointxyz,60);
+        var pointX = this.createInputWithNameAndParent("x","num",pointxyz,60);
         this.createInputWithNameAndParent("y","num",pointxyz,0);
         this.createInputWithNameAndParent("z","num",pointxyz,-60);
         this.createOutputWithNameAndParent("pt","point",pointxyz,0);
 
         var number1 = this.createComponentWithNamePosition("Number",-300,-200);
-        this.createOutputWithNameAndParent("#","num",number1,0);
+        var number1Out = this.createOutputWithNameAndParent("#","num",number1,0);
 
         var number2 = this.createComponentWithNamePosition("Number",-350,-50);
         this.createOutputWithNameAndParent("#","num",number2,0);
@@ -142,16 +142,36 @@ define([
         // Test drawing a line between components. Must find a way for this line to auto-update when components move...
         var that = this;
         _.defer(function(){
+
+            // Makes the I/O's move with their wires AND the components they're attached to. Seems really inefficient though.
+            that.glObjectsByCSSId[pointxyz.uuid].addEventListener("changePosition",function(){
+                that.glObjectsByCSSId[pointX.uuid].dispatchEvent({ type: 'changePosition' });
+            });
+            that.glObjectsByCSSId[number1.uuid].addEventListener("changePosition",function(){
+                that.glObjectsByCSSId[number1Out.uuid].dispatchEvent({ type: 'changePosition' });
+            });
+
+
+
+
             // Create the curved connection. Because the curves will be "oriented" it's important to start at the OUTPUT of the component
             // and end at the INPUT of the connected component.
-            var mesh = drawCurveFromPointToPoint(number1.position.clone().add(new THREE.Vector3(150,0,0)), pointxyz.position.clone().sub(new THREE.Vector3(150,0,0)));
+            var startVectWorld = new THREE.Vector3();
+            startVectWorld.setFromMatrixPosition(number1Out.matrixWorld);// number1Out
 
-            that.glObjectsByCSSId[pointxyz.uuid].addEventListener('changePosition',function(e){
+            var endVectorWorld = new THREE.Vector3();
+            endVectorWorld.setFromMatrixPosition(pointX.matrixWorld);
+
+            var mesh = drawCurveFromPointToPoint(startVectWorld, endVectorWorld);
+
+            that.glObjectsByCSSId[pointX.uuid].addEventListener('changePosition',function(e){
                 // Adjust the curved connection during drag events for each end
-                drawCurveFromPointToPoint(number1.position.clone().add(new THREE.Vector3(150,0,0)), this.position.clone().sub(new THREE.Vector3(150,0,0)), mesh);
+                endVectorWorld.setFromMatrixPosition(this.matrixWorld);
+                drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
             });
-            that.glObjectsByCSSId[number1.uuid].addEventListener('changePosition',function(e){
-                drawCurveFromPointToPoint(this.position.clone().add(new THREE.Vector3(150,0,0)), pointxyz.position.clone().sub(new THREE.Vector3(150,0,0)), mesh);
+            that.glObjectsByCSSId[number1Out.uuid].addEventListener('changePosition',function(e){
+                startVectWorld.setFromMatrixPosition(this.matrixWorld);
+                drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
             });
 
             that.glscene.add(mesh);
