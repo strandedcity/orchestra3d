@@ -38,6 +38,15 @@ define([
         }
     });
 
+    _.extend(THREE.Mesh.prototype,{
+        setHomePosition: function(){
+            this.homePosition = this.position.clone();
+        },
+        getHomePosition: function(){
+            return this.homePosition;
+        }
+    });
+
 
     function Workspace(){
         this.dragObject = null;
@@ -168,10 +177,12 @@ define([
                 // Adjust the curved connection during drag events for each end
                 endVectorWorld.setFromMatrixPosition(this.matrixWorld);
                 drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
+                _.defer(function(){that.render()});
             });
             that.glObjectsByCSSId[number1Out.uuid].addEventListener('changePosition',function(e){
                 startVectWorld.setFromMatrixPosition(this.matrixWorld);
                 drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
+                _.defer(function(){that.render()}); // necessary so that wires are re-drawn after drop events
             });
 
             that.glscene.add(mesh);
@@ -232,7 +243,13 @@ define([
         ioElement.addDraggableScopes(["input",dragScope]);
         ioElement.addDroppableScopes(["output",dragScope]);
         var that = this;
-        _.defer(function(){that.createGLElementToMatch(ioElement)});
+        _.defer(function(){
+            var glObject = that.createGLElementToMatch(ioElement);
+
+            // snap-back behavior requires IO elements to know their own home positions
+            // note that these positions will be with reference to the parent, not the world.
+            glObject.setHomePosition();
+        });
         return ioElement;
     };
     Workspace.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
@@ -242,7 +259,13 @@ define([
         ioElement.addDroppableScopes(["input",dragScope]);
         ioElement.addDraggableScopes(["output",dragScope]);
         var that = this;
-        _.defer(function(){that.createGLElementToMatch(ioElement)});
+        _.defer(function(){
+            var glObject = that.createGLElementToMatch(ioElement);
+
+            // snap-back behavior requires IO elements to know their own home positions
+            // note that these positions will be with reference to the parent, not the world.
+            glObject.setHomePosition();
+        });
         return ioElement;
     };
 
@@ -277,12 +300,12 @@ define([
         // TODO: Find a better test for "is a THREE.CSS3DObject"
         if (!_.isUndefined(cssElement.parent.element)) {
             // look up the right GL parent:
-//            console.log(cssElement.element.clientOffset);
             this.glObjectsByCSSId[cssElement.parent.uuid].add(mesh);
         } else {
             this.glscene.add(mesh);
         }
 
+        return mesh;
     };
 
     Workspace.prototype.render = function(){
@@ -330,6 +353,16 @@ define([
 
     Workspace.prototype.mouseUp = function(event){
         if (!_.isNull(this.dragObject)) {
+            // io's, return home
+            var home = this.glDragObject.getHomePosition();
+            if (!_.isUndefined(home)) {
+                this.dragObject.position.set(home.x,home.y,0);
+                this.glDragObject.position.set(home.x,home.y,0);
+                this.glDragObject.updateMatrixWorld(); // so that wires are drawn to the new position, not the old one, even in the same render frame
+                this.glDragObject.dispatchEvent({ type: 'changePosition' });  // redraw wires
+                this.render(); // so that if no wires are connected, the element still visually returns home
+            }
+
             this.dragObject = null;
             this.glDragObject = null;
             this.dragOffset = {};
