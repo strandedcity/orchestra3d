@@ -5,7 +5,7 @@ require(["appconfig"],function(){
             "viewer/init",
             "dataFlow/UI/workspaceView",
             "windowControls", // File, Model, Settings, Login, etc.... the top bar
-            "underscore"
+            "dataFlow/UI/componentView"
         ],
         function(
             Geo,
@@ -13,7 +13,7 @@ require(["appconfig"],function(){
             viewer,
             workspace,
             windowControls,
-            _
+            ComponentView
         ){
             function App(){
                 this.init();
@@ -31,29 +31,8 @@ require(["appconfig"],function(){
             };
 
             App.prototype.componentViewTest = function(){
-                var inputHeight = 60;
-
                 var ptComponent = new dataFlow.PointComponent();
-
-                var ptComponentView = workspace.createComponentWithNamePosition(ptComponent.componentPrettyName, ptComponent.position.x, ptComponent.position.y);
-
-                // calculate start position for inputs:
-                var inputs = ptComponent.inputTypes,
-                    inputNames = _.keys(inputs);
-                var verticalStart = inputHeight * (_.keys(inputs).length - 1) / 2;
-
-                // add each input:
-                _.each(inputNames, function(ipt,idx){
-                    workspace.createInputWithNameAndParent(ipt,inputs[ipt],ptComponentView, verticalStart - idx * inputHeight );
-                });
-
-                // add each output:
-                //var outputs = ptComponent.output
-
-
-                // call once at the end!
-                workspace.render();
-
+                new ComponentView(ptComponent);
             };
 
             App.prototype.showDataflowTestComponents = function(){
