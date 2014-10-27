@@ -19,7 +19,6 @@ define([
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
-            console.log(this);
         }.bind(this));
 
         this.createInputs();

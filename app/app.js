@@ -31,8 +31,19 @@ require(["appconfig"],function(){
             };
 
             App.prototype.componentViewTest = function(){
-                var ptComponent = new dataFlow.PointComponent();
-                new ComponentView(ptComponent);
+                var point1 = new ComponentView(new dataFlow.PointComponent({
+                    position: {x: 500, y: 0}
+                }));
+
+                var number1 = new ComponentView(new dataFlow.NumberComponent({
+                    position: {x: -200, y: 200}
+                }));
+                var number2 = new ComponentView(new dataFlow.NumberComponent({
+                    position: {x: -200, y: 0}
+                }));
+                var number3 = new ComponentView(new dataFlow.NumberComponent({
+                    position: {x: -200, y: -200}
+                }));
             };
 
             App.prototype.showDataflowTestComponents = function(){
