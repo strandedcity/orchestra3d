@@ -10,7 +10,10 @@ define([
             // for some property and creating that array instead.
             var args = _.extend(opts || {}, {/* default args */});
             if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
+            if (_.isUndefined(args.shortName)) {throw new Error("No shortName specified for Output");}
+
             this.type = args.type;
+            this.shortName = args.shortName;
             this.values = [];
             this._isNull = true;
             this.referencedCPointer = null;

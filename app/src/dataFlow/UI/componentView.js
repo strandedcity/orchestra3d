@@ -3,6 +3,7 @@ define([
     "dataFlow/UI/workspaceView",
     "underscore"
 ],function(DataFlow, workspace, _){
+    var INPUT_HEIGHT = 60;
 
     function ComponentView(component){
         if (_.isUndefined(component) || _.isUndefined(component.recalculate) ) {
@@ -13,8 +14,35 @@ define([
     }
 
     ComponentView.prototype.init = function(){
+        console.log("TODO: Remove object dictionaries stored on workspace if possible");
+        this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
+
+        _.defer(function(){
+            this.glObject = this.createGLElementToMatch(this.cssObject);
+            console.log(this);
+        }.bind(this));
 
         this.createInputs();
+        this.createOutputs();
+
+        // call once at the end!
+        workspace.render();
+    };
+
+    ComponentView.prototype.createInputs = function(){
+        // calculate start position for inputs:
+        var inputs = this.component.inputTypes,
+            inputNames = _.keys(inputs);
+        var verticalStart = INPUT_HEIGHT * (_.keys(inputs).length - 1) / 2;
+
+        // add each input:
+        _.each(inputNames, function(ipt,idx){
+            this.createInputWithNameAndParent(ipt,inputs[ipt],this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+        },this);
+    };
+
+    ComponentView.prototype.createOutputs = function(){
+        this.createOutputWithNameAndParent(this.component.output.shortName,this.component.output.type,this.cssObject,0);
     };
 
     ComponentView.prototype.createComponentWithNamePosition = function(name, x, y){
@@ -35,12 +63,6 @@ define([
         workspace.scene.add(cssObject);
         element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
         workspace.objectDictionary[cssObject.uuid] = cssObject;
-
-        workspace.render(); /* When initialized from a dataflow component, the render doesn't seem to occur in time for the defer right below */
-        var that = this;
-        _.defer(function(){
-            that.createGLElementToMatch(cssObject);
-        });
 
         return cssObject;
     };
@@ -133,30 +155,6 @@ define([
 
         return mesh;
     };
-
-    ComponentView.prototype.createInputs = function(){
-        var inputHeight = 60;
-
-        var ptComponentView = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
-
-        // calculate start position for inputs:
-        var inputs = this.component.inputTypes,
-            inputNames = _.keys(inputs);
-        var verticalStart = inputHeight * (_.keys(inputs).length - 1) / 2;
-
-        // add each input:
-        _.each(inputNames, function(ipt,idx){
-            this.createInputWithNameAndParent(ipt,inputs[ipt],ptComponentView, verticalStart - idx * inputHeight );
-        },this);
-
-        // add each output:
-        //var outputs = ptComponent.output
-
-
-        // call once at the end!
-        workspace.render();
-    };
-
 
     ComponentView.prototype.drawCurveFromPointToPoint = function(startPoint,endPoint, mesh){
         // Smoothness of connecting curves.
