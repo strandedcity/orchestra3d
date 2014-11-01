@@ -27,22 +27,34 @@ require(["appconfig"],function(){
                 // Demonstration programs...
                 this.showSISLTestCurve();
                 //this.showDataflowTestComponents();
-                this.componentViewTest();
+                this.NURBSCurveTest();
             };
 
-            App.prototype.componentViewTest = function(){
+            App.prototype.NURBSCurveTest = function(){
                 var point1 = new ComponentView(new dataFlow.PointComponent({
                     position: {x: 500, y: 0}
                 }));
 
                 var number1 = new ComponentView(new dataFlow.NumberComponent({
-                    position: {x: -200, y: 200}
+                    position: {x: -200, y: 100}
                 }));
                 var number2 = new ComponentView(new dataFlow.NumberComponent({
                     position: {x: -200, y: 0}
                 }));
                 var number3 = new ComponentView(new dataFlow.NumberComponent({
-                    position: {x: -200, y: -200}
+                    position: {x: -200, y: -100}
+                }));
+
+                var curve = new ComponentView(new dataFlow.CurveControlPointComponent({
+                    position: {x: 1000, y: -250}
+                }));
+
+                var degree = new ComponentView(new dataFlow.NumberComponent({
+                    position: {x: 500, y: -250}
+                }));
+
+                var periodic = new ComponentView(new dataFlow.BooleanComponent({
+                    position: {x: 500, y: -450}
                 }));
             };
 

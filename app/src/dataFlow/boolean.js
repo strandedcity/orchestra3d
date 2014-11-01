@@ -2,21 +2,21 @@ define([
     "underscore",
     "dataFlow/core"
 ],function(_,DataFlow){
-    var NumberComponent = DataFlow.NumberComponent = function NumberComponent(opts){
+    var BooleanComponent = DataFlow.BooleanComponent = function BooleanComponent(opts){
         this.initialize.apply(this, arguments);
     };
 
-    _.extend(NumberComponent.prototype, DataFlow.Component.prototype,{
+    _.extend(BooleanComponent.prototype, DataFlow.Component.prototype,{
         initialize: function(opts){
-            var output = new DataFlow.OutputNumber();
+            var output = new DataFlow.OutputBoolean();
 
             var args = _.extend(opts || {},{
                 inputTypes: {
-                    "#": 'number'
+                    "B": 'boolean'
                 },
                 output: output,
                 resultFunction: this.recalculate,
-                componentPrettyName: "Number"
+                componentPrettyName: "Bool"
             });
             this.base_init(args);
         },
@@ -24,7 +24,7 @@ define([
             var that = this, shortestInput = this.shortestInputLength();
             if (shortestInput === 0) return;
             for (var i=0; i < shortestInput; i++) {
-                that.output.values[i] = this.inputs["#"].values[i];
+                that.output.values[i] = this.inputs["B"].values[i];
             }
             this._recalculate();
         },
