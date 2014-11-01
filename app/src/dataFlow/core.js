@@ -4,7 +4,7 @@ define([
     ],function(_,Backbone){
         console.warn("Should remove Module.Utils from core.js and all Dataflow files!!");
         var DataFlow = {};
-        var Output = DataFlow.Output = function Output(opts){
+        DataFlow.Output = function Output(opts){
             // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
             // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
             // for some property and creating that array instead.
@@ -17,35 +17,40 @@ define([
             this.values = [];
             this._isNull = true;
             this.referencedCPointer = null;
-        //    this.initialize.apply(this, args);
+
+            _.extend(this, Backbone.Events, {
+                assignValues: function(valueArray){
+                    if (!_.isArray(valueArray)) {
+                        this.setNull(true);
+                        throw new Error("'Values' must be an array");
+                    }
+                    _.each(valueArray,function(v){
+                        if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly.");}
+                    });
+                    this.values = valueArray;
+                    this.setNull(false);
+                    this.trigger('change');
+                },
+                setNull: function(val){
+                    this._isNull = val;
+                    this.trigger('change');
+                },
+                isNull: function(){
+                    return this._isNull;
+                },
+                fetchValues: function(){
+                    return this._isNull ? null : this.values;
+                },
+                destroy: function(){
+                    if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
+                },
+            });
         };
-        _.extend(Output.prototype, Backbone.Events, {
-            assignValues: function(valueArray){
-                if (!_.isArray(valueArray)) {
-                    this.setNull(true);
-                    throw new Error("'Values' must be an array");
-                }
-                _.each(valueArray,function(v){
-                    if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly.");}
-                });
-                this.values = valueArray;
-                this.setNull(false);
-                this.trigger('change');
-            },
-            setNull: function(val){
-                this._isNull = val;
-                this.trigger('change');
-            },
-            isNull: function(){
-                return this._isNull;
-            },
-            fetchValues: function(){
-                return this._isNull ? null : this.values;
-            },
-            destroy: function(){
-                if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
-            }
-        });
+
+        /*  Output Data types */
+        DataFlow.OutputNumber = function OutputNumber(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "number", shortName: "#"})); };
+        DataFlow.OutputPoint = function OutputPoint(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "GeoPoint", shortName: "pt"})); };
+
 
         var Component = DataFlow.Component = function Component(opts){
             /*

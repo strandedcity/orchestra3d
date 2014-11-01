@@ -7,9 +7,9 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
                 // "outputs" are actually inputs to the "point" component. They are outputs
                 // in the sense that they are assumed to be emitted from a prior component.
                 // Output objects are tested separately in DataFlow --> Core --> Output Objects
-                outputX = new dataFlow.Output({type: 'number'});
-                outputY = new dataFlow.Output({type: 'number'});
-                outputZ = new dataFlow.Output({type: 'number'});
+                outputX = new dataFlow.OutputNumber();
+                outputY = new dataFlow.OutputNumber();
+                outputZ = new dataFlow.OutputNumber();
 
                 outputX.assignValues([1,2]);
                 outputY.assignValues([2,4]);
@@ -105,7 +105,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
                 spyOn(pointComponent, '_recalculate');
 
                 // create new input
-                var outputZReplacement = new dataFlow.Output({type: 'number'});
+                var outputZReplacement = new dataFlow.OutputNumber();
                 outputZReplacement.assignValues([9,10]);
                 pointComponent.assignInput("Z",outputZReplacement);
 

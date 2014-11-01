@@ -9,10 +9,7 @@ define([
 
         _.extend(PointComponent.prototype, DataFlow.Component.prototype,{
             initialize: function(opts){
-                var output = new DataFlow.Output({
-                    type: 'GeoPoint',
-                    shortName: 'pt'
-                });
+                var output = new DataFlow.OutputPoint();
 
                 var args = _.extend(opts || {},{
                     inputTypes: {
