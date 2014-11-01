@@ -33,6 +33,12 @@ define([
 
             // to be a valid drop target, the input/output setting must match PLUS at least one other scope.
             return  _.without(_.intersection(this.getDroppableScopes(),scopeNames),"input","output").length > 0;
+        },
+        dropObject: function(connection){
+            // handles "drop" events. When one object is dropped on another, connectObject will be called on the INPUT object only.
+            // "input" objects listen to pulse events (recalculations) on "output" objects. So only the
+            // "input" side actually does anything with this
+            console.log(this, "\nlistens to:",connection);
         }
     });
 
@@ -140,6 +146,16 @@ define([
                 this.render(); // so that if no wires are connected, the element still visually returns home
             }
 
+            if (!_.isNull(this.hoverObject)) {
+                // can't assume that user is hovering an output over an input. You can drag either direction, but the connection is only made
+                // in one direction (inputs listen to outputs, outputs have no refs to inputs)
+                if (this.hoverObject.getDroppableScopes().indexOf("output") !== -1) {
+                    this.hoverObject.dropObject(this.dragObject);
+                } else {
+                    this.dragObject.dropObject(this.hoverObject);
+                }
+            }
+
             this.dragObject = null;
             this.glDragObject = null;
             this.dragOffset = {};
@@ -147,10 +163,7 @@ define([
             this.renderer.domElement.removeEventListener("mouseup",this.mouseUp);
         };
 
-        if (!_.isNull(this.hoverObject)) {
-            console.log('drop! ',this.hoverObject);
-            this.clearHover();
-        }
+        if (!_.isNull(this.hoverObject)) this.clearHover();
     };
 
     Workspace.prototype.startDrag = function(e){
@@ -244,7 +257,6 @@ define([
         if (intersects.length > 0 && _.isNull(this.hoverObject)) {
             // TODO: What happens with multiple intersection objects? Handling multiples here can result in some 'stuck' hover classes being added
             var intersection = intersects[0];
-//            console.log(intersects);
             this.glHoverObject = intersection.object;
             this.hoverObject = this.cssObjectsByGLId[intersection.object.uuid];
             this.hoverObject.element.className += ' glHover';
