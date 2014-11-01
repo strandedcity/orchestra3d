@@ -25,7 +25,7 @@ define([
                         throw new Error("'Values' must be an array");
                     }
                     _.each(valueArray,function(v){
-                        if (typeof v !== "number") {throw new Error("Only Numeric values can be assigned directly.");}
+                        if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
                     });
                     this.values = valueArray;
                     this.setNull(false);

@@ -53,7 +53,7 @@ require(["appconfig"],function(){
                     position: {x: 500, y: -250}
                 }));
 
-                var periodic = new ComponentView(new dataFlow.BooleanComponent({
+                var periodic = new ComponentView(new dataFlow.BooleanTrueComponent({
                     position: {x: 500, y: -450}
                 }));
             };
