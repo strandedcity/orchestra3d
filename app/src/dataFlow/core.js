@@ -48,10 +48,10 @@ define([
         };
 
         /*  Output Data types */
-        DataFlow.OutputNumber = function OutputNumber(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "number", shortName: "N"})); };
-        DataFlow.OutputPoint = function OutputPoint(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "GeoPoint", shortName: "P"})); };
-        DataFlow.OutputCurve = function OutputCurve(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "GeoCurve", shortName: "C"})); };
-        DataFlow.OutputBoolean = function OutputBoolean(opts) { DataFlow.Output.call(this,_.extend(opts || {}, {type: "boolean", shortName: "B"})); };
+        DataFlow.OutputNumber = function OutputNumber(opts) { DataFlow.Output.call(this,_.extend({type: "number", shortName: "N"},opts || {})); };
+        DataFlow.OutputPoint = function OutputPoint(opts) { DataFlow.Output.call(this,_.extend({type: "GeoPoint", shortName: "P"},opts || {})); };
+        DataFlow.OutputCurve = function OutputCurve(opts) { DataFlow.Output.call(this,_.extend({type: "GeoCurve", shortName: "C"},opts || {})); };
+        DataFlow.OutputBoolean = function OutputBoolean(opts) { DataFlow.Output.call(this,_.extend({type: "boolean", shortName: "B"},opts || {})); };
 
         var Component = DataFlow.Component = function Component(opts){
             /*

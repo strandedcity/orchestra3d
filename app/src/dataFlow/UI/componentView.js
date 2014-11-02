@@ -9,18 +9,21 @@ define([
         if (_.isUndefined(component) || _.isUndefined(component.recalculate) ) {
             throw new Error('ComponentView objects must be instantiated with the DataFlow.Component which they represent');
         }
-        this.component = component;
+        this.component = component;  // data model reference is kept here
         this.init();
     }
 
     ComponentView.prototype.init = function(){
         console.log("TODO: Remove object dictionaries stored on workspace if possible");
+        _.bindAll(this,"createInputWithNameAndParent","wireInputToOutputFromComponent");
         this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
         }.bind(this));
 
+        this.inputViews = {};
+        this.outputViews = {};
         this.createInputs();
         this.createOutputs();
 
@@ -31,12 +34,13 @@ define([
     ComponentView.prototype.createInputs = function(){
         // calculate start position for inputs:
         var inputs = this.component.inputTypes,
-            inputNames = _.keys(inputs);
+            inputNames = _.keys(inputs),
+            that = this;
         var verticalStart = INPUT_HEIGHT * (_.keys(inputs).length - 1) / 2;
 
         // add each input:
         _.each(inputNames, function(ipt,idx){
-            this.createInputWithNameAndParent(ipt,inputs[ipt],this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+            that.inputViews[ipt] = this.createInputWithNameAndParent(ipt,inputs[ipt],this.cssObject, verticalStart - idx * INPUT_HEIGHT );
         },this);
     };
 
@@ -110,10 +114,43 @@ define([
         return cssObject;
     };
     ComponentView.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        return this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, true, dragScope);
+        var that = this,
+            input = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, true, dragScope);
+        //input.dfmodel = this.component.inputs[name];
+        //console.log(name,this.component);
+        input.addEventListener('drop',function(e){
+            // TODO: REMOVE THIS EVENT LISTENER WHEN COMPONENT IS DELETED
+            that.wireInputToOutputFromComponent(name, e.detail.dropped);
+        });
+        return input;
     };
     ComponentView.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        return this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, false, dragScope);
+        var output = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, false, dragScope);
+        output.dfmodel = this.component.output; /* So that the output object can be retrieved during drop events */
+        output.componentView = this;
+        return output;
+    };
+    ComponentView.prototype.wireInputToOutputFromComponent = function(inputName, outputFromOtherComponent){
+
+        // register "recalculate" listener for this input on the "dropped" output model
+        this.component.assignInput(inputName,outputFromOtherComponent.dfmodel);
+
+        // The input view should listen for registrations and draw the corresponding line.
+        // Connection lines will belong to the INPUTS not the OUTPUTS.
+        // it is MUCH easier to set up the drawing inside this function, however. To collect everything, I'm doing this first here
+        // for motion, though, it must bind to "move" events of the COMPONENT ON WHICH THE CONNECTED OUTPUT RESIDES
+        // See glObject.addEventListener('changePosition',function(e){ on line 104 of this file (currently)
+        //this.listenTo(outputFromOtherComponent.componentView, 'changePosition', function(){console.log('position change detected for a connected output')});
+        var that = this;
+        var curveArguments = [ outputFromOtherComponent.componentView.glObject.position,this.glObject.position];
+        var stretchy = that.drawCurveFromPointToPoint(curveArguments[0],curveArguments[1]);
+        this.glObject.add(stretchy);
+
+        outputFromOtherComponent.componentView.glObject.addEventListener("changePosition",function(){
+            that.drawCurveFromPointToPoint(curveArguments[0], curveArguments[1], stretchy);
+        });
+
+
     };
 
     // We need the css renderer so that standard DOM components like inputs can be usable, and scaled

@@ -9,11 +9,12 @@ define([
     "threejs",
     "CSS3DRenderer",
     "OrbitControls",
-    "underscore"
+    "underscore",
+    "backbone"
 ],function(){
 
     // Helpers for drag-and-drop scopes
-    _.extend(THREE.CSS3DObject.prototype,{
+    _.extend(THREE.CSS3DObject.prototype,Backbone.Events,{
         addDraggableScopes: function(scopes){
             this.draggableScopes = _.union(this.draggableScopes || [],scopes);
         },
@@ -38,7 +39,8 @@ define([
             // handles "drop" events. When one object is dropped on another, connectObject will be called on the INPUT object only.
             // "input" objects listen to pulse events (recalculations) on "output" objects. So only the
             // "input" side actually does anything with this
-            console.log(this, "\nlistens to:",connection);
+            this.dispatchEvent(new CustomEvent('drop', { 'detail': {dropped: connection} }));
+            //console.log(this, "\nlistens to:",connection);
         }
     });
 
@@ -140,6 +142,7 @@ define([
             var home = this.glDragObject.getHomePosition();
             if (!_.isUndefined(home)) {
                 this.dragObject.position.set(home.x,home.y,0);
+                this.dragObject.trigger("changePosition");
                 this.glDragObject.position.set(home.x,home.y,0);
                 this.glDragObject.updateMatrixWorld(); // so that wires are drawn to the new position, not the old one, even in the same render frame
                 this.glDragObject.dispatchEvent({ type: 'changePosition' });  // redraw wires
