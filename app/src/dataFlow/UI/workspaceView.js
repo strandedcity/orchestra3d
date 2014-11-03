@@ -39,12 +39,11 @@ define([
             // handles "drop" events. When one object is dropped on another, connectObject will be called on the INPUT object only.
             // "input" objects listen to pulse events (recalculations) on "output" objects. So only the
             // "input" side actually does anything with this
-            this.dispatchEvent(new CustomEvent('drop', { 'detail': {dropped: connection} }));
-            //console.log(this, "\nlistens to:",connection);
+            this.trigger("drop",connection);
         }
     });
 
-    _.extend(THREE.Mesh.prototype,{
+    _.extend(THREE.Mesh.prototype,Backbone.Events,{
         setHomePosition: function(){
             this.homePosition = this.position.clone();
         },
@@ -142,10 +141,9 @@ define([
             var home = this.glDragObject.getHomePosition();
             if (!_.isUndefined(home)) {
                 this.dragObject.position.set(home.x,home.y,0);
-                this.dragObject.trigger("changePosition");
                 this.glDragObject.position.set(home.x,home.y,0);
                 this.glDragObject.updateMatrixWorld(); // so that wires are drawn to the new position, not the old one, even in the same render frame
-                this.glDragObject.dispatchEvent({ type: 'changePosition' });  // redraw wires
+                this.glDragObject.trigger("changePosition");
                 this.render(); // so that if no wires are connected, the element still visually returns home
             }
 
@@ -221,7 +219,7 @@ define([
         var worldPosition = this.mouseWorldXYPosition(unprojectedVector);
         this.dragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
         this.glDragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);
-        this.glDragObject.dispatchEvent({ type: 'changePosition' });
+        this.glDragObject.trigger("changePosition");
         this.findIntersections(unprojectedVector);
         this.render();
     };
@@ -273,6 +271,42 @@ define([
         this.hoverObject.element.className = this.hoverObject.element.className.replace(' glHover','');
         this.glHoverObject = null;
         this.hoverObject = null;
+    };
+
+    Workspace.prototype.drawCurveFromPointToPoint = function(startPoint,endPoint, mesh){
+        // Smoothness of connecting curves.
+        var numPoints = 30;
+
+        // calculate intermediate point positions:
+        var minControlpointDist = Math.min(200,Math.sqrt( Math.pow((endPoint.x - startPoint.x),2) + Math.pow((endPoint.y - startPoint.y),2)  ));
+        var m1 = new THREE.Vector3(Math.max(startPoint.x +minControlpointDist,startPoint.x + 2*(endPoint.x - startPoint.x)/3), startPoint.y , 0),
+            m2 = new THREE.Vector3(Math.min(endPoint.x-minControlpointDist,endPoint.x - 2*(endPoint.x - startPoint.x)/3), endPoint.y, 0),
+            spline = new THREE.CubicBezierCurve3(
+                startPoint,
+                m1,
+                m2,
+                endPoint
+            );
+
+        var createNew = _.isUndefined(mesh),
+            geometry = createNew ? new THREE.Geometry : mesh.geometry,
+            splinePoints = spline.getPoints(numPoints);
+
+        // approximate the curve in numPoints line segments
+        for(var i = 0; i < splinePoints.length; i++){
+            geometry.vertices[i]=splinePoints[i];
+        }
+
+        // For re-used meshes: https://github.com/mrdoob/three.js/wiki/Updates
+        geometry.verticesNeedUpdate = true;
+
+        if (createNew) {
+            var material = new THREE.LineBasicMaterial({ color: 0xffffff });
+            var mesh = new THREE.Line(geometry, material);
+            mesh.frustumCulled = false; /* THIS IS IMPORTANT! It keeps the lines from disappearing when (0,0,0) goes offscreen due to a pan! */
+        }
+
+        return mesh;
     };
 
     return new Workspace();

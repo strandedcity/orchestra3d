@@ -30,9 +30,9 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             });
             it("Should assign numerical inputs to the dataFlow Point object",function(){
                 assignInputs();
-                expect(pointComponent.inputs["X"]).toEqual(outputX);
-                expect(pointComponent.inputs["Y"]).toEqual(outputY);
-                expect(pointComponent.inputs["Z"]).toEqual(outputZ);
+                expect(pointComponent.inputs["X"].fetchValues()).toEqual(outputX.fetchValues());
+                expect(pointComponent.inputs["Y"].fetchValues()).toEqual(outputY.fetchValues());
+                expect(pointComponent.inputs["Z"].fetchValues()).toEqual(outputZ.fetchValues());
             });
             it("Should call _recalculate() in the superclass when recalculate() is called",function(){
                 assignInputs();
