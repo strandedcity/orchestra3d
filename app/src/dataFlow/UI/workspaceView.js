@@ -54,14 +54,10 @@ define([
 
 
     function Workspace(){
-        this.dragObject = null;
         this.init();
     };
 
     Workspace.prototype.init = function(){
-        // "Global" dictionary to store draggable objects across two threejs scenes: a CSS scene and a WebGL scene
-        this.cssObjectsByGLId = {}; // look up a CSS object from the id of the corresponding GL object
-        this.glObjectsByCSSId = {}; // look up a GL object from the id of its corresponding CSS object
 
         // drag and drop related
         _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject");
@@ -218,8 +214,8 @@ define([
 
         // a little messy recursion here to make sure we intersect with GL Objects' children
         function testAndAdd(glObject){
-            if (glObject !== that.glDragObject && glObject !== that.glscene && !_.isUndefined(that.cssObjectsByGLId[glObject.uuid])) { // draggable never droppable on itself
-                if (that.cssObjectsByGLId[glObject.uuid].isDroppableForScopes(draggableScopes)){
+            if (glObject !== that.glDragObject && glObject !== that.glscene && !_.isUndefined(glObject.IOView)) { // draggable never droppable on itself
+                if (glObject.IOView.cssObject.isDroppableForScopes(draggableScopes)){
                     droppables.push(glObject);
                 }
             }
@@ -275,7 +271,7 @@ define([
             // TODO: What happens with multiple intersection objects? Handling multiples here can result in some 'stuck' hover classes being added
             var intersection = intersects[0];
             this.glHoverObject = intersection.object;
-            this.hoverObject = this.cssObjectsByGLId[intersection.object.uuid];
+            this.hoverObject = intersection.object.IOView.cssObject;
             this.hoverObject.element.className += ' glHover';
         }
 

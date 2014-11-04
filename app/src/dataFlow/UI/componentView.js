@@ -16,7 +16,7 @@ define([
 
     ComponentView.prototype.init = function(){
         console.log("TODO: Remove object dictionaries stored on workspace if possible");
-        _.bindAll(this,"createInputWithNameAndParent");
+        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
         this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
 
         _.defer(function(){
@@ -137,16 +137,11 @@ define([
 
         // enable easy lookups in all directions:
         workspace.cssObjectsByGLId[mesh.uuid] = cssElement;
-        workspace.glObjectsByCSSId[cssElement.uuid] = mesh;
 
-        // Add to scene if this is a top-level element, otherwise mimick the css-object hierarchy to keep pieces moving together!
-        // TODO: Find a better test for "is a THREE.CSS3DObject"
-        if (!_.isUndefined(cssElement.parent.element)) {
-            // look up the right GL parent:
-            workspace.glObjectsByCSSId[cssElement.parent.uuid].add(mesh);
-        } else {
-            workspace.glscene.add(mesh);
-        }
+        // If this.glObject is defined, we're talking about a child to be added (ie, an input's glObject)
+        // Otherwise, we're talking about the component itself:
+        var glParent = !_.isUndefined(this.glObject) ? this.glObject : workspace.glscene;
+        glParent.add(mesh);
 
         return mesh;
     };
