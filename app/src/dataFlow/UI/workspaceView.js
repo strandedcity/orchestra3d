@@ -60,12 +60,11 @@ define([
 
     Workspace.prototype.init = function(){
         // "Global" dictionary to store draggable objects across two threejs scenes: a CSS scene and a WebGL scene
-        this.objectDictionary = {}; // find any object from its UUID, regardless of the scene it's in
         this.cssObjectsByGLId = {}; // look up a CSS object from the id of the corresponding GL object
         this.glObjectsByCSSId = {}; // look up a GL object from the id of its corresponding CSS object
 
         // drag and drop related
-        _.bindAll(this, "startDrag", "drag", "render", "mouseDown", "mouseUp", "clearHover");
+        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -103,9 +102,6 @@ define([
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', this.render );
         this.render();
-
-        // listen for click events, which could be drag-starts
-        this.renderer.domElement.addEventListener("mousedown",this.mouseDown);
     };
 
     Workspace.prototype.enableControls = function(value){
@@ -116,25 +112,7 @@ define([
 
 
 
-
-
-
     /* Drag and drop */
-
-    Workspace.prototype.mouseDown = function(event){
-        if ( this.controls.enabled === false ) return;
-
-        if ( event.button === 0) {
-            event.preventDefault();
-
-            if (this.startDrag(event) === true) {
-                console.warn('wait 150ms before initializing drag-pickup stuff? You should be able to click on elements normally');
-                this.renderer.domElement.addEventListener("mousemove",this.drag);
-                this.renderer.domElement.addEventListener("mouseup",this.mouseUp);
-            }
-        }
-    };
-
     Workspace.prototype.mouseUp = function(event){
         if (!_.isNull(this.dragObject)) {
             // io's, return home
@@ -167,31 +145,69 @@ define([
         if (!_.isNull(this.hoverObject)) this.clearHover();
     };
 
-    Workspace.prototype.startDrag = function(e){
-        var nodeToDrag = null;
-        if (e.target.className.indexOf('draggable') !== -1) {nodeToDrag = e.target;}
-        if (_.isNull(nodeToDrag) && e.target.parentNode.className.indexOf('draggable') !== -1) {nodeToDrag = e.target.parentNode;}
+    Workspace.prototype.startDraggingObject = function(e){
+        this.renderer.domElement.addEventListener("mousemove",this.drag);
+        this.renderer.domElement.addEventListener("mouseup",this.mouseUp);
 
-        if (!_.isNull(nodeToDrag)) {
-            var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY),
+        var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY),
             mousePosition = this.mouseWorldXYPosition(unprojectedVector);
 
-            // the three.js object id is passed back by the start drag event.
-            this.dragObject = this.objectDictionary[nodeToDrag.uuid];
-            this.glDragObject = this.glObjectsByCSSId[nodeToDrag.uuid];
-            this.hoverObject = null;
-            this.glHoverObject = null;
+        // the three.js object id is passed back by the start drag event.
+        this.dragObject = e.object.cssObject;
+        this.glDragObject = e.object.glObject;
+        this.hoverObject = null;
+        this.glHoverObject = null;
 
-            // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
-            // and the center of the dragging object
-            this.dragOffset = {x: mousePosition.x - this.dragObject.position.x, y: mousePosition.y - this.dragObject.position.y};
+        // the "offset" here refers to the x,y offset between the mouse pointer in currently-zoomed world coordinates
+        // and the center of the dragging object
+        this.dragOffset = {x: mousePosition.x - this.dragObject.position.x, y: mousePosition.y - this.dragObject.position.y};
 
-            // store the list of intersection objects once to avoid doing it on every move event. Don't intersect with the object you're dragging.
-            this.intersectionObjects = this.computeDroppableObjects();
+        // store the list of intersection objects once to avoid doing it on every move event. Don't intersect with the object you're dragging.
+        this.intersectionObjects = this.computeDroppableObjects();
+    };
 
-            return true;
+    /* Never intended to be used by the workspace itself, this is a mixin for "draggables" from other classes */
+    Workspace.prototype.setupDraggableView = function(view){
+        if (_.isUndefined(view.cssObject) || _.isUndefined(view.glObject)) throw new Error("Draggable views must have both cssObject and glObject properties");
+
+        var that = this;
+        view.cssObject.element.addEventListener("mousedown",onMouseDown);
+        view.cssObject.element.addEventListener("mouseup",onMouseUp);
+        view.cssObject.element.addEventListener("mouseout",onMouseOut);
+
+        // Timeout, started on mousedown, triggers the beginning of a hold
+        var holdStarter = null,
+            holdDelay = 200,
+            holdActive = false;
+
+        function onMouseDown(e){
+            if ( e.button !== 0 ) return; // left mouse button only
+            if ( that.controls.enabled === false ) return; // ignore events if the workspace is disabled
+
+            // start dragging right away. If you drop quickly enough, the event will turn into a click event after the fact!
+            e.object = view; // add the view to the drag event
+            that.startDraggingObject(e);
+
+            holdStarter = setTimeout(function() {
+                holdStarter = null;
+                holdActive = true;
+                console.log("DRAG");
+            }, holdDelay);
         }
-        return false; // nothing to pick up -- no drag started
+        function onMouseUp(){
+            if (holdStarter) {
+                clearTimeout(holdStarter);
+                holdStarter = null;
+                console.log("CLICK");
+            }
+            else if (holdActive) {
+                holdActive = false;
+                console.log("DROP");
+            }
+        }
+        function onMouseOut(){
+            onMouseUp();
+        }
     };
 
     Workspace.prototype.computeDroppableObjects = function(){

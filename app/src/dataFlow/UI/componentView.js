@@ -21,6 +21,7 @@ define([
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
+            workspace.setupDraggableView(this);  // make the view draggable!
         }.bind(this));
 
         this.inputViews = {};
@@ -49,7 +50,6 @@ define([
 
         workspace.scene.add(cssObject);
         element.uuid = cssObject.uuid; // so the object is identifiable later for drag/drop operations
-        workspace.objectDictionary[cssObject.uuid] = cssObject;
 
         return cssObject;
     };
@@ -102,7 +102,6 @@ define([
 
         var cssObject = new THREE.CSS3DObject( element );
 
-        workspace.objectDictionary[cssObject.uuid] = cssObject;
         parentCSSElement.add(cssObject);
 
         cssObject.position.z = 0;
@@ -137,8 +136,6 @@ define([
         cssElement.element.uuid = cssElement.uuid;
 
         // enable easy lookups in all directions:
-        workspace.objectDictionary[mesh.uuid] = mesh;
-        workspace.objectDictionary[cssElement.uuid] = cssElement;
         workspace.cssObjectsByGLId[mesh.uuid] = cssElement;
         workspace.glObjectsByCSSId[cssElement.uuid] = mesh;
 

@@ -51,6 +51,7 @@ define([
             });
         };
 
+        workspace.setupDraggableView(this);  // make the view draggable!
         this.setupStretchyWire();
     }
 
