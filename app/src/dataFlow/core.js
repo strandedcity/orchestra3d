@@ -62,6 +62,7 @@ define([
                         if (changed) that.trigger("change"); // the input can trigger its change event right away. The COMPONENT does the recalculation
                     });
                     outputModel.trigger("change"); // check for completed flow on hookup
+                    this.trigger("connectedOutput", outputModel);
                 }
             });
         };

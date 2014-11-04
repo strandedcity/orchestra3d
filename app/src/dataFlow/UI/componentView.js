@@ -135,9 +135,6 @@ define([
         mesh.position.set(cssElement.position.x,cssElement.position.y,0);
         cssElement.element.uuid = cssElement.uuid;
 
-        // enable easy lookups in all directions:
-        workspace.cssObjectsByGLId[mesh.uuid] = cssElement;
-
         // If this.glObject is defined, we're talking about a child to be added (ie, an input's glObject)
         // Otherwise, we're talking about the component itself:
         var glParent = !_.isUndefined(this.glObject) ? this.glObject : workspace.glscene;

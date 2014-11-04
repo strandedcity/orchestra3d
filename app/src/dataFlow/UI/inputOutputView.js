@@ -21,6 +21,9 @@ define([
 
         _.extend(this, Backbone.Events);
 
+        // The backbone way: listen to data changes to make view changes
+        this.listenTo(this.model,"connectedOutput",this.connectToOutput);
+
         this._remove = function(){
             this.stopListening();
             delete this.glObject.IOView;
@@ -74,7 +77,7 @@ define([
 
         // Inputs handle drop events directly. Triggered in the workspaceView!
         this.listenTo(this.cssObject, "drop", function(droppedCSSObj){
-            this.connectToOutputView(droppedCSSObj.IOView);
+            this.model.connectOutput(droppedCSSObj.IOView.model);
         });
     }
 
@@ -88,9 +91,8 @@ define([
         this._remove();
     };
 
-    InputView.prototype.connectToOutputView = function(outputView){
-        // Data stuff: connect this input to the specified output
-        this.model.connectOutput(outputView.model);
+    InputView.prototype.connectToOutput = function(output){
+        var outputView = output.IOView;
 
         // View stuff: draw a wire connecting this input to the specified output. Ideally this would occur inside a "Connected!" callback instead
         var that = this;
