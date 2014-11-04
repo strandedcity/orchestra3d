@@ -56,6 +56,17 @@ require(["appconfig"],function(){
                 var periodic = new ComponentView(new dataFlow.BooleanTrueComponent({
                     position: {x: 500, y: -450}
                 }));
+
+                /* Make connections between inputs and outputs of components */
+                _.defer(function(){
+                    point1.component.inputs["X"].connectOutput(number1.component.output);
+                    point1.component.inputs["Y"].connectOutput(number2.component.output);
+                    point1.component.inputs["Z"].connectOutput(number3.component.output);
+                    curve.component.inputs["V"].connectOutput(point1.component.output);
+                    curve.component.inputs["D"].connectOutput(degree.component.output);
+                    curve.component.inputs["P"].connectOutput(periodic.component.output);
+                    workspace.render();
+                });
             };
 
             App.prototype.showDataflowTestComponents = function(){

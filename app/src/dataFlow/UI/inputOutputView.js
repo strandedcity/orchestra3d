@@ -94,7 +94,9 @@ define([
     InputView.prototype.connectToOutput = function(output){
         var outputView = output.IOView;
 
-        // View stuff: draw a wire connecting this input to the specified output. Ideally this would occur inside a "Connected!" callback instead
+        // must pre-render to make sure that the matrices for the referenced GL elements are updated
+        workspace.render();
+
         var that = this;
         this.connectedOutputViews.push(outputView);
         var wireView = this.redrawWireForConnectedOutput(outputView);
@@ -103,6 +105,8 @@ define([
         this.listenTo(outputView.glObject.parent,"changePosition",function(){
             that.redrawWireForConnectedOutput(outputView,wireView);
         });
+
+        // post-render to make sure the wire gets drawn
         workspace.render();
     };
     InputView.prototype.redrawWireForConnectedOutput = function(outputView,wireView){
