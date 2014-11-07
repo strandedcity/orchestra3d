@@ -11,12 +11,14 @@ define([
         initialize: function(opts){
             var output = new DataFlow.OutputCurve();
 
+            var inputs = [
+                new DataFlow.OutputPoint({shortName: "V"}),
+                new DataFlow.OutputNumber({shortName: "D"}),
+                new DataFlow.OutputBoolean({shortName: "P"})
+            ];
+
             var args = _.extend(opts || {},{
-                inputTypes: {
-                    "V": 'GeoPoint', // control points
-                    "D": 'number', // degree
-                    "P": 'boolean' // periodic?
-                },
+                inputs: inputs,
                 output: output,
                 resultFunction: this.recalculate,
                 componentPrettyName: "NURBS Crv"

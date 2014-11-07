@@ -11,12 +11,14 @@ define([
             initialize: function(opts){
                 var output = new DataFlow.OutputPoint();
 
+                var inputs = [
+                    new DataFlow.OutputNumber({shortName: "X"}),
+                    new DataFlow.OutputNumber({shortName: "Y"}),
+                    new DataFlow.OutputNumber({shortName: "Z"})
+                ];
+
                 var args = _.extend(opts || {},{
-                    inputTypes: {
-                        "X": 'number',
-                        "Y": 'number',
-                        "Z": 'number'
-                    },
+                    inputs: inputs,
                     output: output,
                     resultFunction: this.recalculate,
                     componentPrettyName: "Point(x,y,z)"
@@ -28,9 +30,9 @@ define([
                 if (shortestInput === 0) return;
                 for (var i=0; i < shortestInput; i++) {
                     var point = new Geometry.Point(
-                        this.inputs["X"].values[i],
-                        this.inputs["Y"].values[i],
-                        this.inputs["Z"].values[i]
+                        this.inputs[0].values[i],
+                        this.inputs[1].values[i],
+                        this.inputs[2].values[i]
                     );
                     //console.log(point.getCoords());
         //            console.log('POINTER: ',pointer);

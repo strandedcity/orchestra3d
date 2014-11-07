@@ -10,10 +10,10 @@ define([
         _.extend(this, DataFlow.Component.prototype);
         var output = new DataFlow.OutputBoolean();
 
+        var inputs = [new DataFlow.OutputBoolean({shortName: "B"})];
+
         var args = _.extend({
-            inputTypes: {
-                "B": 'boolean'
-            },
+            inputs: inputs,
             output: output,
             resultFunction: this.recalculate,
             componentPrettyName: "Bool"

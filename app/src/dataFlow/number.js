@@ -10,10 +10,12 @@ define([
         initialize: function(opts){
             var output = new DataFlow.OutputNumber();
 
+            var input = new DataFlow.OutputNumber({required: false, shortName: "#"});
+
             var args = _.extend(opts || {},{
-                inputTypes: {
-                    "#": 'number'
-                },
+                inputs: [
+                    input
+                ],
                 output: output,
                 resultFunction: this.recalculate,
                 componentPrettyName: "Number"

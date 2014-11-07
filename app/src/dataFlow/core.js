@@ -12,6 +12,7 @@ define([
             if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
             if (_.isUndefined(args.shortName)) {throw new Error("No shortName specified for Output");}
 
+            this.required = _.isUndefined(args.required) ? true : false;
             this.type = args.type;
             this.shortName = args.shortName;
             this.values = [];
@@ -104,51 +105,39 @@ define([
         // Mix in backbone events so this component can interact with other components
         _.extend(Component.prototype, Backbone.Events, {
             base_init: function(opts){
-                if (_.isUndefined(opts) || _.isUndefined(opts.inputTypes) || _.isUndefined(opts.resultFunction) || _.isUndefined(opts.output) ) {
+                if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.resultFunction) || _.isUndefined(opts.output) ) {
                     throw new Error("Insufficient specifications for a Component");
                 }
 
+                this._sufficient = false;
+
                 // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
                 this.inputTypes = opts.inputTypes;
-                this.inputs = this.initializeInputs();
+                this.inputs = this.initializeInputs(opts.inputs);
                 this.output = opts.output; // Contains raw result object pointers after async calculation completes.
                 this.componentPrettyName = opts.componentPrettyName;
                 this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
+
+                this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
             },
-            initializeInputs: function(){
-                var inputs = {}, that = this;
-                _.each(_.keys(this.inputTypes),function(inputName){
-                    var inputModel = new DATAFLOW_IO_TYPES[that.inputTypes[inputName]]();
+            initializeInputs: function(inputs){
+                var that = this;
+                _.each(inputs,function(inputModel){
+                    that[inputModel.shortName] = inputModel;
                     that.listenTo(inputModel,"change",that.recalculateIfReady);
-                    inputs[inputName] = inputModel;
                 });
                 return inputs;
             },
-            assignInput: function(inputName, input){
+            assignInput: function(inputName, output){
                 // TODO: 'input' in the function signature actually refers to the OUTPUT that's supposed to be connected to inputName
 
-                if (_.isUndefined(inputName) || _.isUndefined(input)) {throw new Error("Unspecified Input");}
-                if (!_.has(this.inputTypes,inputName)) {throw new Error("Tried to specify an input that does not exist");}
-                if (this.inputTypes[inputName] !== input.type) {throw new Error("Tried to specify an input of the wrong type");}
+                if (_.isUndefined(inputName) || _.isUndefined(output)) {throw new Error("Unspecified Input");}
+                if (!_.has(this,inputName)) {throw new Error("Tried to specify an input that does not exist");}
+                if (this[inputName].type !== output.type) {throw new Error("Tried to specify an input of the wrong type");}
 
+                var input = this[inputName];
 
-
-                this.inputs[inputName].connectOutput(input); // matches signature found in inputOutputView.js
-
-                // Stop listening to all inputs, then re-instate on current ones:
-                //this.stopListening();
-                //
-                //// Still here? Cool. Just listen to the output for change events.
-                //this.inputs[inputName] = input; // keep a ref
-                //var that = this;
-                //_.each(this.inputs,function(ipt){
-                //    that.listenTo(ipt, 'change', that.recalculate);
-                //});
-                //
-                //// Does this addition of an input leave the component with all inputs satisfied?
-                //if (this.hasSufficientInputs()){
-                //    this.recalculate();
-                //}
+                this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
             },
             destroy: function(){
                 this.stopListening();
@@ -161,29 +150,38 @@ define([
                 delete this.output;
             },
             recalculateIfReady: function(){
-                // poll inputs to check status
-                if (this.hasSufficientInputs() === true) {
+                // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
+                if (this._calculateSufficiency() === true) {
                     this.recalculate();
+                } else {
+                    this.output.setNull(true);
                 }
             },
             hasSufficientInputs: function(){
-                var that = this, sufficient = true;
-
-                //// first verify that all the inputs are even hooked up:
-                //_.each(_.keys(this.inputTypes),function(inputName){
-                //    if (!_.has(that.inputs,inputName)) {
-                //        sufficient = false;
-                //    }
-                //});
+                return this._sufficient;
+            },
+            _calculateSufficiency: function(){
+                var sufficient = true;
 
                 // next, verify that none of the inputs are nulled-out:
                 _.each(this.inputs,function(input){
-                    if (input.isNull() === true) {
+                    if (input.isNull() === true && input.required === true) {
                         sufficient = false;
                     }
                 });
+
+                // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
+                // However, in this case, the output value must be actually set before the component can be called sufficient
+                // THIS TEST TRIGGERS FALSE NEGATIVES WHEN INPUTS ARE REQUIRED BUT THE OUTPUT HASN'T RECALCULATED YET
+                //if (sufficient === true & _.isNull(this.output.fetchValues())) {
+                //    sufficient = false;
+                //}
+
                 // If an input is null, the output is null too, and no calculation should occur.
-                if (!sufficient) that.output.setNull(true);
+                //if (!sufficient) this.output.setNull(true);
+                if (this._sufficient !== sufficient) this.trigger("sufficiencyChange",this._sufficient);
+                this._sufficient = sufficient;
+
                 return sufficient;
             },
             shortestInputLength: function(){

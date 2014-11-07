@@ -2,8 +2,9 @@ define([
     'dataFlow/dataFlow_loader',
     "dataFlow/UI/workspaceView",
     "dataFlow/UI/inputOutputView",
-    "underscore"
-],function(DataFlow, workspace, ioView, _){
+    "underscore",
+    "backbone"
+],function(DataFlow, workspace, ioView, _, Backbone){
     var INPUT_HEIGHT = 60;
 
     function ComponentView(component){
@@ -15,9 +16,11 @@ define([
     }
 
     ComponentView.prototype.init = function(){
-        console.log("TODO: Remove object dictionaries stored on workspace if possible");
+        _.extend(this,Backbone.Events);
+
         _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
         this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
+        this.changeSufficiency(this.component.hasSufficientInputs());
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
@@ -31,6 +34,21 @@ define([
 
         // call once at the end!
         workspace.render();
+
+        // With dom elements created, bind events:
+        this.listenTo(this.component,"changeSufficiency",this.changeSufficiency);
+    };
+
+    ComponentView.prototype.changeSufficiency = function(state){
+        var classToAdd;
+        if (state === true) classToAdd = "sufficient";
+        if (state === false) classToAdd = "insufficient";
+        if (state === "error") classToAdd = "error";
+
+        this.cssObject.element.firstChild.classList.remove("sufficient");
+        this.cssObject.element.firstChild.classList.remove("insufficient");
+        this.cssObject.element.firstChild.classList.remove("error");
+        this.cssObject.element.firstChild.classList.add(classToAdd);
     };
 
     ComponentView.prototype.createComponentWithNamePosition = function(name, x, y){
@@ -54,20 +72,27 @@ define([
         return cssObject;
     };
 
+    ComponentView.prototype.remove = function(){
+        this.stopListening();
+
+        // remove inputs
+        // remove gl element
+        // remove css element
+    };
+
 
     /*
     Inputs and Outputs!
      */
     ComponentView.prototype.createInputs = function(){
         // calculate start position for inputs:
-        var inputs = this.component.inputTypes,
-            inputNames = _.keys(inputs),
+        var inputs = this.component.inputs,
             that = this;
         var verticalStart = INPUT_HEIGHT * (_.keys(inputs).length - 1) / 2;
 
         // add each input:
-        _.each(inputNames, function(ipt,idx){
-            that.inputViews[ipt] = this.createInputWithNameAndParent(ipt,inputs[ipt],this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+        _.each(inputs, function(ipt,idx){
+            that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
         },this);
     };
 
@@ -80,7 +105,7 @@ define([
 
         _.defer(function(){
             var glObject = that.createGLElementToMatch(inputCSSObj);
-            that.inputViews[name] = new ioView.InputView(that.component.inputs[name],glObject,inputCSSObj);
+            that.inputViews[name] = new ioView.InputView(that.component[name],glObject,inputCSSObj);
         });
         return inputCSSObj;
     };

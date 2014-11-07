@@ -59,12 +59,21 @@ require(["appconfig"],function(){
 
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
-                    point1.component.inputs["X"].connectOutput(number1.component.output);
-                    point1.component.inputs["Y"].connectOutput(number2.component.output);
-                    point1.component.inputs["Z"].connectOutput(number3.component.output);
-                    curve.component.inputs["V"].connectOutput(point1.component.output);
-                    curve.component.inputs["D"].connectOutput(degree.component.output);
-                    curve.component.inputs["P"].connectOutput(periodic.component.output);
+                    point1.component["X"].connectOutput(number1.component.output);
+                    point1.component["Y"].connectOutput(number2.component.output);
+                    point1.component["Z"].connectOutput(number3.component.output);
+                    curve.component["V"].connectOutput(point1.component.output);
+                    curve.component["D"].connectOutput(degree.component.output);
+                    curve.component["P"].connectOutput(periodic.component.output);
+
+                    number1.component.output.assignValues([1,2,3]);
+                    number2.component.output.assignValues([4,5,6]);
+                    number3.component.output.assignValues([7,8,9]);
+
+                    _.delay(function(){
+                        console.log('number1 sufficiency: ',number1.component.hasSufficientInputs());
+                    },200);
+
                     workspace.render();
                 });
             };
