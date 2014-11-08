@@ -70,8 +70,13 @@ require(["appconfig"],function(){
                     number2.component.output.assignValues([4,5,6]);
                     number3.component.output.assignValues([7,8,9]);
 
+                    degree.component.output.assignValues([2]);
+
                     _.delay(function(){
-                        console.log('number1 sufficiency: ',number1.component.hasSufficientInputs());
+                        //console.log('number1 sufficiency: ',number1.component.hasSufficientInputs());
+                        //console.log('number2 sufficiency: ',number2.component.hasSufficientInputs());
+                        //console.log('number3 sufficiency: ',number3.component.hasSufficientInputs());
+                        //console.log('point1 sufficiency: ',point1.component.hasSufficientInputs());
                     },200);
 
                     workspace.render();

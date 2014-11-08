@@ -18,9 +18,8 @@ define([
     ComponentView.prototype.init = function(){
         _.extend(this,Backbone.Events);
 
-        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
+        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch","displayVals");
         this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
-        this.changeSufficiency(this.component.hasSufficientInputs());
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
@@ -36,7 +35,19 @@ define([
         workspace.render();
 
         // With dom elements created, bind events:
-        this.listenTo(this.component,"changeSufficiency",this.changeSufficiency);
+        if (this.component.output.type === 'number') {
+            this.listenTo(this.component.output,"change",this.displayVals);
+        }
+        this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
+        this.changeSufficiency(this.component.hasSufficientInputs());
+    };
+
+    ComponentView.prototype.displayVals = function(){
+        if (_.isEmpty(this.component.output.values)) {
+            this.cssObject.element.firstChild.value = this.component.componentPrettyName;
+        } else {
+            this.cssObject.element.firstChild.value = this.component.output.values.toString();
+        }
     };
 
     ComponentView.prototype.changeSufficiency = function(state){

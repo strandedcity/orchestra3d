@@ -102,6 +102,7 @@ define(["SISL/sisl_loader","SISL/sisl","underscore"],function(){
         verticesPointer = Module.Utils.copyJSArrayToC(vertices);
 
         this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
+        console.log('new curve: ',this._pointer);
     };
     _.extend(Geo.Curve.prototype,{
         getLength: function(){

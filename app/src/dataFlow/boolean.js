@@ -10,7 +10,7 @@ define([
         _.extend(this, DataFlow.Component.prototype);
         var output = new DataFlow.OutputBoolean();
 
-        var inputs = [new DataFlow.OutputBoolean({shortName: "B"})];
+        var inputs = [new DataFlow.OutputBoolean({shortName: "B", required: false})];
 
         var args = _.extend({
             inputs: inputs,

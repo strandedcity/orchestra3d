@@ -29,7 +29,7 @@ define([
                 that.output.values[i] = this.inputs["#"].values[i];
             }
             this._recalculate();
-        },
+        }
     });
 
     return DataFlow;

@@ -113,19 +113,32 @@ define([
 
                 // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
                 this.inputTypes = opts.inputTypes;
-                this.inputs = this.initializeInputs(opts.inputs);
                 this.output = opts.output; // Contains raw result object pointers after async calculation completes.
+                this.inputs = this.initializeInputs(opts.inputs);
                 this.componentPrettyName = opts.componentPrettyName;
                 this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
                 this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
             },
             initializeInputs: function(inputs){
+                // when no inputs are required, sufficiency must be calculated differently
+                // ie, if values can be assigned directly, sufficiency = (inputs satisfied | output assigned)
+                var hasRequired = false;
+
                 var that = this;
                 _.each(inputs,function(inputModel){
                     that[inputModel.shortName] = inputModel;
                     that.listenTo(inputModel,"change",that.recalculateIfReady);
+                    if (inputModel.required === true) {hasRequired = true;}
                 });
+
+                this._hasRequiredInputs = hasRequired;
+
+                // for components that let users enter data directly, we need to listen directly to the output for changes in value
+                if (hasRequired === false) {
+                    this.listenTo(this.output,"change",that._calculateSufficiency   );
+                }
+
                 return inputs;
             },
             assignInput: function(inputName, output){
@@ -138,6 +151,8 @@ define([
                 var input = this[inputName];
 
                 this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
+
+                this._calculateSufficiency();
             },
             destroy: function(){
                 this.stopListening();
@@ -164,23 +179,26 @@ define([
                 var sufficient = true;
 
                 // next, verify that none of the inputs are nulled-out:
-                _.each(this.inputs,function(input){
-                    if (input.isNull() === true && input.required === true) {
-                        sufficient = false;
-                    }
-                });
+                if (this._hasRequiredInputs === true){
+                    _.each(this.inputs,function(input){
+                        if (input.isNull() === true && input.required === true) {
+                            sufficient = false;
+                        }
+                    });
+                }
 
                 // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
                 // However, in this case, the output value must be actually set before the component can be called sufficient
-                // THIS TEST TRIGGERS FALSE NEGATIVES WHEN INPUTS ARE REQUIRED BUT THE OUTPUT HASN'T RECALCULATED YET
-                //if (sufficient === true & _.isNull(this.output.fetchValues())) {
-                //    sufficient = false;
-                //}
+                if (this._hasRequiredInputs === false && _.isNull(this.output.fetchValues())) {
+                    sufficient = false;
+                }
 
                 // If an input is null, the output is null too, and no calculation should occur.
                 //if (!sufficient) this.output.setNull(true);
-                if (this._sufficient !== sufficient) this.trigger("sufficiencyChange",this._sufficient);
-                this._sufficient = sufficient;
+                if (this._sufficient !== sufficient) {
+                    this._sufficient = sufficient;
+                    this.trigger("sufficiencyChange",sufficient);
+                }
 
                 return sufficient;
             },

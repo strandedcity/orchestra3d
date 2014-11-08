@@ -28,10 +28,13 @@ define([
         recalculate: function(){
             var that = this, shortestInput = this.shortestInputLength();
             if (shortestInput === 0) return;
-            for (var i=0; i < shortestInput; i++) {
-                that.output.values[i] = new Geometry.Curve(this.inputs["V"].values[i],this.inputs["D"].values[i],this.inputs["P"].values[i]);
-            }
+            //for (var i=0; i < shortestInput; i++) {
+            //    that.output.values[i] = new Geometry.Curve(this["V"].values[i],this["D"].values[i],this["P"].values[i]);
+            //}
+            this.output.values = [new Geometry.Curve(this["V"].values,this["D"].values[0],this["P"].values[0])];
             this._recalculate();
+
+            console.log(this.output.values[0]);
         }
     });
 
