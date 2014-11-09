@@ -83,68 +83,6 @@ require(["appconfig"],function(){
                 });
             };
 
-            App.prototype.showDataflowTestComponents = function(){
-                var pointxyz = workspace.createComponentWithNamePosition("Point (x,y,z)", 200, 0);
-                var pointX = workspace.createInputWithNameAndParent("x","num",pointxyz,60);
-                workspace.createInputWithNameAndParent("y","num",pointxyz,0);
-                workspace.createInputWithNameAndParent("z","num",pointxyz,-60);
-                workspace.createOutputWithNameAndParent("pt","point",pointxyz,0);
-
-                var number1 = workspace.createComponentWithNamePosition("Number",-300,-200);
-                var number1Out = workspace.createOutputWithNameAndParent("#","num",number1,0);
-
-                var number2 = workspace.createComponentWithNamePosition("Number",-350,-50);
-                workspace.createOutputWithNameAndParent("#","num",number2,0);
-
-                var number3 = workspace.createComponentWithNamePosition("Number",-400,300);
-                workspace.createOutputWithNameAndParent("#","num",number3,0);
-
-                workspace.render();
-
-                // Test drawing a line between components. Must find a way for this line to auto-update when components move...
-                var that = workspace;
-                _.defer(function(){
-
-                    // Makes the I/O's move with their wires AND the components they're attached to. Seems really inefficient though.
-                    that.glObjectsByCSSId[pointxyz.uuid].addEventListener("changePosition",function(){
-                        that.glObjectsByCSSId[pointX.uuid].dispatchEvent({ type: 'changeComponentPosition' });
-                    });
-                    that.glObjectsByCSSId[number1.uuid].addEventListener("changePosition",function(){
-                        that.glObjectsByCSSId[number1Out.uuid].dispatchEvent({ type: 'changeComponentPosition' });
-                    });
-
-
-
-
-                    // Create the curved connection. Because the curves will be "oriented" it's important to start at the OUTPUT of the component
-                    // and end at the INPUT of the connected component.
-                    var startVectWorld = new THREE.Vector3();
-                    startVectWorld.setFromMatrixPosition(number1Out.matrixWorld);// number1Out
-
-                    var endVectorWorld = new THREE.Vector3();
-                    endVectorWorld.setFromMatrixPosition(pointX.matrixWorld);
-
-                    var mesh = that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld);
-
-                    that.glObjectsByCSSId[pointX.uuid].addEventListener('changeComponentPosition',function(e){
-                        // Adjust the curved connection during drag events for each end
-                        endVectorWorld.setFromMatrixPosition(this.matrixWorld);
-                        that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
-                        _.defer(function(){that.render()});
-                    });
-                    that.glObjectsByCSSId[number1Out.uuid].addEventListener('changeComponentPosition',function(e){
-                        startVectWorld.setFromMatrixPosition(this.matrixWorld);
-                        that.drawCurveFromPointToPoint(startVectWorld, endVectorWorld, mesh);
-                        _.defer(function(){that.render()}); // necessary so that wires are re-drawn after drop events
-                    });
-
-                    that.glscene.add(mesh);
-
-                    that.render();
-                });
-
-            };
-
             App.prototype.showSISLTestCurve = function(){
                 // Mirrors the curve specified in example01.cpp. NOT the same as the example images on SINTEF website!
                 var p0 = new Geo.Point(0, 0, 0),
