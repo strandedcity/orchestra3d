@@ -103,7 +103,7 @@ define([
 
         // add each input:
         _.each(inputs, function(ipt,idx){
-            that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+            that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt.type,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
         },this);
     };
 

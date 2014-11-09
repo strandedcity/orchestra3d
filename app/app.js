@@ -61,7 +61,7 @@ require(["appconfig"],function(){
 
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
-                    point1.component["X"].connectOutput(number1.component.output);
+                    //point1.component["X"].connectOutput(number1.component.output);
                     point1.component["Y"].connectOutput(number2.component.output);
                     point1.component["Z"].connectOutput(number3.component.output);
                     curve.component["V"].connectOutput(point1.component.output);
@@ -74,8 +74,8 @@ require(["appconfig"],function(){
 
                     degree.component.output.assignValues([3]);
 
-                    that.displayControlPoly(curve.component["V"].fetchValues());
-                    that.displaySISLTestCurve(curve.component.output.fetchValues()[0]);
+                    //that.displayControlPoly(curve.component["V"].fetchValues());
+                    //that.displaySISLTestCurve(curve.component.output.fetchValues()[0]);
 
                     workspace.render();
                 });
