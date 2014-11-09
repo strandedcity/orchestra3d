@@ -29,8 +29,6 @@ require(["appconfig"],function(){
             };
 
             App.prototype.NURBSCurveTest = function(){
-                var that = this;
-
                 var point1 = new ComponentView(new dataFlow.PointComponent({
                     position: {x: 500, y: 0}
                 }));
@@ -46,7 +44,7 @@ require(["appconfig"],function(){
                 }));
 
                 var curve = new ComponentView(new dataFlow.CurveControlPointComponent({
-                    position: {x: 1000, y: -250}
+                    position: {x: 1400, y: -250}
                 }));
 
                 var degree = new ComponentView(new dataFlow.NumberComponent({
@@ -55,6 +53,15 @@ require(["appconfig"],function(){
 
                 var periodic = new ComponentView(new dataFlow.BooleanTrueComponent({
                     position: {x: 500, y: -450}
+                }));
+
+
+                var degree2 = new ComponentView(new dataFlow.NumberComponent({
+                    position: {x: 500, y: 400}
+                }));
+
+                var controlCurve = new ComponentView(new dataFlow.CurveControlPointComponent({
+                    position: {x: 1400, y: 200}
                 }));
 
                 /* Make connections between inputs and outputs of components */
@@ -71,6 +78,10 @@ require(["appconfig"],function(){
                     number3.component.output.assignValues([0.0,0.5,1,1.5,2,2.5,3,3.5,4,4.5]);
 
                     degree.component.output.assignValues([3]);
+                    degree2.component.output.assignValues([1]);
+                    controlCurve.component["V"].connectOutput(point1.component.output);
+                    controlCurve.component["D"].connectOutput(degree2.component.output);
+                    controlCurve.component["P"].connectOutput(periodic.component.output);
 
                     //that.displayControlPoly(curve.component["V"].fetchValues());
                     //that.displaySISLTestCurve(curve.component.output.fetchValues()[0]);
