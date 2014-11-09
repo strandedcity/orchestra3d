@@ -119,6 +119,8 @@ define([
                 this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
                 this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
+
+                this.previews = [];
             },
             initializeInputs: function(inputs){
                 // when no inputs are required, sufficiency must be calculated differently

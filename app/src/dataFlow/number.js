@@ -31,13 +31,16 @@ define([
             this._recalculate();
         },
         parseInputAndSet: function(input){
+            var arr = [];
             try {
-                var arrStr = "[" + input.replace(/[\s,]+$/, "") + "]",
+                var arrStr = "[" + input.replace(/[\s,]+$/, "") + "]";
                     arr = JSON.parse(arrStr);
-                this.output.assignValues(arr);
             } catch (e){
-                console.warn("Failed to parse user-entered numbers. Ignoring input.")
+                console.warn("Failed to parse user-entered numbers: " + input);
             }
+
+            // empty out number if failure to parse
+            this.output.assignValues(arr);
 
         }
     });

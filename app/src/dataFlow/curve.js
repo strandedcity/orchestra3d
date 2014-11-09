@@ -32,11 +32,18 @@ define([
             //for (var i=0; i < shortestInput; i++) {
             //    that.output.values[i] = new Geometry.Curve(this["V"].values[i],this["D"].values[i],this["P"].values[i]);
             //}
+
+            // destroy prior views
+            _.each(this.previews,function(prev){
+                prev.remove();
+            });
+            this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
+            
             this.output.values = [new Geometry.Curve(this["V"].values,this["D"].values[0],this["P"].values[0])];
             this._recalculate();
 
             console.log(this.output.values[0]);
-            new Preview.CurvePreview(this.output.values[0]);
+            this.previews.push(new Preview.CurvePreview(this.output.values[0]));
         }
     });
 
