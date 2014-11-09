@@ -32,17 +32,18 @@ define([
             //for (var i=0; i < shortestInput; i++) {
             //    that.output.values[i] = new Geometry.Curve(this["V"].values[i],this["D"].values[i],this["P"].values[i]);
             //}
+            this.clearPreviews();
 
-            // destroy prior views
-            _.each(this.previews,function(prev){
-                prev.remove();
+            _.each(this.output.values,function(geocurve){
+                // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
+                // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
+                geocurve.destroy();
             });
-            this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
-            
+            this.output.values.splice(0,this.output.values.length); // clear out all values
+
             this.output.values = [new Geometry.Curve(this["V"].values,this["D"].values[0],this["P"].values[0])];
             this._recalculate();
 
-            console.log(this.output.values[0]);
             this.previews.push(new Preview.CurvePreview(this.output.values[0]));
         }
     });

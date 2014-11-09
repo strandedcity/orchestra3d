@@ -223,7 +223,14 @@ define([
             },
             isNull: function(){
                 return this.output.isNull();
-            }
+            },
+            clearPreviews: function(){
+                // destroy prior views
+                _.each(this.previews,function(prev){
+                    prev.remove();
+                });
+                this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
+            },
         });
 
         return DataFlow;
