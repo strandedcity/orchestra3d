@@ -25,12 +25,14 @@ require(["appconfig"],function(){
                 //viewer.enableControls(true);
 
                 // Demonstration programs...
-                this.showSISLTestCurve();
+                //this.newSISLTestCurve();
                 //this.showDataflowTestComponents();
                 this.NURBSCurveTest();
             };
 
             App.prototype.NURBSCurveTest = function(){
+                var that = this;
+
                 var point1 = new ComponentView(new dataFlow.PointComponent({
                     position: {x: 500, y: 0}
                 }));
@@ -66,41 +68,39 @@ require(["appconfig"],function(){
                     curve.component["D"].connectOutput(degree.component.output);
                     curve.component["P"].connectOutput(periodic.component.output);
 
-                    number1.component.output.assignValues([1,2,3]);
-                    number2.component.output.assignValues([4,5,6]);
-                    number3.component.output.assignValues([7,8,9]);
+                    number1.component.output.assignValues([0,1,1,0,0,1,1,0,0,1]);
+                    number2.component.output.assignValues([0,0,1,1,0,0,1,1,0,0]);
+                    number3.component.output.assignValues([0.0,0.5,1,1.5,2,2.5,3,3.5,4,4.5]);
 
-                    degree.component.output.assignValues([2]);
+                    degree.component.output.assignValues([3]);
 
-                    _.delay(function(){
-                        //console.log('number1 sufficiency: ',number1.component.hasSufficientInputs());
-                        //console.log('number2 sufficiency: ',number2.component.hasSufficientInputs());
-                        //console.log('number3 sufficiency: ',number3.component.hasSufficientInputs());
-                        //console.log('point1 sufficiency: ',point1.component.hasSufficientInputs());
-                    },200);
+                    that.displayControlPoly(curve.component["V"].fetchValues());
+                    that.displaySISLTestCurve(curve.component.output.fetchValues()[0]);
 
                     workspace.render();
                 });
             };
 
-            App.prototype.showSISLTestCurve = function(){
-                // Mirrors the curve specified in example01.cpp. NOT the same as the example images on SINTEF website!
-                var p0 = new Geo.Point(0, 0, 0),
-                    p1 = new Geo.Point(1, 0, 0.5),
-                    p2 = new Geo.Point(1, 1, 1),
-                    p3 = new Geo.Point(0, 1, 1.5),
-                    p4 = new Geo.Point(0, 0, 2),
-                    p5 = new Geo.Point(1, 0, 2.5),
-                    p6 = new Geo.Point(1, 1, 3),
-                    p7 = new Geo.Point(0, 1, 3.5),
-                    p8 = new Geo.Point(0, 0, 4),
-                    p9 = new Geo.Point(1, 0, 4.5),
+            App.prototype.displayControlPoly = function(ctrlpts){
 
-                // Create the SISL Curve:
-                    curve = new Geo.Curve([p0, p1, p2, p3, p4, p5, p6, p7, p8, p9], 3, false);
+                var endPointGeo = new THREE.Geometry();
 
-                // For illustration -- show the control polygon
-                var ctrlpts = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9];
+                // construct geometry for control polygon
+                for (var a = 0; a < ctrlpts.length; a++) {
+                    var pt = ctrlpts[a].getCoordsArray();
+                    endPointGeo.vertices.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
+                }
+
+                var mat2 = new THREE.LineBasicMaterial({
+                    color: 0x00fff0,
+                });
+                endPointGeo.computeLineDistances();
+                var line2 = new THREE.Line(endPointGeo, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 0.1, gapSize: 0.1, linewidth: 2 } ), THREE.LineStrip);
+                viewer.scene.add(line2);
+            };
+
+            App.prototype.displaySISLTestCurve = function(curve){
+
 
                 var material = new THREE.LineBasicMaterial({
                     color: 0xff00f0,
@@ -119,19 +119,6 @@ require(["appconfig"],function(){
                 var line = new THREE.Line(geometry, material);
                 viewer.scene.add(line);
 
-                var endPointGeo = new THREE.Geometry();
-
-                // construct geometry for control polygon
-                for (var a = 0; a < ctrlpts.length; a++) {
-                    var pt = ctrlpts[a].getCoordsArray();
-                    endPointGeo.vertices.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
-                }
-
-                var mat2 = new THREE.LineBasicMaterial({
-                    color: 0x00fff0,
-                });
-                var line2 = new THREE.Line(endPointGeo, mat2);
-                viewer.scene.add(line2);
                 viewer.render();
             };
 
