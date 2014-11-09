@@ -227,6 +227,7 @@ define([
     };
 
     Workspace.prototype.drag = function(e){
+        event.preventDefault(); // prevent flickering when dragging over other objects
         var unprojectedVector = this.unprojectMouse(e.clientX, e.clientY);
         var worldPosition = this.mouseWorldXYPosition(unprojectedVector);
         this.dragObject.position.set(worldPosition.x - this.dragOffset.x, worldPosition.y - this.dragOffset.y, 0);

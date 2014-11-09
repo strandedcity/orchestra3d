@@ -16,6 +16,7 @@ define([
     }
 
     ComponentView.prototype.init = function(){
+        var that = this;
         _.extend(this,Backbone.Events);
 
         _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch","displayVals");
@@ -37,6 +38,9 @@ define([
         // With dom elements created, bind events:
         if (this.component.output.type === 'number') {
             this.listenTo(this.component.output,"change",this.displayVals);
+            this.cssObject.element.firstChild.onchange = function(){
+                that.component.parseInputAndSet(this.value);
+            };
         }
         this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
         this.changeSufficiency(this.component.hasSufficientInputs());

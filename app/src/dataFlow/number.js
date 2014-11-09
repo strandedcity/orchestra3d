@@ -29,6 +29,16 @@ define([
                 that.output.values[i] = this.inputs["#"].values[i];
             }
             this._recalculate();
+        },
+        parseInputAndSet: function(input){
+            try {
+                var arrStr = "[" + input.replace(/[\s,]+$/, "") + "]",
+                    arr = JSON.parse(arrStr);
+                this.output.assignValues(arr);
+            } catch (e){
+                console.warn("Failed to parse user-entered numbers. Ignoring input.")
+            }
+
         }
     });
 

@@ -330,7 +330,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		if ( scope.enabled === false ) return;
 
 		if ( event.button === 0) {
-            event.preventDefault();
+            //event.preventDefault(); // prevents inputs from being used in workspace view. But without this, there can be odd flicker behaviors. Investigate further...
 			if ( scope.noRotate === true ) return;
 
             // regular rotational behavior
@@ -639,7 +639,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'touchend', touchend, false );
 	this.domElement.addEventListener( 'touchmove', touchmove, false );
 
-	window.addEventListener( 'keydown', onKeyDown, false );
+	// keydown events can interfere with editing inputs in the workspace view
+	//window.addEventListener( 'keydown', onKeyDown, false );
 
 	// force an update at start
 	this.update();
