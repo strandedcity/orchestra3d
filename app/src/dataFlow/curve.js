@@ -1,8 +1,9 @@
 define([
     "underscore",
     "dataFlow/core",
-    "SISL/sisl_loader"
-],function(_,DataFlow,Geometry){
+    "SISL/sisl_loader",
+    "dataFlow/UI/geometryPreviews"
+],function(_,DataFlow,Geometry,Preview){
     var CurveControlPointComponent = DataFlow.CurveControlPointComponent = function CurveControlPointComponent(opts){
         this.initialize.apply(this, arguments);
     };
@@ -35,6 +36,7 @@ define([
             this._recalculate();
 
             console.log(this.output.values[0]);
+            new Preview.CurvePreview(this.output.values[0]);
         }
     });
 

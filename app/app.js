@@ -25,8 +25,6 @@ require(["appconfig"],function(){
                 //viewer.enableControls(true);
 
                 // Demonstration programs...
-                //this.newSISLTestCurve();
-                //this.showDataflowTestComponents();
                 this.NURBSCurveTest();
             };
 
@@ -97,29 +95,6 @@ require(["appconfig"],function(){
                 endPointGeo.computeLineDistances();
                 var line2 = new THREE.Line(endPointGeo, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 0.1, gapSize: 0.1, linewidth: 2 } ), THREE.LineStrip);
                 viewer.scene.add(line2);
-            };
-
-            App.prototype.displaySISLTestCurve = function(curve){
-
-
-                var material = new THREE.LineBasicMaterial({
-                    color: 0xff00f0,
-                });
-
-                var geometry = new THREE.Geometry();
-
-                // Curves parameterized 0 --> 1.
-                // Step through parameters to get points, draw connecting lines
-                // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-                for (var i = 0; i < 1; i += 0.01) {
-                    var pt = curve.getPositionAt(i).getCoordsArray();
-                    geometry.vertices.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
-                }
-
-                var line = new THREE.Line(geometry, material);
-                viewer.scene.add(line);
-
-                viewer.render();
             };
 
             return new App();
