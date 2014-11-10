@@ -29,7 +29,7 @@ define([
                         if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
                     });
                     this.values = valueArray;
-                    this.setNull(false);
+                    this.setNull(valueArray.length === 0);
                     this.trigger('change');
                 },
                 setNull: function(val){

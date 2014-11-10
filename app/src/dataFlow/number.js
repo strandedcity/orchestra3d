@@ -41,7 +41,6 @@ define([
 
             // empty out number if failure to parse
             this.output.assignValues(arr);
-
         }
     });
 
