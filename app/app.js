@@ -79,7 +79,7 @@ require(["appconfig"],function(){
 
                     degree.component.output.assignValues([3]);
                     degree2.component.output.assignValues([1]);
-                    controlCurve.component["V"].connectOutput(point1.component.output);
+                    //controlCurve.component["V"].connectOutput(point1.component.output);
                     controlCurve.component["D"].connectOutput(degree2.component.output);
                     controlCurve.component["P"].connectOutput(periodic.component.output);
 

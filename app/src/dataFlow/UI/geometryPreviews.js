@@ -31,7 +31,7 @@ define([
         // Curves parameterized 0 --> 1.
         // Step through parameters to get points, draw connecting lines
         // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-        for (var i = 0; i < 100; i += 1) {
+        for (var i = 0; i <= 100; i += 1) {
             var pt = this.curve.getPositionAt(i/100).getCoordsArray();
             geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
         }
