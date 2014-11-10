@@ -1,16 +1,22 @@
 define(["threejs","OrbitControls"],function(){
     function ModelSpace(){
+        this.width = window.innerWidth/2;
+        this.height = window.innerHeight;
+
         // This module loads three.js, then provides a function to perform the basic setup of a scene. It returns three.js variables needed to access that scene.
         this.scene = new THREE.Scene(),
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
+        this.camera = new THREE.PerspectiveCamera(75, this.width/this.height, 0.1, 1000),
         this.renderer = new THREE.WebGLRenderer(),
         this.animating = true;
         this.createScene();
     }
 
     ModelSpace.prototype.createScene = function(){
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.width, this.height);
         document.body.appendChild(this.renderer.domElement);
+
+        console.warn("temporary setting of viewer position for testing");
+        this.renderer.domElement.style.left = this.width;
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
 //THIS APPROACH IS MUCH BETTER --- NO REASON TO ANIMATE IF NOTHING IS MOVING
