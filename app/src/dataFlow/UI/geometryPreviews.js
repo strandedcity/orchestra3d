@@ -75,17 +75,24 @@ define([
 
         //var material = new THREE.PointCloudMaterial( { map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false } );
         var material = new THREE.PointCloudMaterial( { size: 0.5, map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent : true } );
-        var system = new THREE.PointCloud(
+        this.system = new THREE.PointCloud(
             particleGeometry,
             material
         );
 
-        viewer.scene.add(system);
+        viewer.scene.add(this.system);
 
         _.defer(function(){
             viewer.render();
         });
         //viewer.render();
+    };
+    PointListPreview.prototype.remove = function(){
+        if (!_.isUndefined(this.system)) {
+            viewer.scene.remove(this.system);
+            this.system.remove();
+            delete this.system;
+        }
     };
 
     return Preview;

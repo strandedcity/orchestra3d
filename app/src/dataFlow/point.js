@@ -27,6 +27,8 @@ define([
                 this.base_init(args);
             },
             recalculate: function(){
+                this.clearPreviews();
+
                 var that = this, shortestInput = this.shortestInputLength();
                 if (shortestInput === 0) return;
                 for (var i=0; i < shortestInput; i++) {
