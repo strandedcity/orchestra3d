@@ -56,5 +56,37 @@ define([
         }
     };
 
+    // The "point" preview function actually previews a list of points so that it can work with ThreeJS Geometries More effectively.
+    // By doing lists of points at a time, we can just initialize a single geometry to hold all the points instead of a separate one for each
+    var PointListPreview = Preview.PointListPreview = function PointListPreview(points) {
+        this.initialize.call(this,points);
+    };
+
+    PointListPreview.prototype.initialize = function(points){
+        var particleGeometry = new THREE.Geometry();
+
+        _.each(points,function(pt){
+            var arr = pt.getCoordsArray();
+            var particle = new THREE.Vector3(arr[0], arr[1], arr[2]);
+            particleGeometry.vertices.push(particle);  // repeat for every point
+        });
+
+        var pointSprite = THREE.ImageUtils.loadTexture( "/SISL/app/img/pointSprite.png" );
+
+        //var material = new THREE.PointCloudMaterial( { map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false } );
+        var material = new THREE.PointCloudMaterial( { size: 0.5, map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent : true } );
+        var system = new THREE.PointCloud(
+            particleGeometry,
+            material
+        );
+
+        viewer.scene.add(system);
+
+        _.defer(function(){
+            viewer.render();
+        });
+        //viewer.render();
+    };
+
     return Preview;
 });

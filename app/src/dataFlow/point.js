@@ -1,8 +1,9 @@
 define([
         "underscore",
         "dataFlow/core",
-        "SISL/sisl_loader"
-    ],function(_,DataFlow,Geometry){
+        "SISL/sisl_loader",
+        "dataFlow/UI/geometryPreviews"
+    ],function(_,DataFlow,Geometry,Preview){
         var PointComponent = DataFlow.PointComponent = function PointComponent(opts){
             this.initialize.apply(this, arguments);
         };
@@ -41,6 +42,8 @@ define([
                     that.output.values[i] = point;
                 }
                 this._recalculate();
+
+                this.previews.push(new Preview.PointListPreview(this.output.values));
             },
             fetchPointCoordinates: function(){
                 var outputs = this.fetchOutputs(); // returns array of GeoPoints
