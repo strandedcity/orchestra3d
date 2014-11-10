@@ -43,6 +43,14 @@ define([
                 fetchValues: function(){
                     return this._isNull ? null : this.values;
                 },
+                clearValues: function(){
+                    _.each(this.values,function(object){
+                        // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
+                        // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
+                        object.destroy();
+                    });
+                    this.values.splice(0,this.values.length); // clear out all values
+                },
                 destroy: function(){
                     this.stopListening();
                     if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
@@ -120,6 +128,7 @@ define([
 
                 this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
 
+                this._drawPreview = opts.drawPreview || false;
                 this.previews = [];
             },
             initializeInputs: function(inputs){

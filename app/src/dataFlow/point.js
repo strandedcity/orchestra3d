@@ -22,12 +22,14 @@ define([
                     inputs: inputs,
                     output: output,
                     resultFunction: this.recalculate,
-                    componentPrettyName: "Point(x,y,z)"
+                    componentPrettyName: "Point(x,y,z)",
+                    drawPreview: false
                 });
                 this.base_init(args);
             },
             recalculate: function(){
                 this.clearPreviews();
+                this.output.clearValues();
 
                 var that = this, shortestInput = this.shortestInputLength();
                 if (shortestInput === 0) return;
@@ -44,9 +46,11 @@ define([
                     that.output.values[i] = point;
                 }
                 this._recalculate();
-
-                this.previews.push(new Preview.PointListPreview(this.output.values));
+                if (this._drawPreview) {
+                    this.previews.push(new Preview.PointListPreview(this.output.values));
+                }
             },
+
             fetchPointCoordinates: function(){
                 var outputs = this.fetchOutputs(); // returns array of GeoPoints
                 var outputVals = [];
