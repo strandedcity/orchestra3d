@@ -64,23 +64,28 @@ define([
         this.dragObject = null;
         this.dragOffset = [0,0];
 
-        var width = window.innerWidth / 2,
-            height = window.innerHeight;
+        this.width = window.innerWidth / 2;
+        this.height = window.innerHeight;
+
         /* THIS IS IMPORTANT! Large "far" value keeps connection curves from disappearing when you zoom way out on the workspace. */
-        this.camera = new THREE.PerspectiveCamera( 70, width / height, 1, 1000000 );
+        this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 1000000 );
         this.camera.position.z = 800;
 
+        //this.createWorkspace(); // Done on the application level to avoid rendering the workspace during tests
+    };
+
+    Workspace.prototype.createWorkspace = function(){
         // GL scene handles drag & drop, mouse/touch events, and drawing of connections
         this.glscene = new THREE.Scene();
         this.glrenderer = new THREE.WebGLRenderer();
-        this.glrenderer.setSize( width, height );
+        this.glrenderer.setSize( this.width, this.height );
         document.body.appendChild( this.glrenderer.domElement );
         this.glrenderer.domElement.className = "TOP";
 
         // CSS scene handles standard DOM elements and styling, such as <input> fields, drop-downs, etc.
         this.scene = new THREE.Scene();
         this.renderer = new THREE.CSS3DRenderer({ alpha: true });
-        this.renderer.setSize( width, height );
+        this.renderer.setSize( this.width, this.height );
         document.body.appendChild( this.renderer.domElement );
         this.renderer.domElement.className = "TOP";
 

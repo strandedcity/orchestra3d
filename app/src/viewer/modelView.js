@@ -8,7 +8,7 @@ define(["threejs","OrbitControls"],function(){
         this.camera = new THREE.PerspectiveCamera(75, this.width/this.height, 0.1, 1000),
         this.renderer = new THREE.WebGLRenderer(),
         this.animating = true;
-        this.createScene();
+        //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
     }
 
     ModelSpace.prototype.createScene = function(){

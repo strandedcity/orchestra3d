@@ -1,5 +1,5 @@
 define([
-    "viewer/init",
+    "viewer/modelView",
     "underscore"
 ],function(viewer, _){
     var Preview = {};

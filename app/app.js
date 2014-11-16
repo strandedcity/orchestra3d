@@ -2,7 +2,7 @@ require(["appconfig"],function(){
     require([
             'SISL/sisl_loader',
             'dataFlow/dataFlow_loader',
-            "viewer/init",
+            "viewer/modelView",
             "dataFlow/UI/workspaceView",
             "windowControls", // File, Model, Settings, Login, etc.... the top bar
             "dataFlow/UI/componentView"
@@ -16,6 +16,8 @@ require(["appconfig"],function(){
             ComponentView
         ){
             function App(){
+                viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
+                workspace.createWorkspace();
                 this.init();
             }
 
