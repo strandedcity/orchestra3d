@@ -28,13 +28,13 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
+            this.output.clearValues();
+
             var that = this, shortestInput = this.shortestInputLength();
             if (shortestInput === 0) return;
             //for (var i=0; i < shortestInput; i++) {
             //    that.output.values[i] = new Geometry.Curve(this["V"].values[i],this["D"].values[i],this["P"].values[i]);
             //}
-            this.clearPreviews();
-            this.output.clearValues();
 
             this.output.values = [new Geometry.Curve(this["V"].values,this["D"].values[0],this["P"].values[0])];
             this._recalculate();

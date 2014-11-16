@@ -176,6 +176,9 @@ define([
                 delete this.output;
             },
             recalculateIfReady: function(){
+                // clear previews for any change in input. They will either be removed and replaced, or only removed:
+                this.clearPreviews();
+
                 // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
                 if (this._calculateSufficiency() === true) {
                     this.recalculate();
