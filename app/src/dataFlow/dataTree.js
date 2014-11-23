@@ -28,7 +28,7 @@ define([
         // 2) It's the only one with no parents
         // 3) It has tree-traversal and path-mapping "class methods" that allow the creation of new, re-arranged trees
 
-        this.pathId = "0";
+        this.pathId = 0;
     }
     DataTree.prototype = new Node();
     DataTree.prototype.constructor = DataTree;
@@ -51,7 +51,6 @@ define([
                     recurseChildren(node.children[childName]);
                 });
             }
-
         })(this);
     };
 
@@ -77,11 +76,27 @@ define([
         return _.isUndefined(this.parent);
     };
 
-    Node.prototype.addChildAtPath = function(data, pathId){
-        var sanitizedPathId = parseInt(pathId).toString();
+    Node.prototype.addChildAtPath = function(data, pathArray){
+        // Function assumes you set one list of data to a particular path, relative to this node.
+        // All branches along the path, prior to the end, will be data-free
+        if (!_.isArray(pathArray)) {throw new Error("must pass pathArray to addChildAtPath");}
 
-        this.children[sanitizedPathId] = new Node(data,this);
-        this.children[sanitizedPathId].pathId = sanitizedPathId; // children should know their own path id
+        pathArray.reverse();
+        _.each(pathArray,function(element){
+            if (parseInt(element) !== element) {throw new Error("Encountered non-integer array path: " + element);}
+        });
+
+        // recursively add nodes to arrive at point where data belongs
+        (function addNode(node,pathArray){
+            var nodedata, path = pathArray.pop();
+            if (pathArray.length === 0) nodedata = data;
+            var newNode = node.children[path] || new Node(nodedata,node); // don't overwrite nodes if they already exist
+            node.children[path] = newNode;
+            newNode.pathId = path;
+            if (pathArray.length > 0) {
+                addNode(newNode,pathArray);
+            }
+        })(this,pathArray);
     };
 
     Node.prototype.getPathForChildNode = function(childNode){
