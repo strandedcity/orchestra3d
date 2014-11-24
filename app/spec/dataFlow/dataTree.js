@@ -108,7 +108,26 @@ define(["dataFlow/dataTree"],function(DataTree){
             expect(remapped.getChildAtPath([2]).getFilteredData()).toEqual(pivoted);
             expect(remapped.getChildAtPath([3]).getFilteredData()).toEqual(pivoted);
         });
-        it("Grafts a simple tree");
+        it("Grafts a simple tree",function(){
+            var inputData = [4,5];
+            var tree = new DataTree(inputData);
+            var grafted = tree.graftedTree();
+
+            // Make sure the tree is as we expect it going in:
+            expect(tree.data).toEqual(inputData);
+            //tree.recurseTree(function(data,node){
+            //    console.log('path: ',node.getPath(),'      data: ',data);
+            //});
+
+            // "graft" uses the index of each item in the data array to generate a new sub-branch with that name.
+            // 1, the item at index 0 of the input array, should end up at 0,0
+            _.each(inputData,function(val,index){
+                expect(grafted.getChildAtPath([index]).data).toEqual([val]);
+            });
+            //grafted.recurseTree(function(data,node){
+            //    console.log('path: ',node.getPath(),'      data: ',data);
+            //});
+        });
         it("Grafts a complex tree");
     }];
 });

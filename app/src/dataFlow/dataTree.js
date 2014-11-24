@@ -7,7 +7,6 @@ define([
         // 2) It's the only one with no parents
         // 3) It has tree-traversal and path-mapping "class methods" that allow the creation of new, re-arranged trees (individual nodes can't re-arrange)
         // 4) It has no siblings
-        this.data = data || [];
         this.pathId = 0;
         this.init(data); // Node's init
     }
@@ -53,10 +52,20 @@ define([
 
     };
 
-    DataTree.prototype.graftedTree = function(nocopy){
+    DataTree.prototype.graftedTree = function(){
         // Works like grasshopper. Creates a new sub-branch for each data item.
         // eg: 8 branches with 6 items each -->  8 branches with 6 sub-branches each, 1 item per branch
         // returns a NEW DATATREE unless 'nocopy' is specified
+        var graftedTree = new DataTree();
+        this.recurseTree(function(data,node){
+            var destPath = node.getPath().slice();
+            _.each(data,function(dataItem,index){
+                var destPathCopy = destPath.slice(1); // omit leading "0" in context of tree
+                destPathCopy.push(index);
+                graftedTree.addChildAtPath([dataItem],destPathCopy);
+            });
+        });
+        return graftedTree;
     };
 
     DataTree.prototype.remappedTree = function(sourcemap,destmap){
