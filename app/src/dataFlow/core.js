@@ -3,19 +3,6 @@ define([
         "backbone",
         "dataFlow/dataTree"
     ],function(_,Backbone,DataTree){
-        console.log('---begin datatree test code---');
-        var tree = new DataTree();
-        tree.data = [3,4,5,6];
-        tree.addChildAtPath([4,4,4],[5]);
-        tree.addChildAtPath([4,4,3],[5,7]);
-        tree.addChildAtPath([9],[5,2,1,0]);
-        tree.addChildAtPath([1,1,1],[2]);
-        //console.log(tree.children[5].getPath());
-        tree.recurseTree(function(data,path){
-            console.log('data at ',path,': ',data);
-        });
-
-        console.log('---end datatree test code---');
 
         console.warn("Should remove Module.Utils from core.js and all Dataflow files!!");
         var DataFlow = {};

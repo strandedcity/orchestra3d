@@ -1,48 +1,30 @@
 define([
     "underscore"
 ],function(_){
-    // A custom data tree structure for dataFlow, designed to mimick grasshopper's data handling.
-    // The tree itself draws inspiration from this project: http://jnuno.com/tree-model-js/
-    // The tree-traversal and transform functions draw on underscore contrib: http://documentcloud.github.io/underscore-contrib/#iterators.tree
-
-    /* Things I need to do:
-
-    Collect each item at the lowest level of the tree, and create a new tree with each of those items in a top-level node
-
-    Provide algorithms that take two (or more) trees, supplying pairs (or groups) of elements that should have calculations applied --> these can be developed on the nodes
-
-    Map paths using DICTIONARIES so there can be blank paths
-
-    Allow trees to be transformed based on lexical re-mappings (ie, like the path mapper). DataTree.remapPath("{A;B}(i):{B;A}(i)") --> returns copy of data tree, remapped
-
-    Question: is it data OR path, or can a node have data AND a path? --> Node can have both
-
-    getNodeAtPath
-
-
-     */
-
-    function DataTree(){
+    function DataTree(data){
         // The tree is just a node, but it's a little special:
         // 1) It's the only one that's exposed to outside this module, which means it's impossible to create a "stranded" node with no connection to the tree
         // 2) It's the only one with no parents
-        // 3) It has tree-traversal and path-mapping "class methods" that allow the creation of new, re-arranged trees
-
+        // 3) It has tree-traversal and path-mapping "class methods" that allow the creation of new, re-arranged trees (individual nodes can't re-arrange)
+        // 4) It has no siblings
+        this.data = data || [];
         this.pathId = 0;
+        this.init(data); // Node's init
     }
-    DataTree.prototype = new Node();
+
+    DataTree.prototype = Object.create(Node.prototype);
     DataTree.prototype.constructor = DataTree;
 
     DataTree.prototype.recurseTree = function(iterator){
         // walks the tree, calling iterator for each node. Iterator is a function that takes DATA (an array) and an optional PATH string.
         // PATH strings will match the node's complete tree path, DATA will represent the data on that node.
 
-        if (typeof iterator !== "function") {throw new Error("recurseTree must be called with an iterator: function(data[,path string])");}
+        if (typeof iterator !== "function") {throw new Error("recurseTree must be called with an iterator: function(data[,node])");}
 
         (function recurseChildren(node){
             // if data, call the iterator
             if (!_.isEmpty(node.data)) {
-                iterator(node.data, node.getPath());
+                iterator(node.data, node);
             }
             // if children, recurse a level deeper
             var childKeys = _.keys(node.children);
@@ -54,9 +36,89 @@ define([
         })(this);
     };
 
+    DataTree.prototype.flattenedTree = function(nocopy){
+        // Works like grasshopper. Recurse the whole tree, appending each piece of encountered data to the top-level node's data
+        // RETURNS A NEW DATA TREE, leaving the original unmutated and uncopied, unless "nocopy" is specified
+
+        var flatData = [];
+        this.recurseTree(function(data){
+            _.each(data,function(item){flatData.push(item)});
+        });
+
+        if (nocopy) {
+            this.data = flatData;
+        } else {
+            return new DataTree(flatData);
+        }
+
+    };
+
+    DataTree.prototype.graftedTree = function(nocopy){
+        // Works like grasshopper. Creates a new sub-branch for each data item.
+        // eg: 8 branches with 6 items each -->  8 branches with 6 sub-branches each, 1 item per branch
+        // returns a NEW DATATREE unless 'nocopy' is specified
+    };
+
+    DataTree.prototype.remappedTree = function(sourcemap,destmap){
+        // A lexical path re-mapper, like grasshoppers. Let's you type a "start" and "end"
+        // DataTree.remappedTree("{A;B}(i):{B;i}(A)") --> returns copy of data tree, remapped
+        // returns a NEW DATATREE
+
+        //TODO: Validate the path mappings are validly specified
+
+        function getPathArray(string){
+            return string.match(/(^.*\})/)[0].replace(/[^A-Za-z]/g," ").trim().split(" ");
+        }
+        function getIndexMapping(string){
+            return string.match(/(\(.*$)/)[0].replace(/[^A-Za-z]/g," ").trim().split(" ");
+        }
+
+        // the "index" value is implied if it's not included in the source/dest strings
+        if (sourcemap.indexOf("(") === -1) sourcemap += "(i)";
+        if (destmap.indexOf("(") === -1) destmap += "(i)";
+
+        // Step 1, parse the path mappings
+        var sourcemapPaths = getPathArray(sourcemap), // "{A;B}(i):{B;i}(A)" --> matches ["A","B"] from source string
+            destmapPaths = getPathArray(destmap),// "{A;B}(i):{B;i}(A)" --> matches ["B","i"] from dest string
+            sourcemapIndexVar = getIndexMapping(sourcemap), //"{A;B}(i):{B;i}(A)" --> matches ["i"] from source string
+            desmapIndexVar = getIndexMapping(destmap); // "{A;B}(i):{B;i}(A)" --> matches ["A"] in dest string
+
+        // create a custom path-remapping function from the source and destination strings. Accepts uppercase letters and the lowercase letter "i",
+        // just as grasshopper's path remappter does
+        var pathArrayOffsets = _.map(sourcemapPaths,function(sourceLetter){
+            var sourceIndex = _.indexOf(sourcemapPaths,sourceLetter),
+                destIndex = _.indexOf(destmapPaths,sourceLetter);
+            return destIndex - sourceIndex; // returns an offset for the path POSITION, not the pathId.
+            // ie, the path id encountered at position 3 in the path should move to position 2, an offset of -1
+        }).slice(1); // remove leading zero -- the main tree branch cannot be remapped
+
+        var remappedTree = new DataTree();
+        this.recurseTree(function(data,node){
+            var p = node.getPath().slice(1);  // {A;B} as [A,B]
+            var remappedPath = [];
+
+            for (var i=0; i< p.length; i++){
+                remappedPath[i] = p[i+pathArrayOffsets[i]];
+            }
+
+            remappedTree.addChildAtPath(node.data,remappedPath);
+            //_.each(node.data,function(dataItem, dataIndex){
+            //    // remap each piece of data to the appropriate new location in the tree
+            //
+            //});
+        });
+
+
+        return remappedTree;
+    };
+
 
 
     function Node(data,parent){
+        this.init(data,parent);
+    }
+
+    Node.prototype.init = function(data,parent){
         var defined = !_.isUndefined(data), array = _.isArray(data);
         if (defined && !array) {
             throw new Error("Tried to assign a non-array to a Node in a Data Tree");
@@ -69,8 +131,7 @@ define([
 
         this.parent = parent;
         //this.pathId = parent.getPathForChildNode(this); // node won't be added yet. The parent must assign this property
-
-    }
+    };
 
     Node.prototype.isRoot = function () {
         return _.isUndefined(this.parent);
@@ -81,22 +142,38 @@ define([
         // All branches along the path, prior to the end, will be data-free
         if (!_.isArray(pathArray)) {throw new Error("must pass pathArray to addChildAtPath");}
 
-        pathArray.reverse();
-        _.each(pathArray,function(element){
+        // don't mutate the arguments:
+        var pathArrayCopy = pathArray.slice(0); // don't mutate inputs
+
+        pathArrayCopy.reverse();
+        _.each(pathArrayCopy,function(element){
             if (parseInt(element) !== element) {throw new Error("Encountered non-integer array path: " + element);}
         });
 
         // recursively add nodes to arrive at point where data belongs
-        (function addNode(node,pathArray){
-            var nodedata, path = pathArray.pop();
-            if (pathArray.length === 0) nodedata = data;
+        (function addNode(node,pathArrayCopy){
+            var nodedata, path = pathArrayCopy.pop();
+            if (pathArrayCopy.length === 0) nodedata = data;
             var newNode = node.children[path] || new Node(nodedata,node); // don't overwrite nodes if they already exist
             node.children[path] = newNode;
             newNode.pathId = path;
-            if (pathArray.length > 0) {
-                addNode(newNode,pathArray);
+            if (pathArrayCopy.length > 0) {
+                addNode(newNode,pathArrayCopy);
             }
-        })(this,pathArray);
+        })(this,pathArrayCopy);
+    };
+    Node.prototype.getChildAtPath = function(path){
+        // recurse through sub-nodes
+        var pathCopy = path.slice(0); // don't mutate inputs
+        pathCopy.reverse();
+        return (function getChildNode(nextNode){
+            var nextPathIndex = pathCopy.pop();
+            if (!_.isUndefined(nextPathIndex)) {
+                return getChildNode(nextNode.children[nextPathIndex]);
+            } else {
+                return nextNode;
+            }
+        })(this);
     };
 
     Node.prototype.getPathForChildNode = function(childNode){
