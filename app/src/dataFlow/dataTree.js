@@ -92,6 +92,8 @@ define([
             // ie, the path id encountered at position 3 in the path should move to position 2, an offset of -1
         }).slice(1); // remove leading zero -- the main tree branch cannot be remapped
 
+        // TODO: THIS IS BAD. THERE CAN BE MULTIPLE BASE BRANCHES, AND THEY SHOULD BE INCLUDED IN THE REMAPPING
+
         var remappedTree = new DataTree();
         this.recurseTree(function(data,node){
             var p = node.getPath().slice(1);  // {A;B} as [A,B]
@@ -151,17 +153,26 @@ define([
         });
 
         // recursively add nodes to arrive at point where data belongs
-        (function addNode(node,pathArrayCopy){
+        var addedNode = (function addNode(node,pathArrayCopy){
             var nodedata, path = pathArrayCopy.pop();
             if (pathArrayCopy.length === 0) nodedata = data;
-            var newNode = node.children[path] || new Node(nodedata,node); // don't overwrite nodes if they already exist
+            var newNode = node.children[path] || new Node(nodedata,node); // don't overwrite nodes and their data if they already exist
             node.children[path] = newNode;
             newNode.pathId = path;
             if (pathArrayCopy.length > 0) {
-                addNode(newNode,pathArrayCopy);
+                return addNode(newNode,pathArrayCopy);
             }
+            return newNode;
         })(this,pathArrayCopy);
+
+        return addedNode; // return a reference to the
     };
+    Node.prototype.addSingleDataItemAtPathAndIndex = function(dataItem, path, index){
+        var n = this.addChildAtPath([],path);
+        n.data[index] = dataItem;
+        return n;
+    };
+
     Node.prototype.getChildAtPath = function(path){
         // recurse through sub-nodes
         var pathCopy = path.slice(0); // don't mutate inputs
