@@ -70,7 +70,7 @@ define([
             return string.match(/(^.*\})/)[0].replace(/[^A-Za-z]/g," ").trim().split(" ");
         }
         function getIndexMapping(string){
-            return string.match(/(\(.*$)/)[0].replace(/[^A-Za-z]/g," ").trim().split(" ");
+            return string.match(/(\(.*$)/)[0].replace(/[^A-Za-z]/g," ").trim().split(" ")[0];
         }
 
         // the "index" value is implied if it's not included in the source/dest strings
@@ -81,7 +81,8 @@ define([
         var sourcemapPaths = getPathArray(sourcemap), // "{A;B}(i):{B;i}(A)" --> matches ["A","B"] from source string
             destmapPaths = getPathArray(destmap),// "{A;B}(i):{B;i}(A)" --> matches ["B","i"] from dest string
             sourcemapIndexVar = getIndexMapping(sourcemap), //"{A;B}(i):{B;i}(A)" --> matches ["i"] from source string
-            desmapIndexVar = getIndexMapping(destmap); // "{A;B}(i):{B;i}(A)" --> matches ["A"] in dest string
+            desmapIndexVar = getIndexMapping(destmap), // "{A;B}(i):{B;i}(A)" --> matches ["A"] in dest string
+            remapsItems = sourcemapIndexVar !== desmapIndexVar;
 
         // create a custom path-remapping function from the source and destination strings. Accepts uppercase letters and the lowercase letter "i",
         // just as grasshopper's path remappter does
@@ -92,23 +93,51 @@ define([
             // ie, the path id encountered at position 3 in the path should move to position 2, an offset of -1
         }).slice(1); // remove leading zero -- the main tree branch cannot be remapped
 
-        // TODO: THIS IS BAD. THERE CAN BE MULTIPLE BASE BRANCHES, AND THEY SHOULD BE INCLUDED IN THE REMAPPING
+        // TODO: THIS SLICE(1) IS BAD. THERE CAN BE MULTIPLE BASE BRANCHES, AND THEY SHOULD BE INCLUDED IN THE REMAPPING
 
         var remappedTree = new DataTree();
-        this.recurseTree(function(data,node){
-            var p = node.getPath().slice(1);  // {A;B} as [A,B]
-            var remappedPath = [];
 
-            for (var i=0; i< p.length; i++){
-                remappedPath[i] = p[i+pathArrayOffsets[i]];
-            }
+        if (!remapsItems) {
+            // PATHS are re-arranged, but data items inside paths are not. Step through each branch, but copy data arrays wholesale
+            this.recurseTree(function (data, node) {
+                var p = node.getPath().slice(1);  // {A;B} as [A,B]
+                var remappedPath = [];
 
-            remappedTree.addChildAtPath(node.data,remappedPath);
-            //_.each(node.data,function(dataItem, dataIndex){
-            //    // remap each piece of data to the appropriate new location in the tree
-            //
-            //});
-        });
+                for (var i = 0; i < p.length; i++) {
+                    remappedPath[i] = p[i + pathArrayOffsets[i]];
+                }
+
+                remappedTree.addChildAtPath(node.data, remappedPath);
+            });
+        } else {
+            // DATA ITEMS are remapped individually. Step through each item to get the right destination path
+            sourcemapPaths.push(sourcemapIndexVar);
+            destmapPaths.push(desmapIndexVar);
+
+
+            this.recurseTree(function (data, node) {
+                var nodePath = node.getPath();
+                _.each(node.data,function(dataItem, dataIndex){
+                    var pathForDataItem = nodePath.slice();
+                    pathForDataItem.push(dataIndex);
+
+                    var pathDictionary = {};
+                    _.each(sourcemapPaths,function(key,index){
+                        pathDictionary[key] = pathForDataItem[index];
+                    });
+
+                    var destPath = [];
+                    _.each(destmapPaths,function(key,index){
+                        destPath[index] = pathDictionary[key];
+                    });
+
+                    var destinationDataIndex = destPath.pop();
+                    destPath.shift(); // TODO: FIX THIS ZERO-INDEX MESS
+                    remappedTree.addSingleDataItemAtPathAndIndex(dataItem,destPath,destinationDataIndex);
+                });
+            });
+        }
+
 
 
         return remappedTree;
@@ -169,7 +198,7 @@ define([
     };
     Node.prototype.addSingleDataItemAtPathAndIndex = function(dataItem, path, index){
         var n = this.addChildAtPath([],path);
-        n.data[index] = dataItem;
+        n.data[parseInt(index)] = dataItem;
         return n;
     };
 
@@ -204,6 +233,11 @@ define([
             }
         })(this);
         return path.reverse();
+    };
+    Node.prototype.getFilteredData = function(){
+        return _.filter(this.data,function(item){
+            return !_.isNaN(item) && !_.isNull(item) && !_.isUndefined(item);
+        });
     };
 
 

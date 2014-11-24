@@ -63,7 +63,7 @@ define(["dataFlow/dataTree"],function(DataTree){
             var flat = tree.flattenedTree();
             expect(flat.data).toEqual([1,1,2,3,5,8,13,21,34]);
         });
-        it("Remaps a tree given path mapping function [A,B,C] --> [A,C,B]",function(){
+        it("Remaps a tree given path mapping function {A;B;C} --> {A;C;B}",function(){
             var tree = new DataTree();
             var d1 = [1,2,3,4], d2 = [5,6,7,8];
             var p1 = [2,0], p2 = [0,3]; // these are relative to the tree, so the full path is [0,2,0], [0,0,3], etc
@@ -71,13 +71,44 @@ define(["dataFlow/dataTree"],function(DataTree){
             tree.addChildAtPath(d2,p2);
 
             var remapped = tree.remappedTree("{A;B;C}","{A;C;B}");
-            //expect(remapped.getChildAtPath([0,0,2]).data).toEqual(d1); // these lines work! HOWEVER, they are wrong.
-            //expect(remapped.getChildAtPath([0,3,0]).data).toEqual(d2);
-            expect(remapped.getChildAtPath(p1.reverse()).data).toEqual(d1);
+            expect(remapped.getChildAtPath(p1.reverse()).data).toEqual(d1); // using .reverse() just because that matches the mapping here
             expect(remapped.getChildAtPath(p2.reverse()).data).toEqual(d2);
         });
-        it("Remaps a tree given path mapping function [A,B](i) --> [B,i](A)",function(){
+        it("Remaps a tree given path mapping function {A;B}(i)-->{A;i}(B) with FULL ARRAYS",function(){
+            var tree = new DataTree();
+            var d0 = [0,0,0,0], d1 = [1,1,1,1], d2 = [2,2,2,2], d3 = [3,3,3,3], pivoted = [0,1,2,3];
+            var p0 = [0], p1 = [1], p2 = [2], p3 = [3]; // these are relative to the tree, so the full path includes [0] at the beginning
+            tree.addChildAtPath(d0,p0);
+            tree.addChildAtPath(d1,p1);
+            tree.addChildAtPath(d2,p2);
+            tree.addChildAtPath(d3,p3);
 
+            var remapped = tree.remappedTree("{A;B}(i)","{A;i}(B)");
+            expect(remapped.getChildAtPath(p0).data).toEqual(pivoted);
+            expect(remapped.getChildAtPath(p1).data).toEqual(pivoted);
+            expect(remapped.getChildAtPath(p2).data).toEqual(pivoted);
+            expect(remapped.getChildAtPath(p3).data).toEqual(pivoted);
         });
+        it("Remaps a tree given path mapping function {A;B}(i)-->{A;i}(B) with NON-FULL ARRAYS",function(){
+            // During development of this test case, it became clear that two test cases were relevant.
+            // When the destination data arrays are full, ie, they have data items at every index, they pivot correctly in the above test
+            // Here, however, by omitting the "0" entry for the pivoted arrays (by starting with [1,1,1,1], the pivoted arrays end up with
+            // empty first elements that need to be filtered
+            var tree = new DataTree();
+            var d1 = [1,1,1,1], d2 = [2,2,2,2], d3 = [3,3,3,3], d4 = [4,4,4,4], pivoted = [1,2,3,4];
+            var p1 = [1], p2 = [2], p3 = [3], p4 = [4]; // these are relative to the tree, so the full path is [0,2,0], [0,0,3], etc
+            tree.addChildAtPath(d1,p1);
+            tree.addChildAtPath(d2,p2);
+            tree.addChildAtPath(d3,p3);
+            tree.addChildAtPath(d4,p4);
+
+            var remapped = tree.remappedTree("{A;B}(i)","{A;i}(B)");
+            expect(remapped.getChildAtPath([0]).getFilteredData()).toEqual(pivoted);
+            expect(remapped.getChildAtPath([1]).getFilteredData()).toEqual(pivoted);
+            expect(remapped.getChildAtPath([2]).getFilteredData()).toEqual(pivoted);
+            expect(remapped.getChildAtPath([3]).getFilteredData()).toEqual(pivoted);
+        });
+        it("Grafts a simple tree");
+        it("Grafts a complex tree");
     }];
 });
