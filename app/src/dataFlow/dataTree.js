@@ -7,8 +7,10 @@ define([
         // 2) It's the only one with no parents
         // 3) It has tree-traversal and path-mapping "class methods" that allow the creation of new, re-arranged trees (individual nodes can't re-arrange)
         // 4) It has no siblings
-        this.pathId = 0;
-        this.init(data); // Node's init
+        this.init(); // Node's init
+        delete this.pathId; // Undefined base path ID allows, in principle, multiple base branches
+        delete this.data; // no data can be stored at the root. Just branches. This is why all data is at least inside the branch {0}
+        if (!_.isUndefined(data)) this.addChildAtPath(data,[0]);
     }
 
     DataTree.prototype = Object.create(Node.prototype);
@@ -52,6 +54,25 @@ define([
 
     };
 
+    DataTree.prototype.dataAtPath = function(path, filtered){
+        // works a little differently than Node.getChildAtPath. Since the tree is the top-level node, we
+        // can retrieve nodes by more-intuitive absolute paths, rather than mucking around in relative node paths
+        // which are necessary internally, but confusing externally
+        var pathCopy = path.slice();
+
+        var currentNode = this;
+        while (pathCopy.length > 0){
+            currentNode = currentNode.children[pathCopy.shift()];
+        }
+        return filtered === true ? currentNode.getFilteredData() : currentNode.data;
+    };
+
+    DataTree.prototype.log = function(){
+        this.recurseTree(function(data,node){
+            console.log('Path: ',node.getPath(),'      Data: ',data);
+        });
+    };
+
     DataTree.prototype.graftedTree = function(){
         // Works like grasshopper. Creates a new sub-branch for each data item.
         // eg: 8 branches with 6 items each -->  8 branches with 6 sub-branches each, 1 item per branch
@@ -60,7 +81,7 @@ define([
         this.recurseTree(function(data,node){
             var destPath = node.getPath().slice();
             _.each(data,function(dataItem,index){
-                var destPathCopy = destPath.slice(1); // omit leading "0" in context of tree
+                var destPathCopy = destPath.slice();
                 destPathCopy.push(index);
                 graftedTree.addChildAtPath([dataItem],destPathCopy);
             });
@@ -100,16 +121,14 @@ define([
                 destIndex = _.indexOf(destmapPaths,sourceLetter);
             return destIndex - sourceIndex; // returns an offset for the path POSITION, not the pathId.
             // ie, the path id encountered at position 3 in the path should move to position 2, an offset of -1
-        }).slice(1); // remove leading zero -- the main tree branch cannot be remapped
-
-        // TODO: THIS SLICE(1) IS BAD. THERE CAN BE MULTIPLE BASE BRANCHES, AND THEY SHOULD BE INCLUDED IN THE REMAPPING
+        }).slice(); // remove leading zero -- the main tree branch cannot be remapped
 
         var remappedTree = new DataTree();
 
         if (!remapsItems) {
             // PATHS are re-arranged, but data items inside paths are not. Step through each branch, but copy data arrays wholesale
             this.recurseTree(function (data, node) {
-                var p = node.getPath().slice(1);  // {A;B} as [A,B]
+                var p = node.getPath().slice();  // {A;B} as [A,B]
                 var remappedPath = [];
 
                 for (var i = 0; i < p.length; i++) {
@@ -129,7 +148,6 @@ define([
                 _.each(node.data,function(dataItem, dataIndex){
                     var pathForDataItem = nodePath.slice();
                     pathForDataItem.push(dataIndex);
-
                     var pathDictionary = {};
                     _.each(sourcemapPaths,function(key,index){
                         pathDictionary[key] = pathForDataItem[index];
@@ -141,7 +159,6 @@ define([
                     });
 
                     var destinationDataIndex = destPath.pop();
-                    destPath.shift(); // TODO: FIX THIS ZERO-INDEX MESS
                     remappedTree.addSingleDataItemAtPathAndIndex(dataItem,destPath,destinationDataIndex);
                 });
             });
@@ -236,7 +253,7 @@ define([
     Node.prototype.getPath = function(){
         var path = [];
         (function addToPath(node) {
-            path.push(node.pathId);
+            if (!_.isUndefined(node.pathId)) path.push(node.pathId);
             if (!node.isRoot()) {
                 addToPath(node.parent);
             }
