@@ -142,7 +142,6 @@ define([
             sourcemapPaths.push(sourcemapIndexVar);
             destmapPaths.push(desmapIndexVar);
 
-
             this.recurseTree(function (data, node) {
                 var nodePath = node.getPath();
                 _.each(node.data,function(dataItem, dataIndex){
@@ -200,23 +199,25 @@ define([
         if (!_.isArray(pathArray)) {throw new Error("must pass pathArray to addChildAtPath");}
 
         // don't mutate the arguments:
-        var pathArrayCopy = pathArray.slice(0); // don't mutate inputs
+        var pathArrayCopy = pathArray.slice(); // don't mutate inputs
 
-        pathArrayCopy.reverse();
+        //pathArrayCopy.reverse();
         _.each(pathArrayCopy,function(element){
             if (parseInt(element) !== element) {throw new Error("Encountered non-integer array path: " + element);}
         });
 
         // recursively add nodes to arrive at point where data belongs
         var addedNode = (function addNode(node,pathArrayCopy){
-            var nodedata, path = pathArrayCopy.pop();
-            if (pathArrayCopy.length === 0) nodedata = data;
-            var newNode = node.children[path] || new Node(nodedata,node); // don't overwrite nodes and their data if they already exist
+            var path = pathArrayCopy.shift();
+            var newNode = node.children[path] || new Node([],node); // don't overwrite nodes and their data if they already exist
             node.children[path] = newNode;
             newNode.pathId = path;
             if (pathArrayCopy.length > 0) {
                 return addNode(newNode,pathArrayCopy);
             }
+
+            // end of the path to add at. This is the node!
+            newNode.data = newNode.data.concat(data);
             return newNode;
         })(this,pathArrayCopy);
 

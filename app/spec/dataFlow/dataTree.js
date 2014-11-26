@@ -139,6 +139,30 @@ define(["dataFlow/dataTree"],function(DataTree){
                 expect(grafted.dataAtPath([0,index])).toEqual([val]);
             });
         });
-        it("Grafts a complex tree");
+        it("Grafts a complex tree",function(){
+            var tree = new DataTree();
+            tree.addChildAtPath([1,2,3],[4,0]);
+            tree.addChildAtPath([4,5,6],[0,0,0]);
+            tree.addChildAtPath([7,8,9],[0,1,0]);
+            tree.addChildAtPath([10,11,12],[0,0,0,1]);
+            tree.addChildAtPath([13],[4]); // make sure to dump one thing at a path that would overlap the original tree. Can cause errors in the graft method!
+
+            var grafted = tree.graftedTree();
+
+            // each data item should end up a path lower, and on its own
+            expect(grafted.dataAtPath([4,0,0])).toEqual([1]);
+            expect(grafted.dataAtPath([4,0,1])).toEqual([2]);
+            expect(grafted.dataAtPath([4,0,2])).toEqual([3]);
+            expect(grafted.dataAtPath([0,0,0,0])).toEqual([4]);
+            expect(grafted.dataAtPath([0,0,0,1])).toEqual([5]);
+            expect(grafted.dataAtPath([0,0,0,2])).toEqual([6]);
+            expect(grafted.dataAtPath([0,1,0,0])).toEqual([7]);
+            expect(grafted.dataAtPath([0,1,0,1])).toEqual([8]);
+            expect(grafted.dataAtPath([0,1,0,2])).toEqual([9]);
+            expect(grafted.dataAtPath([0,0,0,1,0])).toEqual([10]);
+            expect(grafted.dataAtPath([0,0,0,1,1])).toEqual([11]);
+            expect(grafted.dataAtPath([0,0,0,1,2])).toEqual([12]);
+            expect(grafted.dataAtPath([4,0])).toEqual([13]);
+        });
     }];
 });
