@@ -53,7 +53,8 @@ define([
                 this._recalculate();
 
                 if (this._drawPreview) {
-                    this.previews.push(new Preview.PointListPreview(this.output.values));
+                    var points = out.flattenedTree().dataAtPath([0]);
+                    this.previews.push(new Preview.PointListPreview(points));
                 }
             },
 

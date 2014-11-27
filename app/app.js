@@ -85,9 +85,6 @@ require(["appconfig"],function(){
                     controlCurve.component["D"].connectOutput(degree2.component.output);
                     controlCurve.component["P"].connectOutput(periodic.component.output);
 
-                    //that.displayControlPoly(curve.component["V"].getTree());
-                    //that.displaySISLTestCurve(curve.component.output.getTree()[0]);
-
                     workspace.render();
                 });
             };

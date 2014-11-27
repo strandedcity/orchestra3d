@@ -47,10 +47,10 @@ define([
     };
 
     ComponentView.prototype.displayVals = function(){
-        if (_.isEmpty(this.component.output.values)) {
+        if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
             this.cssObject.element.firstChild.value = this.component.componentPrettyName;
         } else {
-            this.cssObject.element.firstChild.value = this.component.output.values.toString();
+            this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
         }
     };
 

@@ -33,12 +33,16 @@ define([
             var that = this,
                 out = that.output.values;
 
+            // TEMPORARILY -- just use the first value for degree and periodic:
+            var degree = this["D"].values.dataAtPath([0])[0],
+                periodic = this["P"].values.dataAtPath([0])[0];
+
             // first attempt at a data-matching strategy. This should match grasshopper's behavior exactly.
             // recurse over point lists ("V"), and for each list encountered, find the closest-matching single value
             this["V"].values.recurseTree(function(pointList,node){
                 var curveList = [];
 
-                curveList.push(new Geometry.Curve(pointList,that["D"].values[0],that["P"].values[0]));
+                curveList.push(new Geometry.Curve(pointList,degree,periodic));
 
                 out.setDataAtPath(node.getPath(),curveList);
             });
@@ -46,7 +50,10 @@ define([
             this._recalculate();
 
             if (this._drawPreview) {
-                this.previews.push(new Preview.CurvePreview(this.output.values[0]));
+                var curves = out.flattenedTree().dataAtPath([0]);
+                _.each(curves,function(c){
+                    this.previews.push(new Preview.CurvePreview(c));
+                },this);
             }
         }
     });
