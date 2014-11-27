@@ -13,16 +13,16 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             it("Stores an array of Integers",function(){
                 var outputX = new dataFlow.OutputNumber();
                 outputX.assignValues([1,2]);
-                expect(outputX.values).toEqual([1,2]);
+                expect(outputX.getTree().dataAtPath([0])).toEqual([1,2]);
             });
             it("Stores an array of floats",function(){
                 var outputX = new dataFlow.OutputNumber();
                 outputX.assignValues([1.1111,2.2222]);
-                expect(outputX.values).toEqual([1.1111,2.2222]);
+                expect(outputX.getTree().dataAtPath([0])).toEqual([1.1111,2.2222]);
             });
-            it("Stores an empty array",function(){
+            it("Has null tree if no values assigned",function(){
                 var outputX = new dataFlow.OutputNumber();
-                expect(outputX.values).toEqual([]);
+                expect(outputX.getTree()).toBeNull();
             });
             it("Throws an error when asked to store an individual number",function(){
                 expect(function(){

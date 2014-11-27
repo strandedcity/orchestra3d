@@ -31,29 +31,36 @@ define([
                 this.clearPreviews();
                 this.output.clearValues();
 
-                var that = this, shortestInput = this.shortestInputLength();
-                if (shortestInput === 0) return;
-                for (var i=0; i < shortestInput; i++) {
-                    var point = new Geometry.Point(
-                        this.inputs[0].values[i],
-                        this.inputs[1].values[i],
-                        this.inputs[2].values[i]
-                    );
-                    //console.log(point.getCoords());
-        //            console.log('POINTER: ',pointer);
-        //            console.log("Has the curve already been allocated? Free it and replace it, or just reuse the memory");
-        //            console.log("Allocate a new curve object into memory, execute 'newcurve' function in C using inputs at this index, store pointer in output.values array");
-                    that.output.values[i] = point;
-                }
+                var that = this,
+                    out = that.output.values,
+                    nullOutputs = true;
+
+                this["X"].values.recurseTree(function(xvals,node){
+                    var pointList = [],
+                        p = node.getPath();
+
+                    _.each(xvals,function(val,idx){
+                        var y = that["Y"].getTree().dataAtPath(p)[idx],
+                            z = that["Z"].getTree().dataAtPath(p)[idx];
+                        pointList[idx] = new Geometry.Point(val,y,z);
+                    });
+
+                    if (pointList.length > 0) nullOutputs = false; // set null to false!
+                    out.setDataAtPath(p,pointList);
+                });
+
+                this.output.setNull(nullOutputs);
                 this._recalculate();
+
                 if (this._drawPreview) {
                     this.previews.push(new Preview.PointListPreview(this.output.values));
                 }
             },
 
             fetchPointCoordinates: function(){
-                var outputs = this.fetchOutputs(); // returns array of GeoPoints
-                var outputVals = [];
+                /* THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
+                var outputs = this.output.getTree().flattenedTree().dataAtPath([0]);
+                var outputVals = [];  // returns array of GeoPoints
                 _.each(outputs,function(GeoPoint){
                     outputVals.push(GeoPoint.getCoordsArray());
                 });

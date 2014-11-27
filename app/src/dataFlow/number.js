@@ -23,11 +23,8 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            var that = this, shortestInput = this.shortestInputLength();
-            if (shortestInput === 0) return;
-            for (var i=0; i < shortestInput; i++) {
-                that.output.values[i] = this.inputs["#"].values[i];
-            }
+            this.output.cleanData();
+            this.output.values = this.inputs['#'].values.copy();
             this._recalculate();
         },
         parseInputAndSet: function(input){

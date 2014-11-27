@@ -30,9 +30,9 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             });
             it("Should assign numerical inputs to the dataFlow Point object",function(){
                 assignInputs();
-                expect(pointComponent["X"].fetchValues()).toEqual(outputX.fetchValues());
-                expect(pointComponent["Y"].fetchValues()).toEqual(outputY.fetchValues());
-                expect(pointComponent["Z"].fetchValues()).toEqual(outputZ.fetchValues());
+                expect(pointComponent["X"].getTree().dataAtPath([0])).toEqual(outputX.getTree().dataAtPath([0]));
+                expect(pointComponent["Y"].getTree().dataAtPath([0])).toEqual(outputY.getTree().dataAtPath([0]));
+                expect(pointComponent["Z"].getTree().dataAtPath([0])).toEqual(outputZ.getTree().dataAtPath([0]));
             });
             it("Should call _recalculate() in the superclass when recalculate() is called",function(){
                 assignInputs();
@@ -51,8 +51,8 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
                 spyOn(pointComponent,'_recalculate'); // spying on 'recalculate' won't work because of prototype inheritance
                 outputX.assignValues([8,8]);
                 expect(pointComponent._recalculate).toHaveBeenCalled();
-                expect(pointComponent.output.fetchValues()[0].getCoordsArray()).toEqual([8,2,4]);
-                expect(pointComponent.output.fetchValues()[1].getCoordsArray()).toEqual([8,4,8]);
+                expect(pointComponent.output.getTree().dataAtPath([0])[0].getCoordsArray()).toEqual([8,2,4]);
+                expect(pointComponent.output.getTree().dataAtPath([0])[1].getCoordsArray()).toEqual([8,4,8]);
             });
             it("Should NOT recalculate when insufficient inputs are defined", function(){
                 assignInputs();

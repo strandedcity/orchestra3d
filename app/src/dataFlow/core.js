@@ -17,21 +17,36 @@ define([
             this.required = _.isUndefined(args.required) ? true : false;
             this.type = args.type;
             this.shortName = args.shortName;
-            this.values = [];
+            this.values = new DataTree([]);
             this._isNull = true;
-            this.referencedCPointer = null;
+
+            //var that = this;
 
             _.extend(this, Backbone.Events, {
-                assignValues: function(valueArray){
-                    if (!_.isArray(valueArray)) {
+                assignValues: function(values, forPath){
+                    if (!_.isArray(values)) {
                         this.setNull(true);
                         throw new Error("'Values' must be an array");
                     }
-                    _.each(valueArray,function(v){
+                    _.each(values,function(v){
                         if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
                     });
-                    this.values = valueArray;
-                    this.setNull(valueArray.length === 0);
+
+                    // store data
+                    this.values.addChildAtPath(values,forPath || [0],true);
+
+                    // the use of 'assignvalues' makes sure that isNull is toggled appropriately
+                    if (values.length === 0 && this.isNull() === false){
+                        // in case nulling out this single branch of the tree nulls them all out, we have to check if the "isNull" state should be flipped.
+                        var dataFound = false;
+                        this.values.recurseTree(function(data){
+                            if (data != []) dataFound = true;
+                        });
+                        if (!dataFound) this.setNull(true);
+                    } else if (this.isNull() === true) {
+                        this.setNull(false);
+                    }
+
                     this.trigger('change');
                 },
                 setNull: function(val){
@@ -42,20 +57,23 @@ define([
                 isNull: function(){
                     return this._isNull;
                 },
-                fetchValues: function(){
+                getTree: function(){
                     return this._isNull ? null : this.values;
                 },
                 clearValues: function(){
-                    _.each(this.values,function(object){
-                        // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
-                        // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
-                        object.destroy();
+                    this.values.recurseTree(function(data,node){
+                        _.each(data, function(object){
+                            // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
+                            // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
+                            if (typeof object.destroy === "function") object.destroy();
+                            else console.warn("Can't destroy object type: " + typeof object);
+                        });
+                        node.data.splice(0,node.data.length); // clear out all values
                     });
-                    this.values.splice(0,this.values.length); // clear out all values
                 },
                 destroy: function(){
+                    this.clearValues();
                     this.stopListening();
-                    if (!_.isUndefined(this.referencedCPointer)) {Module.Utils.freeCArrayAtPointer(this.referencedCPointer);}
                 },
                 connectOutput: function(outputModel){
                     // for inputs only, supports the data-flow attachment mechanism
@@ -64,13 +82,14 @@ define([
                     this.stopListening(); // TODO: To connect multiple outputs to an input, this line must change!
                     this.listenTo(outputModel, "change",function(){
                         // check for changes in null state and value
-                        var changed = false;
-                        if (that.fetchValues() !== outputModel.fetchValues) {
+                        //var changed = false;
+                        //if (that.getTree() !== outputModel.getTree()) { // THIS TEST FAILS. I'm trying to test if values IN the tree have changed, but when the components are previously connected this prevents change events from propagating.
                             that.values = outputModel.values;
                             that._isNull = outputModel._isNull;
-                            changed = true;
-                        }
-                        if (changed) that.trigger("change"); // the input can trigger its change event right away. The COMPONENT does the recalculation
+                            //changed = true;
+                        //}
+                        //if (changed === true) that.trigger("change"); // the input can trigger its change event right away. The COMPONENT does the recalculation
+                        that.trigger("change");
                     });
                     outputModel.trigger("change"); // check for completed flow on hookup
                     this.trigger("connectedOutput", outputModel);
@@ -161,8 +180,6 @@ define([
                 if (!_.has(this,inputName)) {throw new Error("Tried to specify an input that does not exist");}
                 if (this[inputName].type !== output.type) {throw new Error("Tried to specify an input of the wrong type");}
 
-                var input = this[inputName];
-
                 this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
 
                 this._calculateSufficiency();
@@ -205,7 +222,7 @@ define([
 
                 // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
                 // However, in this case, the output value must be actually set before the component can be called sufficient
-                if (this._hasRequiredInputs === false && _.isNull(this.output.fetchValues())) {
+                if (this._hasRequiredInputs === false && _.isNull(this.output.getTree())) {
                     sufficient = false;
                 }
 
@@ -218,14 +235,8 @@ define([
 
                 return sufficient;
             },
-            shortestInputLength: function(){
-                if (this.hasSufficientInputs() === false) return 0;
-
-                this.output.setNull(false);
-                var shortestIpt = _.min(this.inputs,function(ipt){return ipt.values.length;});
-                return shortestIpt.values.length;
-            },
             recalculate: function(){
+                console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
                 this._recalculate();
             },
             _recalculate: function(){
@@ -233,7 +244,8 @@ define([
                 this.output.trigger('change');
             },
             fetchOutputs: function(){
-                return this.output.fetchValues();
+                /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */
+                return this.output.getTree().flattenedTree().dataAtPath([0]);
             },
             isNull: function(){
                 return this.output.isNull();

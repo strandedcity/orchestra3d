@@ -22,11 +22,10 @@ define([
     };
 
     DataFlow.BooleanComponent.prototype.recalculate = function(){
-        var that = this, shortestInput = this.shortestInputLength();
-        if (shortestInput === 0) return;
-        for (var i=0; i < shortestInput; i++) {
-            that.output.values[i] = this.inputs["B"].values[i];
-        }
+
+        this.output.cleanData();
+        this.output.values = this.inputs['B'].values.copy();
+
         this._recalculate();
     };
 

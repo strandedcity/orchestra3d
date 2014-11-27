@@ -30,13 +30,19 @@ define([
         recalculate: function(){
             this.output.clearValues();
 
-            var that = this, shortestInput = this.shortestInputLength();
-            if (shortestInput === 0) return;
-            //for (var i=0; i < shortestInput; i++) {
-            //    that.output.values[i] = new Geometry.Curve(this["V"].values[i],this["D"].values[i],this["P"].values[i]);
-            //}
+            var that = this,
+                out = that.output.values;
 
-            this.output.values = [new Geometry.Curve(this["V"].values,this["D"].values[0],this["P"].values[0])];
+            // first attempt at a data-matching strategy. This should match grasshopper's behavior exactly.
+            // recurse over point lists ("V"), and for each list encountered, find the closest-matching single value
+            this["V"].values.recurseTree(function(pointList,node){
+                var curveList = [];
+
+                curveList.push(new Geometry.Curve(pointList,that["D"].values[0],that["P"].values[0]));
+
+                out.setDataAtPath(node.getPath(),curveList);
+            });
+
             this._recalculate();
 
             if (this._drawPreview) {

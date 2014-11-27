@@ -11,21 +11,22 @@ define([
         delete this.pathId; // Undefined base path ID allows, in principle, multiple base branches
         delete this.data; // no data can be stored at the root. Just branches. This is why all data is at least inside the branch {0}
         if (!_.isUndefined(data)) this.addChildAtPath(data,[0]);
+        _.bindAll(this,"dataAtPath","setDataAtPath","recurseTree","flattenedTree","graftedTree","remappedTree");
     }
 
     DataTree.prototype = Object.create(Node.prototype);
     DataTree.prototype.constructor = DataTree;
 
-    DataTree.prototype.recurseTree = function(iterator){
+    DataTree.prototype.recurseTree = function(funcOfDataAndNode){  // iterator = function(data[,node])
         // walks the tree, calling iterator for each node. Iterator is a function that takes DATA (an array) and an optional PATH string.
         // PATH strings will match the node's complete tree path, DATA will represent the data on that node.
 
-        if (typeof iterator !== "function") {throw new Error("recurseTree must be called with an iterator: function(data[,node])");}
+        if (typeof funcOfDataAndNode !== "function") {throw new Error("recurseTree must be called with an iterator: function(data[,node])");}
 
         (function recurseChildren(node){
             // if data, call the iterator
             if (!_.isEmpty(node.data)) {
-                iterator(node.data, node);
+                funcOfDataAndNode(node.data, node);
             }
             // if children, recurse a level deeper
             var childKeys = _.keys(node.children);
@@ -58,13 +59,30 @@ define([
         // works a little differently than Node.getChildAtPath. Since the tree is the top-level node, we
         // can retrieve nodes by more-intuitive absolute paths, rather than mucking around in relative node paths
         // which are necessary internally, but confusing externally
-        var pathCopy = path.slice();
 
-        var currentNode = this;
-        while (pathCopy.length > 0){
-            currentNode = currentNode.children[pathCopy.shift()];
+        try {
+            var pathCopy = path.slice();
+
+            var currentNode = this;
+            while (pathCopy.length > 0){
+                currentNode = currentNode.children[pathCopy.shift()];
+            }
+            return filtered === true ? currentNode.getFilteredData() : currentNode.data;
+        } catch (e) {
+            return [];
         }
-        return filtered === true ? currentNode.getFilteredData() : currentNode.data;
+    };
+
+    DataTree.prototype.copy = function(){
+        var copy = new DataTree();
+        this.recurseTree(function(data,node){
+            copy.addChildAtPath(data,node.getPath(),true);
+        });
+        return copy;
+    };
+
+    DataTree.prototype.setDataAtPath = function(path, data){
+        return this.addChildAtPath(data,path,true);
     };
 
     DataTree.prototype.log = function(){
@@ -193,7 +211,7 @@ define([
         return _.isUndefined(this.parent);
     };
 
-    Node.prototype.addChildAtPath = function(data, pathArray){
+    Node.prototype.addChildAtPath = function(data, pathArray, replaceData){
         // Function assumes you set one list of data to a particular path, relative to this node.
         // All branches along the path, prior to the end, will be data-free
         if (!_.isArray(pathArray)) {throw new Error("must pass pathArray to addChildAtPath");}
@@ -217,7 +235,7 @@ define([
             }
 
             // end of the path to add at. This is the node!
-            newNode.data = newNode.data.concat(data);
+            newNode.data = replaceData === true ? data : newNode.data.concat(data);
             return newNode;
         })(this,pathArrayCopy);
 
