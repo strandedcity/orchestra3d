@@ -14,7 +14,7 @@ define([
             if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
             if (_.isUndefined(args.shortName)) {throw new Error("No shortName specified for Output");}
 
-            this.required = _.isUndefined(args.required) ? true : false;
+            this.required = _.isUndefined(args.required) ? true : args.required;
             this.type = args.type;
             this.shortName = args.shortName;
             this.values = new DataTree([]);
@@ -35,17 +35,30 @@ define([
                     // store data
                     this.values.addChildAtPath(values,forPath || [0],true);
 
+                    this.updateNullSetting();
+
+                    this.trigger('change');
+                },
+                updateNullSetting: function(){
                     // the use of 'assignvalues' makes sure that isNull is toggled appropriately
-                    if (values.length === 0 && this.isNull() === false){
+                    if (this.isNull() === false){
                         // in case nulling out this single branch of the tree nulls them all out, we have to check if the "isNull" state should be flipped.
                         var dataFound = false;
                         this.values.recurseTree(function(data){
                             if (data != []) dataFound = true;
                         });
                         if (!dataFound) this.setNull(true);
-                    } else if (this.isNull() === true) {
+                    } else { // this.isNull() === true
                         this.setNull(false);
                     }
+                },
+                replaceData: function(dataTree){
+                    if (dataTree.constructor.name !== "DataTree") {
+                        throw new Error("Attempt to replace Data Tree with something that's not a Data Tree.");
+                    }
+                    this.clearValues();
+                    this.values = dataTree;
+                    this.updateNullSetting();
 
                     this.trigger('change');
                 },
@@ -78,7 +91,8 @@ define([
                 connectOutput: function(outputModel){
                     // for inputs only, supports the data-flow attachment mechanism
                     var that = this;
-                    if (this.type !== outputModel.type) { throw new Error("Incongruent output connected to an input"); }
+                    if (this.type !== outputModel.type && this.type !== "wild" && outputModel.type !== "wild") { throw new Error("Incongruent output connected to an input"); }
+                    //if (this.type === "wild") {this.type = outputModel.type;} // After connecting to an "inherits type" IO once, only same-typed outputs should be connectable.
                     this.stopListening(); // TODO: To connect multiple outputs to an input, this line must change!
                     this.listenTo(outputModel, "change",function(){
                         // check for changes in null state and value
@@ -102,6 +116,7 @@ define([
         DataFlow.OutputPoint = function OutputPoint(opts) { DataFlow.Output.call(this,_.extend({type: "GeoPoint", shortName: "P"},opts || {})); };
         DataFlow.OutputCurve = function OutputCurve(opts) { DataFlow.Output.call(this,_.extend({type: "GeoCurve", shortName: "C"},opts || {})); };
         DataFlow.OutputBoolean = function OutputBoolean(opts) { DataFlow.Output.call(this,_.extend({type: "boolean", shortName: "B"},opts || {})); };
+        DataFlow.OutputMultiType = function OutputMultiType(opts) { DataFlow.Output.call(this, _.extend({type: "wild", shortName: "T"}, opts || {})); };
 
         var DATAFLOW_IO_TYPES = {
             number: DataFlow.OutputNumber,
@@ -167,6 +182,7 @@ define([
                 this._hasRequiredInputs = hasRequired;
 
                 // for components that let users enter data directly, we need to listen directly to the output for changes in value
+                // TODO: DOES THIS CAUSE CALCULATIONS TWICE?
                 if (hasRequired === false) {
                     this.listenTo(this.output,"change",that._calculateSufficiency   );
                 }
@@ -220,12 +236,22 @@ define([
                     });
                 }
 
+                //if (window.debug === true) {
+                //    console.log('---------');
+                //    console.log('Bsufficient ',this.constructor.name,"\nsufficient? ",sufficient,"\nhas requried inputs? ", this._hasRequiredInputs,"\nTREE: ", this.output.getTree());
+                //    //debugger;
+                //}
                 // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
                 // However, in this case, the output value must be actually set before the component can be called sufficient
                 if (this._hasRequiredInputs === false && _.isNull(this.output.getTree())) {
                     sufficient = false;
                 }
 
+                //if (window.debug === true) {
+                //    console.log('---------');
+                //    console.log('Csufficient ',this.constructor.name,"\nsufficient? ",sufficient,"\nhas requried inputs? ", this._hasRequiredInputs,"\nTREE: ", this.output.getTree());
+                //    //debugger;
+                //}
                 // If an input is null, the output is null too, and no calculation should occur.
                 //if (!sufficient) this.output.setNull(true);
                 if (this._sufficient !== sufficient) {

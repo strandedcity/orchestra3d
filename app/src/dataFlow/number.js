@@ -23,7 +23,7 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.output.cleanData();
+            this.output.clearValues();
             this.output.values = this.inputs['#'].values.copy();
             this._recalculate();
         },

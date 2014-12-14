@@ -32,6 +32,9 @@ define([
             if ( this.getDroppableScopes().indexOf("input") !== -1 && scopeNames.indexOf("input") === -1){  return false; }
             else if (this.getDroppableScopes().indexOf("output") !== -1 && scopeNames.indexOf("output") === -1) { return false; }
 
+            // all IOs are droppable for "wild" draggables so long as the input/output scopes match up
+            if (scopeNames.indexOf("wild") > -1 || this.getDraggableScopes().indexOf("wild") > -1 ) {return true;}
+
             // to be a valid drop target, the input/output setting must match PLUS at least one other scope.
             return  _.without(_.intersection(this.getDroppableScopes(),scopeNames),"input","output").length > 0;
         },
@@ -69,7 +72,7 @@ define([
 
         /* THIS IS IMPORTANT! Large "far" value keeps connection curves from disappearing when you zoom way out on the workspace. */
         this.camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 1, 1000000 );
-        this.camera.position.z = 800;
+        this.camera.position.z = 1200;
 
         //this.createWorkspace(); // Done on the application level to avoid rendering the workspace during tests
     };

@@ -66,6 +66,10 @@ require(["appconfig"],function(){
                     position: {x: 1400, y: 200}
                 }));
 
+                var graftTree = new ComponentView(new dataFlow.Tree.GraftComponent({
+                    position: {x: 500, y: 200}
+                }));
+
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
                     //point1.component["X"].connectOutput(number1.component.output);

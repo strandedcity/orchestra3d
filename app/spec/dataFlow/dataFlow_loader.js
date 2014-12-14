@@ -1,11 +1,11 @@
 define([
     "./core",
-    "./point",
+    "./components",
     "./dataTree"
-    ],function(core,pointComponent,dataTree){
+    ],function(core,components,dataTree){
     describe("--------------- DataFlow ---------------",function(){
         describe.apply(this,core);
-        describe.apply(this,pointComponent);
+        describe.apply(this,components);
         describe.apply(this,dataTree);
     });
 });

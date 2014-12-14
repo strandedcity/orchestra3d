@@ -23,7 +23,7 @@ define([
 
     DataFlow.BooleanComponent.prototype.recalculate = function(){
 
-        this.output.cleanData();
+        this.output.clearValues();
         this.output.values = this.inputs['B'].values.copy();
 
         this._recalculate();
