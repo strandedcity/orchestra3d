@@ -28,18 +28,12 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-
-            // Note that this component is now a "wildcard" type. One approach could maintain more data fidelity by forcing types to remain the same
+            // Note that this component is a "wildcard" type output. One approach could maintain more data fidelity by forcing types to remain the same
             // per-component, but that requires a more complicated typing strategy on the way in and out of components that deal with the data trees directly.
             // This can always be added later, but it's not critical first-order functionality
 
             // grab the input, construct a new (grafted) tree.
             this.output.replaceData(this['T'].values.graftedTree());
-
-            //console.log('original tree');
-            //this['T'].getTree().log();
-            //console.log('grafted tree');
-            //this.output.getTree().log();
 
             // updating the tree calls this automatically. It's part of the null checks.
             //this._recalculate();

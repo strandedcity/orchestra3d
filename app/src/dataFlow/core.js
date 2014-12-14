@@ -88,19 +88,27 @@ define([
                     this.clearValues();
                     this.stopListening();
                 },
-                connectOutput: function(outputModel){
+                validateOutput: function(outputModel){
                     // for inputs only, supports the data-flow attachment mechanism
-                    var that = this;
                     if (this.type !== outputModel.type && this.type !== "wild" && outputModel.type !== "wild") { throw new Error("Incongruent output connected to an input"); }
-                    //if (this.type === "wild") {this.type = outputModel.type;} // After connecting to an "inherits type" IO once, only same-typed outputs should be connectable.
-                    this.stopListening(); // TODO: To connect multiple outputs to an input, this line must change!
+
+                    return true;
+                },
+                connectOutput: function(outputModel){
+                    if (this.validateOutput(outputModel) === true) this.stopListening();
+                    this.connectAdditionalOutput(outputModel, false);
+                },
+                connectAdditionalOutput: function(outputModel, validateModels){
+                    if (validateModels !== false) this.validateOutput(outputModel);
+
+                    var that=this;
                     this.listenTo(outputModel, "change",function(){
                         // check for changes in null state and value
                         //var changed = false;
                         //if (that.getTree() !== outputModel.getTree()) { // THIS TEST FAILS. I'm trying to test if values IN the tree have changed, but when the components are previously connected this prevents change events from propagating.
-                            that.values = outputModel.values;
-                            that._isNull = outputModel._isNull;
-                            //changed = true;
+                        that.values = outputModel.values;
+                        that._isNull = outputModel._isNull;
+                        //changed = true;
                         //}
                         //if (changed === true) that.trigger("change"); // the input can trigger its change event right away. The COMPONENT does the recalculation
                         that.trigger("change");
