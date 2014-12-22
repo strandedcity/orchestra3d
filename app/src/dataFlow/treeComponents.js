@@ -11,8 +11,6 @@ define([
 
     _.extend(Tree.GraftComponent.prototype, DataFlow.Component.prototype,{
         initialize: function(opts){
-            // this is really a placeholder. The entire output object will be replaced every time a connection
-            // is made, so that the output has the correct data type associated with it.
             var output = new DataFlow.OutputMultiType();
 
             var input = new DataFlow.OutputMultiType({required: true, shortName: "T"});
@@ -37,6 +35,60 @@ define([
 
             // updating the tree calls this automatically. It's part of the null checks.
             //this._recalculate();
+        }
+    });
+
+    Tree.ShiftComponent = function ShiftComponent(opts){
+        this.initialize.apply(this,arguments);
+    };
+    _.extend(Tree.ShiftComponent.prototype, DataFlow.Component.prototype,{
+        initialize: function(opts){
+            var output = new DataFlow.OutputMultiType({shortName: "L"});
+
+            var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
+            var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S"}); // Shift Direction
+            var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W"}); // wrap data?
+
+            var args = _.extend(opts || {},{
+                inputs: [
+                    inputData,
+                    shiftDir,
+                    wrap
+                ],
+                output: output,
+                resultFunction: this.recalculate,
+                componentPrettyName: "Shift"
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            // Construct a new tree with shifted data
+            this.output.clearValues();
+
+            var that = this,
+                out = that.output.values,
+                nullOutputs = true,
+                inputData = this["L"].getTree(),
+                shiftDir = this["S"].getTree(),
+                wrap = this["W"].getTree();
+
+            inputData.recurseTree(function(dataList,node){
+                var newList = dataList.slice(0),
+                    p = node.getPath();
+
+                var count = _.isNull(shiftDir) ? 1 : shiftDir.dataAtPath(p,true)[0]; // by default, shift by 1
+                var wrapThis = _.isNull(wrap) ? true : wrap.dataAtPath(p,true)[0];
+                var append = newList.splice(0,count); // cut off some chunk of array
+                if (wrapThis === true) {
+                    newList.push.apply(newList,append);
+                }
+
+                if (newList.length > 0) nullOutputs = false; // set null to false!
+                out.setDataAtPath(p,newList);
+            });
+
+            this.output.setNull(nullOutputs);
+            this._recalculate();
         }
     });
 

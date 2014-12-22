@@ -125,6 +125,7 @@ define([
         DataFlow.OutputCurve = function OutputCurve(opts) { DataFlow.Output.call(this,_.extend({type: "GeoCurve", shortName: "C"},opts || {})); };
         DataFlow.OutputBoolean = function OutputBoolean(opts) { DataFlow.Output.call(this,_.extend({type: "boolean", shortName: "B"},opts || {})); };
         DataFlow.OutputMultiType = function OutputMultiType(opts) { DataFlow.Output.call(this, _.extend({type: "wild", shortName: "T"}, opts || {})); };
+        DataFlow.OutputNull = function OutputNull(opts) {DataFlow.Output.call(this,_.extend({type: "null", shortName: "x"}, opts || {})); };
 
         var DATAFLOW_IO_TYPES = {
             number: DataFlow.OutputNumber,
@@ -210,10 +211,6 @@ define([
             },
             destroy: function(){
                 this.stopListening();
-//                Can't destroy inputs just because this component doesn't need them anymore!!
-//                _.each(this.inputs,function(input){
-//                    input.destroy();
-//                });
                 delete this.inputs;
                 this.output.destroy();
                 delete this.output;
@@ -275,6 +272,10 @@ define([
             },
             _recalculate: function(){
                 // run whatever calculations are necessary, if all inputs are available
+                if (this._drawPreview) {
+                    this.drawPreviews();
+                }
+
                 this.output.trigger('change');
             },
             fetchOutputs: function(){
@@ -284,13 +285,16 @@ define([
             isNull: function(){
                 return this.output.isNull();
             },
+            drawPreviews: function(){
+                console.warn(this.constructor.name + " objects have a no-op 'drawPreviews' function.")
+            },
             clearPreviews: function(){
                 // destroy prior views
                 _.each(this.previews,function(prev){
                     prev.remove();
                 });
                 this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
-            },
+            }
         });
 
         return DataFlow;

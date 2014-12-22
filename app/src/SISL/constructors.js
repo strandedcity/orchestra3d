@@ -1,10 +1,8 @@
-define(["SISL/sisl_loader","SISL/sisl","underscore"],function(){
+define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
     console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
     var precision = 0.00001;
 
     try {
-        var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
-        var pointCoords = Module.cwrap('pointCoords','number',['number']);
         var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
         var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
@@ -19,41 +17,18 @@ define(["SISL/sisl_loader","SISL/sisl","underscore"],function(){
             throw new Error("Must pass 3 numbers to create a Point");
         }
 
-        // Construct C array of the point's coordinates. Optionally pass a 'pointer' to re-use C memory
-        var coordsPointer = Module.Utils.copyJSArrayToC([x,y,z]);
-        this._pointer = newPoint(coordsPointer,3,0);
-    };
-    _.extend(Geo.Point.prototype,{
-        getPointer: function(){
-            return this._pointer;
-        },
-        getCoordsArray: function(){
-            return Module.Utils.copyCArrayToJS(pointCoords(this._pointer),3);
-        },
-        destroy: function(){
-            Module._free(this._pointer);
-        }
-    });
+        THREE.Vector3.apply(this,[x,y,z]);
 
-    Geo.Vect = function GeoVect(x,y,z){
-        Geo.Point.apply(this,[x,y,z]);
-        return this;
+        // legacy from using SISLPoints instead of THREE.Vector3's here
+        this.getCoordsArray= function(){
+            return [this.x,this.y,this.z];
+        };
     };
-    _.extend(Geo.Vect.prototype,Geo.Point.prototype);
-    _.extend(Geo.Vect.prototype,{
-        getNormalVectArray: function(){
-            // getNormalVect should return a copy of the vector. In a dataflow model, no
-            // downstream component should be able to change the value of an upstream component
-            var coords = this.getCoordsArray(),
-                length = this.getLength();
 
-            return [coords[0]/length,coords[1]/length,coords[2]/length];
-        },
-        getLength: function(){
-            var coords = this.getCoordsArray();
-            return Math.sqrt(Math.pow(coords[0],2) + Math.pow(coords[1],2) + Math.pow(coords[2],2) );
-        }
-    });
+    // Inherit all THREE.Vector3 stuff, then reset the constructor name. Wrapping THREE.Vector3 gives us
+    // an easy place to customize the vector for this context.
+    _.extend(Geo.Point.prototype, THREE.Vector3.prototype);
+    Geo.Point.prototype.constructor = Geo.Point;
 
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
@@ -88,8 +63,9 @@ define(["SISL/sisl_loader","SISL/sisl","underscore"],function(){
             knotVector = [], knotVectorPointer,
             vertices = [], verticesPointer;
 
-        // Pile control point values into a single array, push that to C heap. THIS SHOULD BE A C FUNCTION!
-        console.warn("Stacking points into a single array must be SUPER efficient.");
+        // Points are stored as THREE.JS objects as of 12/21/14. This gives free affine transforms for all
+        // SISL objects with no muss, but this would all probably be faster if the affine transform stuff
+        // were instead ported into C-land.
         _.each(controlPoints,function(pt){
             vertices = vertices.concat(pt.getCoordsArray());
         });
@@ -126,7 +102,7 @@ define(["SISL/sisl_loader","SISL/sisl","underscore"],function(){
             var buffer = Module._malloc(16*6);
             s1227(this._pointer,1,param,0,buffer,0);
             var derivs = Module.Utils.copyCArrayToJS(buffer,6);
-            var tangent = new Geo.Vect(derivs[3],derivs[4],derivs[5]);
+            var tangent = new Geo.Point(derivs[3],derivs[4],derivs[5]);
             return tangent;
         },
         destroy: function(){

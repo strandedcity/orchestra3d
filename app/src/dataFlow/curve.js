@@ -48,13 +48,12 @@ define([
             });
 
             this._recalculate();
-
-            if (this._drawPreview) {
-                var curves = out.flattenedTree().dataAtPath([0]);
-                _.each(curves,function(c){
-                    this.previews.push(new Preview.CurvePreview(c));
-                },this);
-            }
+        },
+        drawPreviews: function(){
+            var curves = this.output.values.flattenedTree().dataAtPath([0]);
+            _.each(curves,function(c){
+                this.previews.push(new Preview.CurvePreview(c));
+            },this);
         }
     });
 

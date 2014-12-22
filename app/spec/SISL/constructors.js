@@ -9,34 +9,12 @@ define(["SISL/sisl_loader"],function(Geo){
                 it("Throws an error if passed no parameters",function(){
                     expect(function(){new Geo.Point()}).toThrowError("Must pass 3 numbers to create a Point");
                 });
-                it("Constructor Accepts 3 numbers, and stores a _pointer property",function(){
-                    var point = new Geo.Point(3.1415,100000,-200);
-                    expect(point._pointer).toBeDefined();
-                    expect(typeof point._pointer).toEqual("number");
-                });
-                it("Returns its pointer using 'getPointer",function(){
-                    var point = new Geo.Point(3.1415,100000,-200);
-                    expect(point._pointer).toBeDefined();
-                    expect(typeof point._pointer).toEqual("number");
-                    expect(point._pointer).toEqual(point.getPointer());
-                });
                 it("Returns its coordinates using 'getCoordsArray'",function(){
                     var point = new Geo.Point(3.1415,100000,-200);
                     var coordsArray = point.getCoordsArray();
                     expect(coordsArray[0]).toBeCloseTo(3.1415);
                     expect(coordsArray[1]).toEqual(100000);
                     expect(coordsArray[2]).toEqual(-200);
-                });
-            });
-            describe("GeoVect",function(){
-                it ("Returns a COPY of the vector when normalized");
-                it ("Returns a correctly normalized vector",function(){
-                    var v0 = new Geo.Vect(2,2,0);
-                    var normalized = v0.getNormalVectArray();
-
-                    expect(normalized[0]).toBeCloseTo(Math.sqrt(2)/2);
-                    expect(normalized[1]).toBeCloseTo(Math.sqrt(2)/2);
-                    expect(normalized[2]).toBeCloseTo(0);
                 });
             });
             describe("GeoCurve",function(){
@@ -152,7 +130,7 @@ define(["SISL/sisl_loader"],function(Geo){
                     // tangent vect should be a 2d vector @45 degrees: (sqrt(2)/2,sqrt(2)/2,0);
                     // In the case of this particular line, its magnitude should be
                     expect(tangentVect).not.toBeUndefined();
-                    expect(tangentVect.constructor.name).toEqual("GeoVect");
+                    expect(tangentVect.constructor.name).toEqual("GeoPoint");
                     expect(tangentVect.getCoordsArray()[0]).toEqual(tangentVect.getCoordsArray()[1]);
                     expect(tangentVect.getCoordsArray()[2]).toEqual(0);
 
@@ -168,10 +146,11 @@ define(["SISL/sisl_loader"],function(Geo){
                         curve = new Geo.Curve([start,mid,mid2,end],3,false);
 
                     // at the top of a parabola-like curve (but degree 3), the tangent vector should point horizontally:
-                    var normalTangent = curve.getTangentAt(0.5).getNormalVectArray();
-                    expect(normalTangent[0]).toEqual(1);
-                    expect(normalTangent[1]).toEqual(0);
-                    expect(normalTangent[2]).toEqual(0);
+                    var tangent = curve.getTangentAt(0.5);
+                    var normalTangent = tangent.normalize();
+                    expect(normalTangent.x).toEqual(1);
+                    expect(normalTangent.y).toEqual(0);
+                    expect(normalTangent.z).toEqual(0);
                 });
             });
         }

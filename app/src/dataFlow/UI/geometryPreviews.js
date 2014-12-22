@@ -95,5 +95,27 @@ define([
         }
     };
 
+    var VectorPreview = Preview.VectorPreview = function VectorPreview(anchor, vector){
+        this.initialize.call(this,anchor,vector);
+    };
+
+    VectorPreview.prototype.initialize = function(anchor,vector){
+        // TODO: Length and color should be abstracted as user preferences.
+        var color = 0xffff00;
+        var dir = vector.clone().normalize(),  // MUST be a unit vector!
+            len = vector.length();
+
+        if (len === 0) return; // don't add vectors with zero length. that messes with shit.
+        this.arrowHelper = new THREE.ArrowHelper( dir, anchor, len, color );
+        viewer.scene.add( this.arrowHelper );
+    };
+    VectorPreview.prototype.remove = function(){
+        if (!_.isUndefined(this.arrowHelper)) {
+            viewer.scene.remove(this.arrowHelper);
+            this.arrowHelper.remove();
+            delete this.arrowHelper;
+        }
+    };
+
     return Preview;
 });
