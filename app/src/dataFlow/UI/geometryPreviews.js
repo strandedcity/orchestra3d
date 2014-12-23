@@ -108,6 +108,10 @@ define([
         if (len === 0) return; // don't add vectors with zero length. that messes with shit.
         this.arrowHelper = new THREE.ArrowHelper( dir, anchor, len, color );
         viewer.scene.add( this.arrowHelper );
+
+        _.defer(function(){
+            viewer.render();
+        });
     };
     VectorPreview.prototype.remove = function(){
         if (!_.isUndefined(this.arrowHelper)) {
