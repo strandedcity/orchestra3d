@@ -53,13 +53,12 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             A.assignValues([0.11],[1]);
             A.assignValues([0.111],[2]);
 
-            // B -- should act as "master" list though it doesn't matter in this case
             B.assignValues([1],[0,0]);
             B.assignValues([2],[0,1]);
 
             C.assignValues([1000,2000,3000],[0,0,0,0]); // C is master
 
-            // Output C
+            // Calculate result tree
             var calculatedResult = DataMatcher([A,B,C],function(a,b,c){
                 return a * b + c;
             }).tree;
