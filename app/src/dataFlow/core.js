@@ -1,8 +1,10 @@
 define([
         "underscore",
         "backbone",
-        "dataFlow/dataTree"
-    ],function(_,Backbone,DataTree){
+        "dataFlow/dataTree",
+        "dataFlow/dataMatcher",
+        "dataFlow/enums"
+    ],function(_,Backbone,DataTree,DataMatcher, ENUMS){
 
         console.warn("Should remove Module.Utils from core.js and all Dataflow files!!");
         var DataFlow = {};
@@ -16,11 +18,20 @@ define([
 
             this.required = _.isUndefined(args.required) ? true : args.required;
             this.type = args.type;
+            this.default = _.isUndefined(args.default) ? null : args.default; // store default value if spec'd
             this.shortName = args.shortName;
             this.values = new DataTree([]);
             this._isNull = true;
 
-            //var that = this;
+            var parameterType = ENUMS.INTERPRET_AS.ITEM;
+            if (!_.isUndefined(args.interpretAs)) {
+                if (!_.has(_.keys(ENUMS.INTERPRET_AS), args.interpretAs)) {
+                    console.warn("Invalid list interpretation type passed to an input. Using default ITEM interpretation. See ENUMS.INTERPRET_AS");
+                } else {
+                    parameterType = ENUMS.INTERPRET_AS[args.interpretAs];
+                }
+            }
+            this.interpretAs = parameterType;
 
             _.extend(this, Backbone.Events, {
                 assignValues: function(values, forPath){

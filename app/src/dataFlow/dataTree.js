@@ -91,6 +91,27 @@ define([
         });
     };
 
+    DataTree.prototype.getMaxPathLength = function(){
+        // Useful for finding "master" inputs in grasshopper components
+        // Recurses each branch until it finds one with no children, and reports the maximum path depth.
+
+        var maxDepth = 1;
+        (function recurseChildren(node){
+            // if children, recurse a level deeper
+            var childKeys = _.keys(node.children);
+            if (childKeys.length > 0) {
+                _.each(childKeys,function(childName){
+                    recurseChildren(node.children[childName]);
+                });
+            } else {
+                // no children; test if this is deeper than other paths found
+                maxDepth = Math.max(maxDepth,node.getPath().length);
+            }
+        })(this);
+
+        return maxDepth;
+    };
+
     DataTree.prototype.graftedTree = function(){
         // Works like grasshopper. Creates a new sub-branch for each data item.
         // eg: 8 branches with 6 items each -->  8 branches with 6 sub-branches each, 1 item per branch

@@ -1,9 +1,5 @@
 define(["dataFlow/dataTree"],function(DataTree){
     return ["DataTree",function(){
-        //it("Has an empty array for data by default",function(){
-        //    var tree = new DataTree();
-        //    expect(tree.data).toEqual([]);
-        //});
         it("Stores data at the {0} level when instantiated with data",function(){
             var data = [1,2,3,4];
             var tree = new DataTree(data);
@@ -163,6 +159,35 @@ define(["dataFlow/dataTree"],function(DataTree){
             expect(grafted.dataAtPath([0,0,0,1,1])).toEqual([11]);
             expect(grafted.dataAtPath([0,0,0,1,2])).toEqual([12]);
             expect(grafted.dataAtPath([4,0])).toEqual([13]);
+        });
+        it("Reports accurate max path lengths for tree with varying path lengths",function(){
+            var tree1 = new DataTree();
+            tree1.addChildAtPath([1,2,3],[4,0]);
+            tree1.addChildAtPath([4,5,6],[0,0,0]);
+            tree1.addChildAtPath([7,8,9],[0,1,0]);
+            tree1.addChildAtPath([10,11,12],[0,0,0,1]);
+            tree1.addChildAtPath([13],[4]); // make sure to dump one thing at a path that would overlap the original tree. Can cause errors in the graft method!
+
+            expect(tree1.getMaxPathLength()).toEqual(4);
+        });
+        it("Reports accurate max path lengths for tree with single path length",function(){
+            var tree2 = new DataTree();
+            tree2.addChildAtPath([1,2,3],[4,0,1]);
+            tree2.addChildAtPath([4,5,6],[0,0,0]);
+            tree2.addChildAtPath([7,8,9],[0,1,0]);
+            tree2.addChildAtPath([10,11,12],[0,0,1]);
+            tree2.addChildAtPath([13],[4,0,0]); // make sure to dump one thing at a path that would overlap the original tree. Can cause errors in the graft method!
+
+            expect(tree2.getMaxPathLength()).toEqual(3);
+        });
+        it("Reports accurate max path lengths for trees with single path",function(){
+            var tree2 = new DataTree();
+            tree2.addChildAtPath([1,2,3],[0]);
+            expect(tree2.getMaxPathLength()).toEqual(1);
+
+            var tree3 = new DataTree();
+            tree3.addChildAtPath([1,2,3],[0,1]);
+            expect(tree3.getMaxPathLength()).toEqual(2);
         });
     }];
 });
