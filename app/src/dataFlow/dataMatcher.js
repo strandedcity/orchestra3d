@@ -82,18 +82,24 @@ define([
             var flattenedNodeList = [];   // will contain lists OF OBJECTS corresponding to each node with data.
                                         // each object will know the path of the node it should go to
 
-            function appendUsedDataPaths(tree){
+            function appendUsedDataPaths(input){
                 var dataListForTree = [];
-                tree.recurseTree(function(data,node){
+                input.getTree().recurseTree(function(data,node){
                     dataListForTree.push(node);
                 });
+                if (dataListForTree.length === 0){
+                    // DataTree doesn't expose individual nodes, so we have to access it thus:
+                    var tree = new DataTree([input.getDefaultValue()]),
+                        node = tree.getChildAtPath([0]);
+                    dataListForTree.push(node);
+                }
                 return dataListForTree;
             }
 
             // putting the master input first will help us below.
             var indexOfMaster = _.indexOf(inputs,masterInput);
             _.each(inputs,function(ipt){
-                flattenedNodeList.push(appendUsedDataPaths(ipt.getTree()));
+                flattenedNodeList.push(appendUsedDataPaths(ipt));
             });
 
             // Flattened node list is now an "aligned" array of arrays of nodes. Each node stores an array of data.

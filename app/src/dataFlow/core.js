@@ -46,22 +46,9 @@ define([
                     // store data
                     this.values.addChildAtPath(values,forPath || [0],true);
 
-                    this.updateNullSetting();
+                    this.setNull(this.values.isEmpty());
 
                     this.trigger('change');
-                },
-                updateNullSetting: function(){
-                    // the use of 'assignvalues' makes sure that isNull is toggled appropriately
-                    if (this.isNull() === false){
-                        // in case nulling out this single branch of the tree nulls them all out, we have to check if the "isNull" state should be flipped.
-                        var dataFound = false;
-                        this.values.recurseTree(function(data){
-                            if (data != []) dataFound = true;
-                        });
-                        if (!dataFound) this.setNull(true);
-                    } else { // this.isNull() === true
-                        this.setNull(false);
-                    }
                 },
                 replaceData: function(dataTree){
                     if (dataTree.constructor.name !== "DataTree") {
@@ -69,7 +56,7 @@ define([
                     }
                     this.clearValues();
                     this.values = dataTree;
-                    this.updateNullSetting();
+                    this.setNull(this.values.isEmpty());
 
                     this.trigger('change');
                 },
@@ -82,7 +69,11 @@ define([
                     return this._isNull;
                 },
                 getTree: function(){
-                    return this._isNull ? null : this.values;
+                    //return this._isNull ? null : this.values;
+                    return this.values;
+                },
+                getDefaultValue: function(){
+                    return this.default;
                 },
                 clearValues: function(){
                     this.values.recurseTree(function(data,node){
@@ -90,7 +81,7 @@ define([
                             // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
                             // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
                             if (typeof object.destroy === "function") object.destroy();
-                            else console.warn("Can't destroy object type: " + typeof object);
+                            else console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
                         });
                         node.data.splice(0,node.data.length); // clear out all values
                     });
@@ -169,7 +160,7 @@ define([
         // Mix in backbone events so this component can interact with other components
         _.extend(Component.prototype, Backbone.Events, {
             base_init: function(opts){
-                if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.resultFunction) || _.isUndefined(opts.output) ) {
+                if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.output) ) {
                     throw new Error("Insufficient specifications for a Component");
                 }
 
@@ -246,28 +237,18 @@ define([
                 // next, verify that none of the inputs are nulled-out:
                 if (this._hasRequiredInputs === true){
                     _.each(this.inputs,function(input){
-                        if (input.isNull() === true && input.required === true) {
+                        if (input.getTree().isEmpty() === true && input.required === true) {
                             sufficient = false;
                         }
                     });
                 }
 
-                //if (window.debug === true) {
-                //    console.log('---------');
-                //    console.log('Bsufficient ',this.constructor.name,"\nsufficient? ",sufficient,"\nhas requried inputs? ", this._hasRequiredInputs,"\nTREE: ", this.output.getTree());
-                //    //debugger;
-                //}
                 // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
                 // However, in this case, the output value must be actually set before the component can be called sufficient
                 if (this._hasRequiredInputs === false && _.isNull(this.output.getTree())) {
                     sufficient = false;
                 }
 
-                //if (window.debug === true) {
-                //    console.log('---------');
-                //    console.log('Csufficient ',this.constructor.name,"\nsufficient? ",sufficient,"\nhas requried inputs? ", this._hasRequiredInputs,"\nTREE: ", this.output.getTree());
-                //    //debugger;
-                //}
                 // If an input is null, the output is null too, and no calculation should occur.
                 //if (!sufficient) this.output.setNull(true);
                 if (this._sufficient !== sufficient) {
@@ -282,6 +263,8 @@ define([
                 this._recalculate();
             },
             _recalculate: function(){
+                this.output.setNull(this.output.values.isEmpty());
+
                 // run whatever calculations are necessary, if all inputs are available
                 if (this._drawPreview) {
                     this.drawPreviews();

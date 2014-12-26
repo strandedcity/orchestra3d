@@ -20,7 +20,6 @@ define([
                     input
                 ],
                 output: output,
-                resultFunction: this.recalculate,
                 componentPrettyName: "Graft"
             });
             this.base_init(args);
@@ -46,8 +45,8 @@ define([
             var output = new DataFlow.OutputMultiType({shortName: "L"});
 
             var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
-            var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S"}); // Shift Direction
-            var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W"}); // wrap data?
+            var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
+            var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
 
             var args = _.extend(opts || {},{
                 inputs: [
@@ -56,7 +55,6 @@ define([
                     wrap
                 ],
                 output: output,
-                resultFunction: this.recalculate,
                 componentPrettyName: "Shift"
             });
             this.base_init(args);
@@ -76,13 +74,12 @@ define([
                 var newList = dataList.slice(0),
                     p = node.getPath();
 
-                var count = _.isNull(shiftDir) ? 1 : shiftDir.dataAtPath(p,true)[0]; // by default, shift by 1
-                var wrapThis = _.isNull(wrap) ? true : wrap.dataAtPath(p,true)[0];
+                var count = shiftDir.isEmpty() || _.isEmpty(shiftDir.dataAtPath(p,true)[0]) ? that["S"].getDefaultValue() : shiftDir.dataAtPath(p,true)[0];
+                var wrapThis = wrap.isEmpty() || _.isEmpty(wrap.dataAtPath(p,true)[0]) ? that["W"].getDefaultValue() : wrap.dataAtPath(p,true)[0];
                 var append = newList.splice(0,count); // cut off some chunk of array
                 if (wrapThis === true) {
                     newList.push.apply(newList,append);
                 }
-
                 if (newList.length > 0) nullOutputs = false; // set null to false!
                 out.setDataAtPath(p,newList);
             });

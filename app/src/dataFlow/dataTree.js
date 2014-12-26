@@ -112,6 +112,14 @@ define([
         return maxDepth;
     };
 
+    DataTree.prototype.isEmpty = function(){
+        var isEmpty = true;
+        this.recurseTree(function(data){
+            if (!_.isEmpty(data)) isEmpty = false;
+        });
+        return isEmpty;
+    };
+
     DataTree.prototype.graftedTree = function(){
         // Works like grasshopper. Creates a new sub-branch for each data item.
         // eg: 8 branches with 6 items each -->  8 branches with 6 sub-branches each, 1 item per branch

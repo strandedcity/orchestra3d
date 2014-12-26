@@ -20,9 +20,13 @@ define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
         THREE.Vector3.apply(this,[x,y,z]);
 
         // legacy from using SISLPoints instead of THREE.Vector3's here
-        this.getCoordsArray= function(){
+        this.getCoordsArray = function(){
             return [this.x,this.y,this.z];
         };
+
+        this.destroy = function(){
+            // No manual memory management for this object currently
+        }
     };
 
     // Inherit all THREE.Vector3 stuff, then reset the constructor name. Wrapping THREE.Vector3 gives us

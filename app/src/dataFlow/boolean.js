@@ -15,7 +15,6 @@ define([
         var args = _.extend({
             inputs: inputs,
             output: output,
-            resultFunction: this.recalculate,
             componentPrettyName: "Bool"
         },opts || {});
         this.base_init(args);

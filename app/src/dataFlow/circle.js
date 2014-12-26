@@ -23,7 +23,6 @@ define([
             var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
-                resultFunction: this.recalculate,
                 componentPrettyName: "Circle",
                 drawPreview: true
             });

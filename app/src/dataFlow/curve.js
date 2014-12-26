@@ -21,7 +21,6 @@ define([
             var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
-                resultFunction: this.recalculate,
                 componentPrettyName: "NURBS Crv",
                 drawPreview: true
             });

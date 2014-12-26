@@ -17,7 +17,6 @@ define([
                     input
                 ],
                 output: output,
-                resultFunction: this.recalculate,
                 componentPrettyName: "Number"
             });
             this.base_init(args);

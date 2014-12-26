@@ -3,8 +3,9 @@ define([
         "dataFlow/core",
         "SISL/sisl_loader",
         "dataFlow/UI/geometryPreviews",
-        "dataFlow/dataTree"
-    ],function(_,DataFlow,Geometry,Preview,DataTree){
+        "dataFlow/dataTree",
+        "dataFlow/dataMatcher"
+    ],function(_,DataFlow,Geometry,Preview,DataTree,DataMatcher){
         var PointComponent = DataFlow.PointComponent = function PointComponent(opts){
             this.initialize.apply(this, arguments);
         };
@@ -22,7 +23,6 @@ define([
                 var args = _.extend(opts || {},{
                     inputs: inputs,
                     output: output,
-                    resultFunction: this.recalculate,
                     componentPrettyName: "Point(x,y,z)",
                     drawPreview: false
                 });
@@ -30,27 +30,12 @@ define([
             },
             recalculate: function(){
                 this.clearPreviews();
-                this.output.clearValues();
 
-                var that = this,
-                    out = that.output.values,
-                    nullOutputs = true;
-
-                this["X"].values.recurseTree(function(xvals,node){
-                    var pointList = [],
-                        p = node.getPath();
-
-                    _.each(xvals,function(val,idx){
-                        var y = that["Y"].getTree().dataAtPath(p)[idx],
-                            z = that["Z"].getTree().dataAtPath(p)[idx];
-                        pointList[idx] = new Geometry.Point(val,y,z);
-                    });
-
-                    if (pointList.length > 0) nullOutputs = false; // set null to false!
-                    out.setDataAtPath(p,pointList);
+                var resultObject = DataMatcher([this["X"],this["Y"],this["Z"]],function(x,y,z){
+                    return new Geometry.Point(x,y,z);
                 });
 
-                this.output.setNull(nullOutputs);
+                this.output.replaceData(resultObject.tree);
                 this._recalculate();
             },
             drawPreviews: function(){
@@ -90,14 +75,15 @@ define([
                 var args = _.extend({
                     inputs: inputs,
                     output: output,
-                    resultFunction: this.recalculate,
                     componentPrettyName: "Vec(x,y,z)",
                     drawPreview: false
                 },opts || {});
                 this.base_init(args);
             },
             // inherit recalculation completely
-            recalculate: PointComponent.prototype.recalculate
+            recalculate: function(){
+                PointComponent.prototype.recalculate.apply(this,arguments);
+            }
         });
 
         VectorComponent.prototype.constructor = DataFlow.VectorComponent.constructor;
@@ -113,13 +99,12 @@ define([
                 var inputs = [
                     new DataFlow.OutputPoint({required: true, shortName: "A"}),
                     new DataFlow.OutputPoint({required: true,shortName: "B"}),
-                    new DataFlow.OutputBoolean({required: false, shortName: "U"})
+                    new DataFlow.OutputBoolean({required: false, shortName: "U", default: false})
                 ];
 
                 var args = _.extend({
                     inputs: inputs,
                     output: output,
-                    resultFunction: this.recalculate,
                     componentPrettyName: "Vec2Pt",
                     drawPreview: false
                 },opts || {});
@@ -128,27 +113,14 @@ define([
             recalculate: function(){
                 this.output.clearValues();
 
-                var that = this,
-                    out = that.output.values,
-                    nullOutputs = true,
-                    aVectors = this["A"].getTree(),
-                    unitize = this["U"].getTree();
-
-                this["B"].values.recurseTree(function(bvectors,node){
-                    var outputList = [],
-                        p = node.getPath();
-
-                    _.each(bvectors,function(val,idx){
-                        var endPoint = val.clone();
-                        outputList[idx] = endPoint.sub(aVectors.dataAtPath(p)[idx]);
-                        if (!_.isNull(unitize) && unitize.dataAtPath(p)[idx] === true) outputList[idx].normalize();
-                    });
-
-                    if (outputList.length > 0) nullOutputs = false; // set null to false!
-                    out.setDataAtPath(p,outputList);
+                if (this["A"].getTree().isEmpty()) debugger;
+                var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
+                    var endPt = b.clone().sub(a);
+                    if (u === true) {endPt.normalize();}
+                    return new Geometry.Point(endPt.x,endPt.y,endPt.z);
                 });
 
-                this.output.setNull(nullOutputs);
+                this.output.replaceData(result.tree);
                 this._recalculate();
             }
         });
@@ -172,7 +144,6 @@ define([
                 var args = _.extend({
                     inputs: inputs,
                     output: output,
-                    resultFunction: this.recalculate,
                     componentPrettyName: "VDisplay",
                     drawPreview: true
                 },opts || {});
