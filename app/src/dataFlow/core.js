@@ -237,7 +237,7 @@ define([
                 // next, verify that none of the inputs are nulled-out:
                 if (this._hasRequiredInputs === true){
                     _.each(this.inputs,function(input){
-                        if (input.getTree().isEmpty() === true && input.required === true) {
+                        if ((input.getTree().isEmpty() === true || input.isNull()) && input.required === true) {
                             sufficient = false;
                         }
                     });

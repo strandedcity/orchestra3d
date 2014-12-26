@@ -22,7 +22,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             });
             it("Has null tree if no values assigned",function(){
                 var outputX = new dataFlow.OutputNumber();
-                expect(outputX.getTree()).toBeNull();
+                expect(outputX.getTree().isEmpty()).toEqual(true);
             });
             it("Throws an error when asked to store an individual number",function(){
                 expect(function(){
