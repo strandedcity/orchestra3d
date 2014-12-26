@@ -1,12 +1,10 @@
 define(["SISL/sisl_loader"],function(SISL){
     return ["Compiled JS Function Signatures:", function(){
-        it("newPoint",function(){
-            var newPoint = Module.cwrap('newPoint','number',['number','number','number']);
-            expect(typeof newPoint).toBe("function");
+        it("newPoint does NOT exist",function(){
+            expect(function(){Module.cwrap('newPoint','number',['number','number','number']);}).toThrow();
         });
-        it("pointCoords",function(){
-            var coordsPtr = Module.cwrap('pointCoords','number',['number']);
-            expect(typeof coordsPtr).toBe("function");
+        it("pointCoords does NOT exist",function(){
+            expect(function(){Module.cwrap('pointCoords','number',['number']);}).toThrow();
         });
         it("newCurve",function(){
             // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
@@ -22,6 +20,10 @@ define(["SISL/sisl_loader"],function(SISL){
         it("s1227 / curve evaluation",function(){
             var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
             expect(typeof s1227).toBe("function");
+        });
+        it("s1303 / circle approximation",function(){
+            var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
+            expect(typeof s1303).toBe("function");
         });
     }];
 });

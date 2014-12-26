@@ -1,18 +1,19 @@
 /*
  *  Glue code to provide access to basic SISL structs from JavaScript, post emscripten compile
  *  source ~/emsdk-portable/emsdk_set_env.sh
- *  emcc *.c -o ../js/compiled.js -s EXPORTED_FUNCTIONS="['_newPoint','_pointCoords','_newCurve','_s1240','_s1227']" -s TOTAL_MEMORY=536870912 -v -O3 --memory-init-file 0
+ *  OR: ~/emscripten/emcc [arguments from below]
+ *  emcc *.c -o ../compiled.js -s EXPORTED_FUNCTIONS="['_newCurve','_s1240','_s1227','_s1303']" -s TOTAL_MEMORY=536870912 -v -O3 --memory-init-file 0
  */
 
 #include "sisl-copyright.h"
 #include "sislP.h"
 
-
-double * pointCoords(SISLPoint *pt);
-double * pointCoords(SISLPoint *pt)
-{
-    return pt->ecoef;
-}
+// Deprecated 12/2014 with removal of SISLPoint as a struct used directly in JS
+//double * pointCoords(SISLPoint *pt);
+//double * pointCoords(SISLPoint *pt)
+//{
+//    return pt->ecoef;
+//}
 
 // from example07
 //// read curve from file
