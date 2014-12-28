@@ -1,6 +1,6 @@
 define([
         "underscore",
-        "SISL/sisl",
+        "SISL/module_utils",
         "SISL/constructors"
     ],function(_,Module,constructors){
         var SISL = {};

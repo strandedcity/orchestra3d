@@ -127,6 +127,11 @@ require(["appconfig"],function(){
                     position: {x: 500, y: 200}
                 }));
 
+
+                var circle = new ComponentView(new dataFlow.CircleCNRComponent({
+                    position: {x: 2200, y: 250}
+                }));
+
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
                     point1.component["X"].connectOutput(number1.component.output);

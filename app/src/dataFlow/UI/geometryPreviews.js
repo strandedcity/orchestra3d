@@ -9,7 +9,7 @@ define([
     };
 
     CurvePreview.prototype.initialize = function(curve){
-        if (_.isUndefined(curve) || curve.constructor.name !== "GeoCurve") {
+        if (_.isUndefined(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
             throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
         }
 

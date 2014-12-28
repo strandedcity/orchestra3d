@@ -1,8 +1,6 @@
 /*
  *  Glue code to provide access to basic SISL structs from JavaScript, post emscripten compile
- *  source ~/emsdk-portable/emsdk_set_env.sh
- *  OR: ~/emscripten/emcc [arguments from below]
- *  emcc *.c -o ../compiled.js -s EXPORTED_FUNCTIONS="['_newCurve','_s1240','_s1227','_s1303']" -s TOTAL_MEMORY=536870912 -v -O3 --memory-init-file 0
+ *  Use ./compileSISL.sh to build SISL for JavaScript Usage. Functions to be used are named there.
  */
 
 #include "sisl-copyright.h"

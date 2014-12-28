@@ -1,16 +1,29 @@
-define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
+define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(){
     console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
     var precision = 0.00001;
 
     try {
         var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
+        var freeCurve = Module.cwrap('freeCurve','number',['number']);
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
         var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
+        var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
 
+
+    var unitZ = new THREE.Vector3(0,0,1),
+        unitScale = new THREE.Vector3(1,1,1);
+
     var Geo = {};
+
+    Geo.Utils = {
+        transformMatrixFromNormalAndPosition: function(normal,position){
+            var quaternion = new THREE.Quaternion().setFromUnitVectors(unitZ.clone(),normal.clone().normalize());
+                return (new THREE.Matrix4()).compose(position.clone(),quaternion,unitScale);
+        }
+    };
 
     Geo.Point = function GeoPoint(x, y, z){
         if (typeof x !== "number" || typeof y !== "number" || typeof z !== "number") {
@@ -63,15 +76,15 @@ define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
             curveOrder = degree + 1,
             ikind = 1,
             dimension = 3, // always
-            icopy = 0, // we're making a copy from the javascript already.
-            knotVector = [], knotVectorPointer,
+            icopy = 2, // set pointer and remember to free arrays
+            knotVector, knotVectorPointer,
             vertices = [], verticesPointer;
 
         // Points are stored as THREE.JS objects as of 12/21/14. This gives free affine transforms for all
         // SISL objects with no muss, but this would all probably be faster if the affine transform stuff
         // were instead ported into C-land.
         _.each(controlPoints,function(pt){
-            vertices = vertices.concat(pt.getCoordsArray());
+            vertices.push(pt.x,pt.y,pt.z);
         });
 
         // Knot vector must be generated... there are a couple ways we might do this, but the simplest is:
@@ -83,12 +96,15 @@ define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
 
         this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
     };
-    _.extend(Geo.Curve.prototype,{
+
+    var curveMethods = {
         getLength: function(){
             // corresponds to s1240: void s1240(*curve, double precision, *result length, *result stat(>0= warning, 0=ok, <0=error))
             var buffer = Module._malloc(16);
             s1240(this._pointer,precision,buffer,0);
-            return Module.getValue(buffer,'double');
+            var len = Module.getValue(buffer,'double');
+            Module._free(buffer);
+            return len;
         },
         getPointer: function(){
             return this._pointer;
@@ -99,6 +115,7 @@ define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
             var buffer = Module._malloc(16*3);
             s1227(this._pointer,0,param,0,buffer,0);
             var position = Module.Utils.copyCArrayToJS(buffer,3);
+            Module._free(buffer);
             return new Geo.Point(position[0],position[1],position[2]);
         },
         getTangentAt: function(param){
@@ -107,12 +124,47 @@ define(["SISL/sisl_loader","SISL/sisl","underscore","threejs"],function(){
             s1227(this._pointer,1,param,0,buffer,0);
             var derivs = Module.Utils.copyCArrayToJS(buffer,6);
             var tangent = new Geo.Point(derivs[3],derivs[4],derivs[5]);
+            Module._free(buffer);
             return tangent;
         },
         destroy: function(){
-            Module._free(this._pointer);
+            freeCurve(this._pointer);
         }
-    });
+    };
+
+    Geo.CircleCNR = function CircleCNR(center,normal,radius){
+        // JS wrapper to make the SISL code go.
+        // s1303(startPoint[3], precision, angle, centerPoint[3], normalAxis[3], dimension, **resultCurve, &stat);
+        // NOTES:
+        // double startpt[3] // point on circle where arc starts
+        // double angle // arc angle, full circle if < −2π, +2π >
+
+        // startpt must be calculated from the radius (which I want to supply) and the normal
+        // (that we have). It's a point on the circle, but isn't simple addition unless the circle is flat
+        // This calculation (get rotation matrix, get translate matrix, apply it to the startpoint) is very
+        // heavy for what it does, but is also very generic.
+        var transformMatrix = Geo.Utils.transformMatrixFromNormalAndPosition(normal,center);
+
+        // Use this transformation matrix to calculate a start point on the circle
+        var flatRadius = new THREE.Vector3(radius,0,0),
+            start = flatRadius.applyMatrix4(transformMatrix);
+
+
+        var startpt = Module.Utils.copyJSArrayToC([start.x,start.y,start.z]),
+            angle = 10, // just bigger than 2pi, to close the circle
+            centrept = Module.Utils.copyJSArrayToC([center.x,center.y,center.z]),
+            axis = Module.Utils.copyJSArrayToC([normal.x,normal.y,normal.z]),
+            dim = 3,
+            ptr = Module._malloc(16*7); /* This may be wrong, but I believe it's the size of the SISLCurve Struct */
+
+        s1303(startpt, precision, angle, centrept, axis, dim, ptr, 0);
+
+        // store the pointer for later use. s1303 takes a pointer to a pointer, so this._pointer needs to be retrieved
+        this._pointer = Module.getValue(ptr, 'i8*');
+    };
+
+    _.extend(Geo.Curve.prototype,curveMethods);
+    _.extend(Geo.CircleCNR.prototype,curveMethods);
 
     return Geo;
 });

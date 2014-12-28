@@ -13,6 +13,10 @@ define(["SISL/sisl_loader"],function(SISL){
             var ptr = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
             expect(typeof ptr).toBe("function");
         });
+        it("freeCurve",function(){
+            var freeCurve = Module.cwrap('freeCurve','number',['number']);
+            expect(typeof freeCurve).toBe("function");
+        });
         it("s1240 / curve length",function(){
             var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
             expect(typeof s1240).toBe("function");

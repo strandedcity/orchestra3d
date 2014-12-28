@@ -113,7 +113,6 @@ define([
             recalculate: function(){
                 this.output.clearValues();
 
-                if (this["A"].getTree().isEmpty()) debugger;
                 var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
                     var endPt = b.clone().sub(a);
                     if (u === true) {endPt.normalize();}
