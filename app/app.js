@@ -50,7 +50,7 @@ require(["appconfig"],function(){
 //                this["V"].values.recurseTree(function(pointList,node){
 //                    var movedPoints = [];
 //                    _.each(pointList,function(pt){
-//                        var coords = pt.getCoordsArray();
+//                        var coords = pt.toArray();
 //                        var oldPt = new THREE.Vector3(coords[0],coords[1],coords[2]);
 //
 //                        oldPt.applyMatrix4( composed );
@@ -172,7 +172,7 @@ require(["appconfig"],function(){
 
                 // construct geometry for control polygon
                 for (var a = 0; a < ctrlpts.length; a++) {
-                    var pt = ctrlpts[a].getCoordsArray();
+                    var pt = ctrlpts[a].toArray();
                     endPointGeo.vertices.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
                 }
 

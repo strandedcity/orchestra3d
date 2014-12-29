@@ -36,7 +36,7 @@ define([
         // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
         for (var i = 0; i <= 100; i += 1) {
             var evalAt = i*paramWidth/100 + minParameter;
-            var pt = this.curve.getPositionAt(evalAt).getCoordsArray();
+            var pt = this.curve.getPositionAt(evalAt).toArray();
             geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
         }
 
@@ -70,7 +70,7 @@ define([
         var particleGeometry = new THREE.Geometry();
 
         _.each(points,function(pt){
-            var arr = pt.getCoordsArray();
+            var arr = pt.toArray();
             var particle = new THREE.Vector3(arr[0], arr[1], arr[2]);
             particleGeometry.vertices.push(particle);  // repeat for every point
         });

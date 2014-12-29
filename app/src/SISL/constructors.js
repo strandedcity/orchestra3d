@@ -27,27 +27,10 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         }
     };
 
-    Geo.Point = function GeoPoint(x, y, z){
-        if (typeof x !== "number" || typeof y !== "number" || typeof z !== "number") {
-            throw new Error("Must pass 3 numbers to create a Point");
-        }
-
-        THREE.Vector3.apply(this,[x,y,z]);
-
-        // legacy from using SISLPoints instead of THREE.Vector3's here
-        this.getCoordsArray = function(){
-            return [this.x,this.y,this.z];
-        };
-
-        this.destroy = function(){
-            // No manual memory management for this object currently
-        }
+    Geo.Point = THREE.Vector3;
+    Geo.Point.prototype.destroy = function(){
+        /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
     };
-
-    // Inherit all THREE.Vector3 stuff, then reset the constructor name. Wrapping THREE.Vector3 gives us
-    // an easy place to customize the vector for this context.
-    _.extend(Geo.Point.prototype, THREE.Vector3.prototype);
-    Geo.Point.prototype.constructor = Geo.Point;
 
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
@@ -59,12 +42,13 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             controlPointsPass = false;
         } else {
             _.each(controlPoints, function(pt){
-                if (pt.constructor.name !== "GeoPoint"){
+
+                if (pt.constructor !== THREE.Vector3){
                     controlPointsPass = false;
                 }
             });
         }
-        if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Geo.Point objects");}
+        if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Vector3 objects");}
         if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
         if (typeof periodic !== "boolean") {throw new Error("Periodic must be a boolean");}
         if (degree >= controlPoints.length) {throw new Error("Curve degree must be smaller than the number of control points");}

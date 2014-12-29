@@ -1,4 +1,4 @@
-define(["dataFlow/dataFlow_loader"],function(dataFlow){
+define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
     return ["PointComponent(x,y,z)",function(){
         var outputX, outputY, outputZ, pointComponent;
 
@@ -50,8 +50,8 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             spyOn(pointComponent,'_recalculate'); // spying on 'recalculate' won't work because of prototype inheritance
             outputX.assignValues([8,8]);
             expect(pointComponent._recalculate).toHaveBeenCalled();
-            expect(pointComponent.output.getTree().dataAtPath([0])[0].getCoordsArray()).toEqual([8,2,4]);
-            expect(pointComponent.output.getTree().dataAtPath([0])[1].getCoordsArray()).toEqual([8,4,8]);
+            expect(pointComponent.output.getTree().dataAtPath([0])[0].toArray()).toEqual([8,2,4]);
+            expect(pointComponent.output.getTree().dataAtPath([0])[1].toArray()).toEqual([8,4,8]);
         });
         it("Should NOT recalculate when insufficient inputs are defined", function(){
             assignInputs();
@@ -95,7 +95,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             pointComponent.recalculate();
             var outputs = pointComponent.fetchOutputs();
             _.each(outputs,function(out){
-                expect(out.constructor.name).toEqual("GeoPoint");
+                expect(out.constructor).toEqual(Geo.Point);
             });
             expect(outputs.length).toEqual(2);
         });

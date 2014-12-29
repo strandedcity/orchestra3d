@@ -3,15 +3,9 @@ define(["SISL/sisl_loader"],function(Geo){
         "Wrapper Functions -->",
         function(){
             describe("GeoPoint",function(){
-                it("Throws an error if passed an array of numbers",function(){
-                    expect(function(){new Geo.Point([3.1415,100000,-200])}).toThrowError("Must pass 3 numbers to create a Point");
-                });
-                it("Throws an error if passed no parameters",function(){
-                    expect(function(){new Geo.Point()}).toThrowError("Must pass 3 numbers to create a Point");
-                });
-                it("Returns its coordinates using 'getCoordsArray'",function(){
+                it("Returns its coordinates using 'toArray'",function(){
                     var point = new Geo.Point(3.1415,100000,-200);
-                    var coordsArray = point.getCoordsArray();
+                    var coordsArray = point.toArray();
                     expect(coordsArray[0]).toBeCloseTo(3.1415);
                     expect(coordsArray[1]).toEqual(100000);
                     expect(coordsArray[2]).toEqual(-200);
@@ -21,12 +15,12 @@ define(["SISL/sisl_loader"],function(Geo){
                 it("Throws error when passed generic arrays for coordinates",function(){
                     expect(function(){
                         new Geo.Curve([[1,3,4],[1,5,6],[6,3,0]],2,false);
-                    }).toThrowError("Controlpoints must be an array of at least 2 Geo.Point objects");
+                    }).toThrowError("Controlpoints must be an array of at least 2 Vector3 objects");
                 });
                 it("Throws error when passed a single Geo.Point",function(){
                     expect(function(){
                         new Geo.Curve([new Geo.Point(2,2,0)],2,false);
-                    }).toThrowError("Controlpoints must be an array of at least 2 Geo.Point objects");
+                    }).toThrowError("Controlpoints must be an array of at least 2 Vector3 objects");
                 });
                 it("Throws error when passed a non-integer curve degree",function(){
                     var start = new Geo.Point(1,1,0),
@@ -124,19 +118,19 @@ define(["SISL/sisl_loader"],function(Geo){
 
                     // midpoint should be where we think it should be
                     expect(midPoint).not.toBeUndefined();
-                    expect(midPoint.constructor.name).toEqual("GeoPoint");
-                    expect(midPoint.getCoordsArray()).toEqual([2,2,0]);
+                    expect(midPoint.constructor).toEqual(Geo.Point);
+                    expect(midPoint.toArray()).toEqual([2,2,0]);
 
                     // tangent vect should be a 2d vector @45 degrees: (sqrt(2)/2,sqrt(2)/2,0);
                     // In the case of this particular line, its magnitude should be
                     expect(tangentVect).not.toBeUndefined();
-                    expect(tangentVect.constructor.name).toEqual("GeoPoint");
-                    expect(tangentVect.getCoordsArray()[0]).toEqual(tangentVect.getCoordsArray()[1]);
-                    expect(tangentVect.getCoordsArray()[2]).toEqual(0);
+                    expect(tangentVect.constructor).toEqual(Geo.Point);
+                    expect(tangentVect.toArray()[0]).toEqual(tangentVect.toArray()[1]);
+                    expect(tangentVect.toArray()[2]).toEqual(0);
 
                     // In this case, the actual magnitude of the vector is easy to know as well
-                    expect(tangentVect.getCoordsArray()[0]).toEqual(2);
-                    expect(tangentVect.getCoordsArray()[1]).toEqual(2);
+                    expect(tangentVect.toArray()[0]).toEqual(2);
+                    expect(tangentVect.toArray()[1]).toEqual(2);
                 });
                 it("Evaluates the correct position and tangent vector for a degree 3 curve",function(){
                     var start = new Geo.Point(1,1,0),

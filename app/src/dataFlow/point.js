@@ -45,11 +45,11 @@ define([
             },
 
             fetchPointCoordinates: function(){
-                /* THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
+                /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
                 var outputs = this.output.getTree().flattenedTree().dataAtPath([0]);
                 var outputVals = [];  // returns array of GeoPoints
                 _.each(outputs,function(GeoPoint){
-                    outputVals.push(GeoPoint.getCoordsArray());
+                    outputVals.push(GeoPoint.toArray());
                 });
                 return outputVals;
             }
@@ -116,6 +116,7 @@ define([
                 var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
                     var endPt = b.clone().sub(a);
                     if (u === true) {endPt.normalize();}
+                    // TODO: This is really inefficient, and for no reason. GeoPoint should be removed entirely in favor of THREE.Vector3 to avoid reconstructing duplicate objects all over the place.
                     return new Geometry.Point(endPt.x,endPt.y,endPt.z);
                 });
 
