@@ -116,8 +116,7 @@ define([
                 var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
                     var endPt = b.clone().sub(a);
                     if (u === true) {endPt.normalize();}
-                    // TODO: This is really inefficient, and for no reason. GeoPoint should be removed entirely in favor of THREE.Vector3 to avoid reconstructing duplicate objects all over the place.
-                    return new Geometry.Point(endPt.x,endPt.y,endPt.z);
+                    return endPt;
                 });
 
                 this.output.replaceData(result.tree);
