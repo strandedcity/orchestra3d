@@ -20,12 +20,12 @@ define([
                     new DataFlow.OutputNumber({shortName: "Z"})
                 ];
 
-                var args = _.extend(opts || {},{
+                var args = _.extend({
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "Point(x,y,z)",
                     drawPreview: false
-                });
+                },opts || {});
                 this.base_init(args);
             },
             recalculate: function(){
@@ -55,38 +55,25 @@ define([
             }
         });
 
-        /*  VectorComponent and PointComponent are mostly the same, but are used in different ways and
-            are technically different data types.
-            TODO: Delete the duplicated code in the initializer
-         */
+        /*  VectorComponent and PointComponent are mostly the same, but there's a separate component name and prototype if differences emerge */
         var VectorComponent = DataFlow.VectorComponent = function VectorComponent(opts){
             this.initialize.apply(this, arguments);
         };
         _.extend(VectorComponent.prototype, DataFlow.Component.prototype,{
             initialize: function(opts){
+
                 var output = new DataFlow.OutputPoint({shortName: "V"});
 
-                var inputs = [
-                    new DataFlow.OutputNumber({shortName: "X"}),
-                    new DataFlow.OutputNumber({shortName: "Y"}),
-                    new DataFlow.OutputNumber({shortName: "Z"})
-                ];
-
                 var args = _.extend({
-                    inputs: inputs,
-                    output: output,
-                    componentPrettyName: "Vec(x,y,z)",
-                    drawPreview: false
+                    output: output, // Different name, same thing
+                    drawPreview: false, // in case the base class changes this behavior
+                    componentPrettyName: "Vec(x,y,z)"
                 },opts || {});
-                this.base_init(args);
-            },
-            // inherit recalculation completely
-            recalculate: function(){
-                PointComponent.prototype.recalculate.apply(this,arguments);
+                PointComponent.prototype.initialize.call(this,args);
+
+                _.extend(this,PointComponent.prototype);
             }
         });
-
-        VectorComponent.prototype.constructor = DataFlow.VectorComponent.constructor;
 
         /*  Another way to define a vector: the vector connecting two points*/
         var Vector2PtComponent = DataFlow.Vector2PtComponent = function Vector2PtComponent(opts){
