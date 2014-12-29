@@ -111,6 +111,71 @@ define([
             }
         });
 
+        /*  Vector Normalize  */
+        DataFlow.VectorNormalizeComponent = function VectorNormalizeComponent(opts){
+            this.initialize.apply(this,arguments);
+        };
+        _.extend(DataFlow.VectorNormalizeComponent.prototype, DataFlow.Component.prototype,{
+            initialize: function(opts){
+                var output = new DataFlow.OutputPoint({shortName: "V"});
+
+                var inputs = [
+                    new DataFlow.OutputPoint({required: true, shortName: "V"})
+                ];
+
+                var args = _.extend({
+                    inputs: inputs,
+                    output: output,
+                    componentPrettyName: "VecNormal",
+                    drawPreview: false
+                },opts || {});
+                this.base_init(args);
+            },
+            recalculate: function(){
+                this.output.clearValues();
+
+                var result = DataMatcher([this["V"]],function(v){
+                    return v.clone().normalize();
+                });
+
+                this.output.replaceData(result.tree);
+                this._recalculate();
+            }
+        });
+
+        /* Distance between two points */
+        DataFlow.PointDistanceComponent = function PointDistanceComponent(opts){
+            this.initialize.apply(this,arguments);
+        };
+        _.extend(DataFlow.PointDistanceComponent.prototype, DataFlow.Component.prototype,{
+            initialize: function(opts){
+                var output = new DataFlow.OutputNumber({shortName: "D"});
+
+                var inputs = [
+                    new DataFlow.OutputPoint({required: true, shortName: "A"}),
+                    new DataFlow.OutputPoint({required: true, shortName: "B"})
+                ];
+
+                var args = _.extend({
+                    inputs: inputs,
+                    output: output,
+                    componentPrettyName: "Distance",
+                    drawPreview: false
+                },opts || {});
+                this.base_init(args);
+            },
+            recalculate: function(){
+                this.output.clearValues();
+
+                var result = DataMatcher([this["A"],this["B"]],function(a,b){
+                    return a.distanceTo(b);
+                });
+
+                this.output.replaceData(result.tree);
+                this._recalculate();
+            }
+        });
+
         /*  A special component displays the vectors. This is because the 'anchor' property
             belongs to the preview alone, and is not part of the vector's mathematical properties.
          */
