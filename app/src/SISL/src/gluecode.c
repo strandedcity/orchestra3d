@@ -6,6 +6,19 @@
 #include "sisl-copyright.h"
 #include "sislP.h"
 
+double curveParametricEnd(SISLCurve *crv);
+double curveParametricEnd(SISLCurve *crv)
+{
+    // # knots =  number of control points plus curve order
+    int knotCount = crv->in + crv->ik;
+    return crv->et[knotCount-1];
+}
+double curveParametricStart(SISLCurve *crv);
+double curveParametricStart(SISLCurve *crv)
+{
+    return crv->et[0];
+}
+
 // Deprecated 12/2014 with removal of SISLPoint as a struct used directly in JS
 //double * pointCoords(SISLPoint *pt);
 //double * pointCoords(SISLPoint *pt)

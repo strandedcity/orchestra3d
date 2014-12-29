@@ -32,6 +32,7 @@ define([
 
             // TODO: Protect against errors with zero-radius circles
             var result = DataMatcher([this["C"],this["N"],this["R"]],function(c,n,r){
+                if (r === 0) return null;
                 return new Geometry.CircleCNR(c,n,r);
             });
 

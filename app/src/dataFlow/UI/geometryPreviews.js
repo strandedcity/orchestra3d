@@ -9,7 +9,8 @@ define([
     };
 
     CurvePreview.prototype.initialize = function(curve){
-        if (_.isUndefined(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
+        if (_.isNull(curve)) return;
+        if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
             throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
         }
 
@@ -24,7 +25,9 @@ define([
         this.line = this.draw(this.line);
     };
     CurvePreview.prototype.draw = function(line){
-
+        var minParameter =  this.curve.getMinParameter();
+        var maxParameter =  this.curve.getMaxParameter();
+        var paramWidth = maxParameter - minParameter;
 
         var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
 
@@ -32,7 +35,8 @@ define([
         // Step through parameters to get points, draw connecting lines
         // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
         for (var i = 0; i <= 100; i += 1) {
-            var pt = this.curve.getPositionAt(i/100).getCoordsArray();
+            var evalAt = i*paramWidth/100 + minParameter;
+            var pt = this.curve.getPositionAt(evalAt).getCoordsArray();
             geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
         }
 

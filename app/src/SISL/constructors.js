@@ -5,6 +5,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     try {
         var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
         var freeCurve = Module.cwrap('freeCurve','number',['number']);
+        var curveParametricEnd = Module.cwrap('curveParametricEnd','number',['number']);
+        var curveParametricStart = Module.cwrap('curveParametricStart','number',['number']);
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
         var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
         var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
@@ -108,6 +110,12 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         },
         getPointer: function(){
             return this._pointer;
+        },
+        getMaxParameter: function(){
+            return curveParametricEnd(this._pointer) - 1;
+        },
+        getMinParameter: function(){
+            return curveParametricStart(this._pointer) + 1;
         },
         getPositionAt: function (param) {
             if (typeof param === "undefined") {throw new Error("Curve parameter must be defined");}
