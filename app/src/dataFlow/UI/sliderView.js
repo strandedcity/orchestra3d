@@ -9,7 +9,7 @@ define([
         this.init.apply(this,arguments);
     }
 
-    SliderView.prototype.init = function(min,max,integers,x,y,valueCallback){
+    SliderView.prototype.init = function(val,min,max,integers,x,y,valueCallback){
         // setup overlay
         var overlay = this.createOverlay();
 
@@ -23,9 +23,9 @@ define([
             min: min,
             max: max,
             step: integers ? 1 : 0.01,
-            value: min/2 + max/2,
+            value: val,
             selection: 'none',
-            tooltip: 'show',
+            tooltip: 'always',
             id: 'a'+id
         });
 

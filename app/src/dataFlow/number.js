@@ -91,7 +91,7 @@ define([
 
     _.extend(SliderComponent.prototype, DataFlow.Component.prototype,{
         initialize: function(opts){
-            var output = new DataFlow.OutputNumber({shortName: "N"});
+            var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
 
             /* S = start of series, N = step size, C = # of values in series */
             var inputs = [

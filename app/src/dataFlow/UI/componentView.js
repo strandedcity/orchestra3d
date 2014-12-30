@@ -29,13 +29,14 @@ define([
             // Show Slider UI
             click: function(x,y){
                 // Show the slider and overlay. It cleans up itself.
-                var min = component["S"].getFirstValueOrDefault(),
+                var val = component.output.getFirstValueOrDefault(),
+                    min = component["S"].getFirstValueOrDefault(),
                     max = component["E"].getFirstValueOrDefault(),
                     integers =  component["I"].getFirstValueOrDefault(),
                     callback = this.sliderUpdateValue;
                 require(["dataFlow/UI/sliderView"],function(SliderView){
                     // no reference necessary. The slider will clean itself up.
-                    new SliderView(min,max,integers,x,y,callback);
+                    new SliderView(val,min,max,integers,x,y,callback);
                 });
             },
             sliderUpdateValue: function(value){
