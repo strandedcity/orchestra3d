@@ -106,6 +106,7 @@ define([
     VectorPreview.prototype.initialize = function(anchor,vector){
         // TODO: Length and color should be abstracted as user preferences.
         var color = 0xffff00;
+        if (_.isNull(anchor) || _.isNull(vector)) return;
         var dir = vector.clone().normalize(),  // MUST be a unit vector!
             len = vector.length();
 

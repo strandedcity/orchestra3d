@@ -36,7 +36,7 @@ define([
         workspace.render();
 
         // With dom elements created, bind events:
-        if (this.component.output.type === 'number') {
+        if (this.component.componentPrettyName === 'Number') {
             this.listenTo(this.component.output,"change",this.displayVals);
             this.cssObject.element.firstChild.onchange = function(){
                 that.component.parseInputAndSet(this.value);
