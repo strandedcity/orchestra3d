@@ -7,19 +7,64 @@ define([
 ],function(DataFlow, workspace, ioView, _, Backbone){
     var INPUT_HEIGHT = 60;
 
-    function ComponentView(component){
+    /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */
+    function ComponentViewSelector(component){
         if (_.isUndefined(component) || _.isUndefined(component.recalculate) ) {
             throw new Error('ComponentView objects must be instantiated with the DataFlow.Component which they represent');
         }
-        this.component = component;  // data model reference is kept here
-        this.init();
+
+        if (component.componentPrettyName === "Slider") {
+            return new SliderComponentView(component);
+        } else if (component.componentPrettyName === "Number") {
+            return new EditableNumberComponentView(component);
+        } else {
+            return new ComponentView(component);
+        }
     }
 
-    ComponentView.prototype.init = function(){
+    function SliderComponentView(component) {
+        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
+         * the slider, but not the display of the slider itself. */
+        console.warn('UNIMPLEMENTED');
+     }
+
+
+    /* Editable Number Components let you type numbers directly into the component */
+    function EditableNumberComponentView(component){
+        _.extend(this,ComponentView.prototype,{
+            displayVals: function(){
+                if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
+                    this.cssObject.element.firstChild.value = this.component.componentPrettyName;
+                } else {
+                    this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
+                }
+            }
+        });
+        _.bindAll(this,"displayVals");
+
+        this.init(component);
+
+        // bind some extra events for the editable number components.
         var that = this;
+        this.listenTo(this.component.output,"change",this.displayVals);
+        this.cssObject.element.firstChild.onchange = function(){
+            that.component.parseInputAndSet(this.value);
+        };
+    }
+
+    ///////////////////////
+    // BEGIN GENERIC COMPONENTVIEW METHODS
+    ///////////////////////
+    function ComponentView(component){
+        this.init(component);
+    }
+
+    ComponentView.prototype.init = function(component){
+        this.component = component;
+
         _.extend(this,Backbone.Events);
 
-        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch","displayVals");
+        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
         this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
 
         _.defer(function(){
@@ -36,22 +81,8 @@ define([
         workspace.render();
 
         // With dom elements created, bind events:
-        if (this.component.componentPrettyName === 'Number') {
-            this.listenTo(this.component.output,"change",this.displayVals);
-            this.cssObject.element.firstChild.onchange = function(){
-                that.component.parseInputAndSet(this.value);
-            };
-        }
         this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
         this.changeSufficiency(this.component.hasSufficientInputs());
-    };
-
-    ComponentView.prototype.displayVals = function(){
-        if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
-            this.cssObject.element.firstChild.value = this.component.componentPrettyName;
-        } else {
-            this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
-        }
     };
 
     ComponentView.prototype.changeSufficiency = function(state){
@@ -183,5 +214,5 @@ define([
         return mesh;
     };
 
-    return ComponentView;
+    return ComponentViewSelector;
 });

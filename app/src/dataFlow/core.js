@@ -97,8 +97,12 @@ define([
                     return true;
                 },
                 connectOutput: function(outputModel){
-                    if (this.validateOutput(outputModel) === true) this.stopListening();
-                    this.connectAdditionalOutput(outputModel, false);
+                    try {
+                        if (this.validateOutput(outputModel) === true) this.stopListening();
+                        this.connectAdditionalOutput(outputModel, false);
+                    } catch (e){
+                        console.warn('Caught an error during connection: ', e.message, e.stack);
+                    }
                 },
                 connectAdditionalOutput: function(outputModel, validateModels){
                     if (validateModels !== false) this.validateOutput(outputModel);
