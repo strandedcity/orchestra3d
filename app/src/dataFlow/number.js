@@ -62,7 +62,7 @@ define([
                 drawPreview: false
             },opts || {});
             this.base_init(args);
-            this.recalculate();
+            this.recalculate(); // since it doesn't need any inputs to have valid output
         },
         recalculate: function(){
             var resultObject = DataMatcher([this["S"],this["N"],this["C"]],function(s,n,c){
@@ -83,6 +83,51 @@ define([
             this.output.replaceData(final);
             this._recalculate();
         },
+    });
+
+    var SliderComponent = DataFlow.SliderComponent = function SliderComponent(opts){
+        this.initialize.apply(this,opts);
+    };
+
+    _.extend(SliderComponent.prototype, DataFlow.Component.prototype,{
+        initialize: function(opts){
+            var output = new DataFlow.OutputNumber({shortName: "N"});
+
+            /* S = start of series, N = step size, C = # of values in series */
+            var inputs = [
+                new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),  // Start Value (min)
+                new DataFlow.OutputNumber({shortName: "E", required:false, default: 1}),  // End Value (max)
+                new DataFlow.OutputBoolean({shortName: "I", required:false, default: false}) // Integers only?
+            ];
+
+            var args = _.extend({
+                inputs: inputs,
+                output: output,
+                componentPrettyName: "Slider",
+                drawPreview: false
+            },opts || {});
+            this.base_init(args);
+        },
+        recalculate: function(){
+            // Value is chosen directly in the UI, not calculated from inputs.
+            // However, when max/min and integer values change, the single output value must be checked to make sure that
+            // it does, in fact, satisfy specified conditions.
+            // Since the slider can select only a single value, only the first value in each list is considered.
+            var currVal = this.output.getTree().dataAtPath([0],false);
+            var min = this["S"],
+                max = this["E"],
+                integers = this["I"];
+            if (integers === true && Math.floor(currVal) != currVal) {
+                currVal = Math.floor(currVal);
+            }
+
+            if (currVal > max) currVal = max;
+            if (currVal < min) currVal = min;
+
+            this.output.assignValues([currVal]);
+
+            this._recalculate();
+        }
     });
 
     return DataFlow;
