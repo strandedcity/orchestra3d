@@ -75,6 +75,12 @@ define([
                 getDefaultValue: function(){
                     return this.default;
                 },
+                getFirstValueOrDefault: function(){
+                    // many times, we'll want the first value if it's been connected, or the default if it hasn't
+                    var firstDataPath = this.getTree().dataAtPath([0]);
+                    if (_.isEmpty(firstDataPath)) return this.getDefaultValue();
+                    return this.getTree().dataAtPath([0])[0];
+                },
                 clearValues: function(){
                     this.values.recurseTree(function(data,node){
                         _.each(data, function(object){

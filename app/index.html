@@ -1,6 +1,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="lib/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="lib/css/bootstrap-slider.css"/>
     <style type="text/css">
         body {
             margin: 0px;
@@ -79,6 +80,23 @@
         }
         .dragging {
             pointer-events: none;
+        }
+
+        /* Slider custom overrides. Can be copied to slider's CSS eventually */
+        .slider {
+            z-index: 20; /* Make sure the tooltip comes above bootstrap nav items */
+            margin-left: -100px;
+            margin-top: -50px;
+        }
+        .slider .tooltip {
+            background-color: transparent;
+        }
+        .TOP.workspaceOverlay {
+            z-index: 19;
+            background-color: rgba(0,0,0,0.5);
+            width: 50%;
+            height: 100%;
+            border: none;
         }
     </style>
     <script data-main="app" type="text/javascript" src="lib/require.js"></script>

@@ -17,6 +17,12 @@ requirejs.config({
         'bootstrap': {
             deps: ['jquery']
         },
+        'bootstrap-slider': {
+            deps: ['bootstrap']
+        },
+        'bootstrap3-typeahead': {
+            deps: ['bootstrap']
+        },
         'threejs': {
             exports: 'THREE'
         },
@@ -44,6 +50,7 @@ requirejs.config({
         underscore: 'lib/underscore-min',
         bootstrap: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead
+        'bootstrap-slider': 'lib/bootstrap-slider.min', // https://github.com/seiyria/bootstrap-slider
 
         // geometry & dataflow
         SISL: 'src/SISL',

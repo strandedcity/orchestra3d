@@ -25,7 +25,26 @@ define([
     function SliderComponentView(component) {
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
          * the slider, but not the display of the slider itself. */
-        console.warn('UNIMPLEMENTED');
+        _.extend(this,ComponentView.prototype,{
+            // Show Slider UI
+            click: function(x,y){
+                // Show the slider and overlay. It cleans up itself.
+                var min = component["S"].getFirstValueOrDefault(),
+                    max = component["E"].getFirstValueOrDefault(),
+                    integers =  component["I"].getFirstValueOrDefault(),
+                    callback = this.sliderUpdateValue;
+                require(["dataFlow/UI/sliderView"],function(SliderView){
+                    // no reference necessary. The slider will clean itself up.
+                    new SliderView(min,max,integers,x,y,callback);
+                });
+            },
+            sliderUpdateValue: function(value){
+                component.output.assignValues([value],[0]);
+            }
+        });
+        _.bindAll(this,"click","sliderUpdateValue");
+
+        this.init(component);
      }
 
 

@@ -200,12 +200,13 @@ define([
                 console.log("DRAG");
             }, holdDelay);
         }
-        function onMouseUp(){
+        function onMouseUp(e){
             if (holdStarter) {
                 clearTimeout(holdStarter);
                 holdStarter = null;
                 if (doubleClickActive === false ){
                     console.log("CLICK");
+                    if (typeof view.click === "function") view.click(e.clientX, e.clientY);
                     doubleClickActive = true;
                     doubleClickTimer = setTimeout(function(){
                         doubleClickActive = false;

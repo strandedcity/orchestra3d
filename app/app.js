@@ -132,6 +132,9 @@ require(["appconfig"],function(){
                     position: {x: 2200, y: 250}
                 }));
 
+                var slider1 = new ComponentView(new dataFlow.SliderComponent({
+                    position: {x: -200, y: 400}
+                }));
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
                     point1.component["X"].connectOutput(number1.component.output);

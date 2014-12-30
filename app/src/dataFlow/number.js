@@ -86,7 +86,7 @@ define([
     });
 
     var SliderComponent = DataFlow.SliderComponent = function SliderComponent(opts){
-        this.initialize.apply(this,opts);
+        this.initialize.call(this,opts);
     };
 
     _.extend(SliderComponent.prototype, DataFlow.Component.prototype,{
@@ -114,9 +114,9 @@ define([
             // it does, in fact, satisfy specified conditions.
             // Since the slider can select only a single value, only the first value in each list is considered.
             var currVal = this.output.getTree().dataAtPath([0],false);
-            var min = this["S"],
-                max = this["E"],
-                integers = this["I"];
+            var min = this["S"].getFirstValueOrDefault(),
+                max = this["E"].getFirstValueOrDefault(),
+                integers = this["I"].getFirstValueOrDefault();
             if (integers === true && Math.floor(currVal) != currVal) {
                 currVal = Math.floor(currVal);
             }
@@ -124,7 +124,7 @@ define([
             if (currVal > max) currVal = max;
             if (currVal < min) currVal = min;
 
-            this.output.assignValues([currVal]);
+            this.output.getTree().setDataAtPath([0],[currVal]);
 
             this._recalculate();
         }
