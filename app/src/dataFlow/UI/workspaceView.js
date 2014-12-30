@@ -182,7 +182,9 @@ define([
         // Timeout, started on mousedown, triggers the beginning of a hold
         var holdStarter = null,
             holdDelay = 200,
-            holdActive = false;
+            holdActive = false,
+            doubleClickTimer = null,
+            doubleClickActive = false;
 
         function onMouseDown(e){
             if ( e.button !== 0 ) return; // left mouse button only
@@ -202,7 +204,20 @@ define([
             if (holdStarter) {
                 clearTimeout(holdStarter);
                 holdStarter = null;
-                console.log("CLICK");
+                if (doubleClickActive === false ){
+                    console.log("CLICK");
+                    doubleClickActive = true;
+                    doubleClickTimer = setTimeout(function(){
+                        doubleClickActive = false;
+                        clearTimeout(doubleClickTimer);
+                    },300);
+                } else {
+                    //console.log("DOUBLE CLICK");
+                    view.component.output.getTree().log();
+                    window.TEST = view.component;
+                    clearTimeout(doubleClickTimer);
+                    doubleClickActive = false;
+                }
             }
             else if (holdActive) {
                 holdActive = false;

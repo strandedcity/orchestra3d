@@ -119,7 +119,7 @@ require(["appconfig"],function(){
                     position: {x: 500, y: 400}
                 }));
 
-                var controlCurve = new ComponentView(new dataFlow.CurveControlPointComponent({
+                var series = new ComponentView(new dataFlow.SeriesComponent({
                     position: {x: 1400, y: 200}
                 }));
 
@@ -158,9 +158,6 @@ require(["appconfig"],function(){
 
                     degree.component.output.assignValues([3]);
                     degree2.component.output.assignValues([1]);
-                    //controlCurve.component["V"].connectOutput(point1.component.output);
-                    controlCurve.component["D"].connectOutput(degree2.component.output);
-                    controlCurve.component["P"].connectOutput(periodic.component.output);
 
                     workspace.render();
                 });
