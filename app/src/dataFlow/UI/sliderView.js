@@ -1,8 +1,7 @@
 define([
     "jquery",
-    "bootstrap-slider",
-    "underscore"
-],function($,s,_){
+    "bootstrap-slider"
+],function($){
     // See https://github.com/seiyria/bootstrap-slider for slider documentation
 
     function SliderView(min,max,integers,x,y,valueCallback){
