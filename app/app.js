@@ -12,12 +12,20 @@ require(["appconfig"],function(){
             dataFlow,
             viewer,
             workspace,
-            windowControls,
+            Nav,
             ComponentView
         ){
             function App(){
                 viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
                 workspace.createWorkspace();
+
+                // Create the navbar, and listen for it to add new components to the workspace
+                var navbar = new Nav();
+                navbar.on('createNewComponent',function(component){
+                    new ComponentView(new dataFlow[component.functionName]({
+                        position: {x: 0, y: 0}
+                    }));
+                });
 
                 var axisHelper = new THREE.AxisHelper( 2 );
                 viewer.scene.add( axisHelper );

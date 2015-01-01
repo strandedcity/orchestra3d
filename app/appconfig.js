@@ -43,6 +43,7 @@ requirejs.config({
         threejs: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
         windowControls: 'src/application/windowControls',
+        componentSearcher: 'src/application/componentSearcher',
 
         // general libraries
         jquery: 'lib/jquery-2.1.1.min',
