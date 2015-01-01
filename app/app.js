@@ -183,7 +183,7 @@ require(["appconfig"],function(){
                 var line2 = new THREE.Line(endPointGeo, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 0.1, gapSize: 0.1, linewidth: 2 } ), THREE.LineStrip);
                 viewer.scene.add(line2);
             };
-
+console.log(dataFlow);
             return new App();
         }
     );

@@ -206,12 +206,12 @@ define([
                 holdStarter = null;
                 if (doubleClickActive === false ){
                     console.log("CLICK");
-                    if (typeof view.click === "function") view.click(e.clientX, e.clientY);
+                    if (typeof view.click === "function" && !_.isUndefined(e)) view.click(e.clientX, e.clientY);
                     doubleClickActive = true;
                     doubleClickTimer = setTimeout(function(){
                         doubleClickActive = false;
                         clearTimeout(doubleClickTimer);
-                    },300);
+                    },200);
                 } else {
                     //console.log("DOUBLE CLICK");
                     view.component.output.getTree().log();

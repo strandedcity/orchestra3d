@@ -1,0 +1,77 @@
+[
+  {
+    "functionName": "PointComponent",
+    "name": "Point(x,y,z)",
+    "shortDescription": "Creates a Point Object from X, Y, and Z coordinate values"
+  },
+  {
+    "functionName": "PointDistanceComponent",
+    "name": "Distance(p1,p2)",
+    "shortDescription": "Measures the distance between two supplied points"
+  },
+  {
+    "functionName": "ShiftListComponent",
+    "name": "Shift List",
+    "shortDescription": "Removes items from the beginning of a data list, and optionally tacks them back onto the end"
+  },
+  {
+    "functionName": "BooleanComponent",
+    "name": "Boolean Toggle",
+    "shortDescription": "This component gives you a convenient way to switch between a single True or False value"
+  },
+  {
+    "functionName": "BooleanFalseComponent",
+    "name": "False",
+    "shortDescription": "Outputs a boolean False value"
+  },
+  {
+    "functionName": "BooleanTrueComponent",
+    "name": "True",
+    "shortDescription": "Outputs a boolean False value"
+  },
+  {
+    "functionName": "CircleCNRComponent",
+    "name": "Circle(Center,Normal, Radius)",
+    "shortDescription": "Outputs a circle curve based on a center point, normal vector, and radius"
+  },
+  {
+    "functionName": "CurveControlPointComponent",
+    "name": "NURBS Curve",
+    "shortDescription": "Generates a new Curve object based on a list of control points"
+  },
+  {
+    "functionName": "NumberComponent",
+    "name": "Number",
+    "shortDescription": "Holds a list of numbers. For short lists, you can enter the numbers directly into the component"
+  },
+  {
+    "functionName": "SeriesComponent",
+    "name": "Series",
+    "shortDescription": "Generates a list of numbers. You can control the start of the list, the increment, and the number of values"
+  },
+  {
+    "functionName": "SliderComponent",
+    "name": "Slider",
+    "shortDescription": "A convenient way to change numerical values on the fly. Shows a touch/mouse-enabled slider"
+  },
+  {
+    "functionName": "Vector2PtComponent",
+    "name": "Vector(p1,p2)",
+    "shortDescription": "Generates a new vector based on input points"
+  },
+  {
+    "functionName": "VectorComponent",
+    "name": "Vector(x,y,z)",
+    "shortDescription": "Generates a new vector based on x, y, and z values"
+  },
+  {
+    "functionName": "VectorDisplayComponent",
+    "name": "Vector Display",
+    "shortDescription": "Enables vectors to be displayed in the model view using an optional 'anchor point'"
+  },
+  {
+    "functionName": "VectorNormalizeComponent",
+    "name": "Vector Normalize",
+    "shortDescription": "Returns a unit vector with the same direction as the supplied vector"
+  }
+]
