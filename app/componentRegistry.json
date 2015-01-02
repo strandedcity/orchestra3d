@@ -32,7 +32,7 @@
   {
     "functionName": "BooleanTrueComponent",
     "name": "True",
-    "shortDescription": "Outputs a boolean False value"
+    "shortDescription": "Outputs a boolean True value"
   },
   {
     "functionName": "CircleCNRComponent",
