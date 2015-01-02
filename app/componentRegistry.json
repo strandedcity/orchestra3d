@@ -5,11 +5,6 @@
     "shortDescription": "Creates a Point Object from X, Y, and Z coordinate values"
   },
   {
-    "functionName": "PointDecomposeComponent",
-    "name": "Point Decompose",
-    "shortDescription": "Decomposes a point into its constituent x, y, and z values"
-  },
-  {
     "functionName": "PointDistanceComponent",
     "name": "Distance(p1,p2)",
     "shortDescription": "Measures the distance between two supplied points"
