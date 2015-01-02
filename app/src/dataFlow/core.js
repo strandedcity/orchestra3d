@@ -131,9 +131,9 @@ define([
             toJSON: function(){
                 return {
                     shortName: this.shortName,
-                    guid: this.id || this.cid,
+                    id: this.id || this.cid,
                     connections: _.map(this._listeningTo,function(output){
-                        return output.guid;
+                        return output.id || output.cid;
                     })
                 }
             }
@@ -325,6 +325,7 @@ define([
                     position: this.position,
                     drawPreview: this._drawPreview,
                     inputs: inputs,
+                    output: this.output.toJSON(),
                     id: this.id || this.cid
                 };
             }

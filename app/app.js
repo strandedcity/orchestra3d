@@ -85,98 +85,133 @@ require(["appconfig"],function(){
 
             App.prototype.NURBSCurveTest = function(){
 
-                var samplePointComponent = dataFlow.createComponentByName("PointComponent",{
+                var components = [];
+
+                var point1 = dataFlow.createComponentByName("PointComponent",{
                     position: {x: 500, y: 0}
                 });
-                var point1 = new ComponentView(samplePointComponent);
+                components.push(point1);
 
-                var vec1 = new ComponentView(dataFlow.createComponentByName("VectorComponent",{
+                var vec1 = dataFlow.createComponentByName("VectorComponent",{
                     position: {x: 500, y: 550}
-                }));
-                var vecDisplay = new ComponentView(dataFlow.createComponentByName("VectorDisplayComponent",{
+                });
+                components.push(vec1);
+
+                var vecDisplay = dataFlow.createComponentByName("VectorDisplayComponent",{
                     position: {x: 2200, y: 550}
-                }));
-                var shift1 = new ComponentView(dataFlow.createComponentByName("ShiftComponent",{
+                });
+                components.push(vecDisplay);
+
+                var shift1 = dataFlow.createComponentByName("ShiftComponent",{
                     position: {x: 1200, y: 750}
-                }));
-                var vec2pt = new ComponentView(dataFlow.createComponentByName("Vector2PtComponent",{
+                });
+                components.push(shift1);
+
+                var vec2pt = dataFlow.createComponentByName("Vector2PtComponent",{
                     position: {x: 1700, y: 750}
-                }));
+                });
+                components.push(vec2pt);
 
-                var number1 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
+
+                var number1 = dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: 100}
-                }));
-                var number2 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
+                });
+                components.push(number1);
+
+                var number2 = dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: 0}
-                }));
-                var number3 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
+                });
+                components.push(number2);
+
+                var number3 = dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: -100}
-                }));
+                });
+                components.push(number3);
 
-                var curve = new ComponentView(dataFlow.createComponentByName("CurveControlPointComponent",{
+
+                var curve = dataFlow.createComponentByName("CurveControlPointComponent",{
                     position: {x: 1400, y: -250}
-                }));
+                });
+                components.push(curve);
 
-                var degree = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
+
+                var degree = dataFlow.createComponentByName("NumberComponent",{
                     position: {x: 500, y: -250}
-                }));
+                });
+                components.push(degree);
 
-                var periodic = new ComponentView(dataFlow.createComponentByName("BooleanTrueComponent",{
+
+                var periodic = dataFlow.createComponentByName("BooleanTrueComponent",{
                     position: {x: 500, y: -450}
-                }));
+                });
+                components.push(periodic);
 
 
-                var degree2 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
+                var degree2 = dataFlow.createComponentByName("NumberComponent",{
                     position: {x: 500, y: 400}
-                }));
+                });
+                components.push(degree2);
 
-                var series = new ComponentView(dataFlow.createComponentByName("SeriesComponent",{
+                var series = dataFlow.createComponentByName("SeriesComponent",{
                     position: {x: 1400, y: 200}
-                }));
+                });
+                components.push(series);
 
-                var graftTree = new ComponentView(dataFlow.createComponentByName("GraftComponent",{
+                var graftTree = dataFlow.createComponentByName("GraftComponent",{
                     position: {x: 500, y: 200}
-                }));
+                });
+                components.push(graftTree);
 
 
-                var circle = new ComponentView(dataFlow.createComponentByName("CircleCNRComponent",{
+                var circle = dataFlow.createComponentByName("CircleCNRComponent",{
                     position: {x: 2200, y: 250}
-                }));
+                });
+                components.push(circle);
 
-                var slider1 = new ComponentView(dataFlow.createComponentByName("SliderComponent",{
+                var slider1 = dataFlow.createComponentByName("SliderComponent",{
                     position: {x: -200, y: 400}
-                }));
+                });
+                components.push(slider1);
+
+                /////////////////////////////////////////////////////////////////////////////////
+                // Show the UI for each component in the workspace:
+                /////////////////////////////////////////////////////////////////////////////////
+                _.each(components,function(cpt){
+                    new ComponentView(cpt);
+                });
+
                 /* Make connections between inputs and outputs of components */
                 _.defer(function(){
-                    point1.component["X"].connectOutput(number1.component.output);
-                    point1.component["Y"].connectOutput(number2.component.output);
-                    point1.component["Z"].connectOutput(number3.component.output);
+                    point1["X"].connectOutput(number1.output);
+                    point1["Y"].connectOutput(number2.output);
+                    point1["Z"].connectOutput(number3.output);
 
                     // vector testing
-                    vec1.component["X"].connectOutput(number1.component.output);
-                    vec1.component["Y"].connectOutput(number2.component.output);
-                    vec1.component["Z"].connectOutput(number3.component.output);
-                    shift1.component["L"].connectOutput(point1.component.output);
-                    vec2pt.component["A"].connectOutput(point1.component.output);
-                    vec2pt.component["B"].connectOutput(shift1.component.output);
-                    vecDisplay.component["V"].connectOutput(vec2pt.component.output);
-                    vecDisplay.component["A"].connectOutput(point1.component.output);
+                    vec1["X"].connectOutput(number1.output);
+                    vec1["Y"].connectOutput(number2.output);
+                    vec1["Z"].connectOutput(number3.output);
+                    shift1["L"].connectOutput(point1.output);
+                    vec2pt["A"].connectOutput(point1.output);
+                    vec2pt["B"].connectOutput(shift1.output);
+                    vecDisplay["V"].connectOutput(vec2pt.output);
+                    vecDisplay["A"].connectOutput(point1.output);
 
-                    curve.component["V"].connectOutput(point1.component.output);
-                    curve.component["D"].connectOutput(degree.component.output);
-                    curve.component["P"].connectOutput(periodic.component.output);
+                    curve["V"].connectOutput(point1.output);
+                    curve["D"].connectOutput(degree.output);
+                    curve["P"].connectOutput(periodic.output);
 
-                    number1.component.output.assignValues([0,1,1,0,0,1,1,0,0,1]);
-                    number2.component.output.assignValues([0,0,1,1,0,0,1,1,0,0]);
-                    number3.component.output.assignValues([0.0,0.5,1,1.5,2,2.5,3,3.5,4,4.5]);
+                    number1.output.assignValues([0,1,1,0,0,1,1,0,0,1]);
+                    number2.output.assignValues([0,0,1,1,0,0,1,1,0,0]);
+                    number3.output.assignValues([0.0,0.5,1,1.5,2,2.5,3,3.5,4,4.5]);
 
-                    degree.component.output.assignValues([3]);
-                    degree2.component.output.assignValues([1]);
+                    degree.output.assignValues([3]);
+                    degree2.output.assignValues([1]);
 
-
-                    //console.log(samplePointComponent.toJSON());
-                    //
-                    //window.DataFlow = dataFlow;
+                    var jsonTotal = [];
+                    _.each(components,function(cpt){
+                        jsonTotal.push(cpt.toJSON());
+                    });
+                    console.log(JSON.stringify(jsonTotal));
 
                     workspace.render();
                 });
