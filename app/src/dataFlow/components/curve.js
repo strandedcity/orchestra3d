@@ -7,13 +7,21 @@ define([
     var components = {};
     components.CurveControlPointComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputCurve();
+            var output = this.createIObjectsFromJSON([
+                {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+            //var output = new DataFlow.OutputCurve();
 
-            var inputs = [
-                new DataFlow.OutputPoint({shortName: "V"}),
-                new DataFlow.OutputNumber({shortName: "D"}),
-                new DataFlow.OutputBoolean({shortName: "P"})
-            ];
+            //var inputs = [
+            //    new DataFlow.OutputPoint({shortName: "V"}),
+            //    new DataFlow.OutputNumber({shortName: "D"}),
+            //    new DataFlow.OutputBoolean({shortName: "P"})
+            //];
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "D", required: false, default: 3, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "P", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
@@ -30,8 +38,8 @@ define([
                 out = that.output.values;
 
             // TEMPORARILY -- just use the first value for degree and periodic:
-            var degree = this["D"].values.dataAtPath([0])[0],
-                periodic = this["P"].values.dataAtPath([0])[0];
+            var degree = this["D"].getFirstValueOrDefault(),
+                periodic = this["P"].getFirstValueOrDefault();
 
             // first attempt at a data-matching strategy. This should match grasshopper's behavior exactly.
             // recurse over point lists ("V"), and for each list encountered, find the closest-matching single value
@@ -44,6 +52,9 @@ define([
             });
 
             this._recalculate();
+
+
+
         },
         drawPreviews: function(){
             var curves = this.output.values.flattenedTree().dataAtPath([0]);

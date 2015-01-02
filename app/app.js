@@ -1,5 +1,6 @@
 require(["appconfig"],function(){
     require([
+            "jquery",
             'SISL/sisl_loader',
             'dataFlow/dataFlow_loader',
             "viewer/modelView",
@@ -8,6 +9,7 @@ require(["appconfig"],function(){
             "dataFlow/UI/componentView"
         ],
         function(
+            $,
             Geo,
             dataFlow,
             viewer,
@@ -78,9 +80,51 @@ require(["appconfig"],function(){
                 //viewer.enableControls(true);
 
                 // Demonstration programs...
-                this.NURBSCurveTest();
+                //this.NURBSCurveTest();
+                this.loadJSONFileTest();
 
                 viewer.render();
+            };
+
+            App.prototype.loadJSONFileTest = function(){
+                $.get('curveWithVectorsTest.json?'+Math.random(),function(json){
+                    // loading occurs in two stages since connections can't easily be made until all components are added
+                    // first step: create each component, and keep track of EVERY IO as they go by so connections can be made directly
+                    var IOIdsForConnections = {};
+                    var connectionRoutes = [];
+                    _.each(json,function(cpt){
+                        var component = dataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
+                        new ComponentView(component);
+
+                        // if the inputs are supposed to be connected to something, keep track of them for a moment
+                        _.each(cpt.inputs,function(iptJSON){
+                            if (iptJSON.connections.length > 0) {
+                                IOIdsForConnections[iptJSON.id] = component[iptJSON.shortName];
+                                _.each(iptJSON.connections,function(connectedIptId){
+                                    var route = {};
+                                    route[iptJSON.id] = connectedIptId;
+                                    connectionRoutes.push(route);
+                                });
+                            }
+                        });
+
+                        // keep track of all outputs:
+                        IOIdsForConnections[cpt.output[0].id] = component.output;
+
+                    });
+
+                    // To help the drawing along, it's easier for now to defer the connection making for one render cycle
+                    _.defer(function() {
+                        _.each(connectionRoutes,function(route){
+                            var inputId = _.keys(route)[0],
+                                outputId = route[inputId],
+                                inputObject = IOIdsForConnections[inputId],
+                                outputObject = IOIdsForConnections[outputId];
+
+                            inputObject.connectAdditionalOutput(outputObject);
+                        });
+                    });
+                });
             };
 
             App.prototype.NURBSCurveTest = function(){
@@ -141,7 +185,7 @@ require(["appconfig"],function(){
                 components.push(degree);
 
 
-                var periodic = dataFlow.createComponentByName("BooleanTrueComponent",{
+                var periodic = dataFlow.createComponentByName("BooleanFalseComponent",{
                     position: {x: 500, y: -450}
                 });
                 components.push(periodic);

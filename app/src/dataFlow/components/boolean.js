@@ -5,42 +5,43 @@ define([
     var components = {};
     components.BooleanComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputBoolean();
+            this.setupBooleanComponent(opts,false,true);
+        },
+        setupBooleanComponent: function(opts,nullInput,defaultValue){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "output");
 
-            var inputs = [new DataFlow.OutputBoolean({shortName: "B", required: false})];
+            var inputType = nullInput ? DataFlow.OUTPUT_TYPES.NULL : DataFlow.OUTPUT_TYPES.BOOLEAN;
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "B", required:false, default: defaultValue, type: inputType}
+            ], opts, "inputs");
 
-            var args = _.extend({
+            var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Bool"
-            },opts || {});
+            });
             this.base_init(args);
         },
         recalculate: function(){
             this.output.clearValues();
             this.output.values = this.inputs['B'].values.copy();
-
             this._recalculate();
         }
     });
 
-    //
-    // THESE ARE SHIT
-    //
-    components.BooleanTrueComponent = function BooleanTrueComponent(opts){
-        var args = _.extend({componentPrettyName: "True"},opts || {});
-        _.extend(this,components.BooleanComponent.prototype);
-        this.initialize.call(this,args);
-        this.output.assignValues([true]);
-        this.recalculate = this._recalculate; // simple pass-through of events means value can't be changed.
-    };
-    components.BooleanFalseComponent = function BooleanFalseComponent(opts){
-        var args = _.extend({componentPrettyName: "False"},opts || {});
-        _.extend(this,components.BooleanComponent.prototype);
-        this.initialize.call(this,args);
-        this.output.assignValues([false]);
-        this.recalculate = this._recalculate; // simple pass-through of events means value can't be changed.
-    };
+    // A couple convenience components that don't do much
+    components.BooleanTrueComponent = components.BooleanComponent.extend({
+        initialize: function(opts){
+            this.setupBooleanComponent(opts,true,true);
+        }
+    });
+    components.BooleanFalseComponent = components.BooleanComponent.extend({
+        initialize: function(opts){
+            this.setupBooleanComponent(opts,true,false);
+        }
+    });
 
     return components;
 });

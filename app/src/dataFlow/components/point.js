@@ -10,21 +10,24 @@ define([
 
         components.PointComponent = DataFlow.Component.extend({
             initialize: function(opts){
-                var output = new DataFlow.OutputPoint();
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "output");
 
-                var inputs = [
-                    new DataFlow.OutputNumber({shortName: "X"}),
-                    new DataFlow.OutputNumber({shortName: "Y"}),
-                    new DataFlow.OutputNumber({shortName: "Z"})
-                ];
-
-                var args = _.extend({
-                    inputs: inputs,
+                var args = _.extend(opts || {},{
+                    inputs: this.getStandardPointInputs(opts),
                     output: output,
                     componentPrettyName: "Point(x,y,z)",
                     drawPreview: false
-                },opts || {});
+                });
                 this.base_init(args);
+            },
+            getStandardPointInputs: function(opts){
+                return this.createIObjectsFromJSON([
+                    {shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMBER},
+                    {shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMBER},
+                    {shortName: "Z", type: DataFlow.OUTPUT_TYPES.NUMBER}
+                ], opts, "inputs")
             },
             recalculate: function(){
                 this.clearPreviews();
@@ -56,37 +59,45 @@ define([
         /*  VectorComponent and PointComponent are mostly the same, but there's a separate component name and prototype if differences emerge */
         components.VectorComponent = components.PointComponent.extend({
             initialize: function(opts){
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "output");
 
-                var output = new DataFlow.OutputPoint({shortName: "V"});
-
-                var args = _.extend({
+                var args = _.extend(opts || {},{
+                    inputs: this.getStandardPointInputs(opts),
                     output: output, // Different name, same thing
                     drawPreview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"
-                },opts || {});
-                components.PointComponent.prototype.initialize.call(this,args);
+                });
 
-                _.extend(this,components.PointComponent.prototype);
+                this.base_init(args);
             }
         });
 
         /*  Another way to define a vector: the vector connecting two points*/
         components.Vector2PtComponent = components.PointComponent.extend({
             initialize: function(opts){
-                var output = new DataFlow.OutputPoint({shortName: "V"});
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "output");
 
-                var inputs = [
-                    new DataFlow.OutputPoint({required: true, shortName: "A"}),
-                    new DataFlow.OutputPoint({required: true,shortName: "B"}),
-                    new DataFlow.OutputBoolean({required: false, shortName: "U", default: false})
-                ];
+                //var inputs = [
+                //    new DataFlow.OutputPoint({required: true, shortName: "A"}),
+                //    new DataFlow.OutputPoint({required: true,shortName: "B"}),
+                //    new DataFlow.OutputBoolean({required: false, shortName: "U", default: false})
+                //];
+                var inputs = this.createIObjectsFromJSON([
+                    {required: true, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
+                    {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT},
+                    {required: false, shortName: "U", default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+                ], opts, "inputs");
 
-                var args = _.extend({
+                var args = _.extend(opts || {},{
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "Vec2Pt",
                     drawPreview: false
-                },opts || {});
+                });
                 this.base_init(args);
             },
             recalculate: function(){
@@ -106,11 +117,16 @@ define([
         /*  Vector Normalize  */
         components.VectorNormalizeComponent = components.PointComponent.extend({
             initialize: function(opts){
-                var output = new DataFlow.OutputPoint({shortName: "V"});
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "output");
 
-                var inputs = [
-                    new DataFlow.OutputPoint({required: true, shortName: "V"})
-                ];
+                //var inputs = [
+                //    new DataFlow.OutputPoint({required: true, shortName: "V"})
+                //];
+                var inputs = this.createIObjectsFromJSON([
+                    {required: true, shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "inputs");
 
                 var args = _.extend({
                     inputs: inputs,
@@ -135,12 +151,18 @@ define([
         /* Distance between two points */
         components.PointDistanceComponent = components.PointComponent.extend({
             initialize: function(opts){
-                var output = new DataFlow.OutputNumber({shortName: "D"});
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "D", type: DataFlow.OUTPUT_TYPES.NUMBER}
+                ], opts, "output");
 
-                var inputs = [
-                    new DataFlow.OutputPoint({required: true, shortName: "A"}),
-                    new DataFlow.OutputPoint({required: true, shortName: "B"})
-                ];
+                //var inputs = [
+                //    new DataFlow.OutputPoint({required: true, shortName: "A"}),
+                //    new DataFlow.OutputPoint({required: true, shortName: "B"})
+                //];
+                var inputs = this.createIObjectsFromJSON([
+                    {required: true, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
+                    {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "inputs");
 
                 var args = _.extend({
                     inputs: inputs,
@@ -167,19 +189,25 @@ define([
          */
         components.VectorDisplayComponent = components.PointComponent.extend({
             initialize: function(opts){
-                var output = new DataFlow.OutputNull();
+                var output = this.createIObjectsFromJSON([
+                    {shortName: "x", type: DataFlow.OUTPUT_TYPES.NULL}
+                ], opts, "output");
 
-                var inputs = [
-                    new DataFlow.OutputPoint({shortName: "A", required: false}), // "anchor" for the vector display
-                    new DataFlow.OutputPoint({shortName: "V"})  // Vector to draw
-                ];
+                //var inputs = [
+                //    new DataFlow.OutputPoint({shortName: "A", required: false}), // "anchor" for the vector display
+                //    new DataFlow.OutputPoint({shortName: "V"})  // Vector to draw
+                //];
+                var inputs = this.createIObjectsFromJSON([
+                    {required: false, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
+                    {required: true, shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
+                ], opts, "inputs");
 
-                var args = _.extend({
+                var args = _.extend(opts || {},{
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "VDisplay",
                     drawPreview: true
-                },opts || {});
+                });
                 this.base_init(args);
             },
             recalculate: function(){

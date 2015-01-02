@@ -5,9 +5,8 @@ define([
         "dataFlow/dataMatcher",
         "dataFlow/enums"
     ],function(_,Backbone,DataTree,DataMatcher, ENUMS){
-
-        console.warn("Should remove Module.Utils from core.js and all Dataflow files!!");
         var DataFlow = {};
+        DataFlow.OUTPUT_TYPES = ENUMS.OUTPUT_TYPES; // Better to keep enums separate so datamatcher can access them without all of DataFlow
         DataFlow.Output = Backbone.Model.extend({
             initialize: function(opts){
                 // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
@@ -15,6 +14,7 @@ define([
                 // for some property and creating that array instead.
                 var args = _.extend(opts || {}, {/* default args */});
                 if (_.isUndefined(args.type)) {throw new Error("No type specified for Output");}
+                if (!_.has(_.values(ENUMS.OUTPUT_TYPES), args.type)) {throw new Error("Invalid Output Type Specified: "+args.type);}
                 if (_.isUndefined(args.shortName)) {throw new Error("No shortName specified for Output");}
 
                 this.required = _.isUndefined(args.required) ? true : args.required;
@@ -98,7 +98,8 @@ define([
             },
             validateOutput: function(outputModel){
                 // for inputs only, supports the data-flow attachment mechanism
-                if (this.type !== outputModel.type && this.type !== "wild" && outputModel.type !== "wild") { throw new Error("Incongruent output connected to an input"); }
+                var wild = ENUMS.OUTPUT_TYPES.WILD;
+                if (this.type !== outputModel.type && this.type !== wild && outputModel.type !== wild) { throw new Error("Incongruent output connected to an input"); }
 
                 return true;
             },
@@ -134,31 +135,32 @@ define([
                     id: this.id || this.cid,
                     connections: _.map(this._listeningTo,function(output){
                         return output.id || output.cid;
-                    })
+                    }),
+                    type: this.type
                 }
             }
 
 
         });
-
+        //
         /*  Output Data types */
         DataFlow.OutputNumber = function OutputNumber(opts) {
-            return new DataFlow.Output(_.extend({type: "number", shortName: "N"},opts || {}));
+            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.NUMBER, shortName: "N"},opts || {}));
         };
         DataFlow.OutputPoint = function OutputPoint(opts) {
-            return new DataFlow.Output(_.extend({type: "GeoPoint", shortName: "P"},opts || {}));
+            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.POINT, shortName: "P"},opts || {}));
         };
         DataFlow.OutputCurve = function OutputCurve(opts) {
-            return new DataFlow.Output(_.extend({type: "GeoCurve", shortName: "C"},opts || {}));
+            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.CURVE, shortName: "C"},opts || {}));
         };
         DataFlow.OutputBoolean = function OutputBoolean(opts) {
-            return new DataFlow.Output(_.extend({type: "boolean", shortName: "B"},opts || {}));
+            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.BOOLEAN, shortName: "B"},opts || {}));
         };
         DataFlow.OutputMultiType = function OutputMultiType(opts) {
-            return new DataFlow.Output( _.extend({type: "wild", shortName: "T"}, opts || {}));
+            return new DataFlow.Output( _.extend({type: ENUMS.OUTPUT_TYPES.WILD, shortName: "T"}, opts || {}));
         };
         DataFlow.OutputNull = function OutputNull(opts) {
-            return new DataFlow.Output(_.extend({type: "null", shortName: "x"}, opts || {}));
+            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.NULL, shortName: "x"}, opts || {}));
         };
 
         var Component = DataFlow.Component = Backbone.Model.extend({
@@ -183,6 +185,23 @@ define([
 
             initialize: function(){
                 this.base_init.apply(this, arguments);
+            },
+            createIObjectsFromJSON: function(schemaListJSON,opts,dataKey){
+                var objectList = [];
+                // "schemaList" we trust -- it's part of the program.
+                // "inputList" we don't -- it's data that gets saved with the files
+                // Basically we take the schema, ask the inputlist if it has anything that modifies those inputs in appropriate ways, and move on.
+
+                var correspondingUserData = _.isUndefined(opts) ? {} : _.isUndefined(opts[dataKey]) ? {} : opts[dataKey];
+                _.each(_.values(schemaListJSON),function(spec){
+                    var providedData = _.findWhere(correspondingUserData, {shortName: spec.shortName, type: spec.type});
+                    var outputObject = new DataFlow.Output(_.extend(providedData || {},spec));
+                    objectList.push(outputObject);
+                });
+
+                // TODO: Here's a hack until I figure out multiple outputs
+                if (dataKey === "output") return objectList[0];
+                return objectList;
             },
             base_init: function(opts){
                 if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.output) ) {
@@ -315,17 +334,17 @@ define([
                 this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
             },
             toJSON: function(){
-                var inputs = {};
+                var inputData = [];
                 _.each(this.inputs,function(ipt){
-                    inputs[ipt.shortName] = ipt.toJSON();
+                    inputData.push(ipt.toJSON());
                 });
 
                 return {
                     componentName: this.componentName,
                     position: this.position,
                     drawPreview: this._drawPreview,
-                    inputs: inputs,
-                    output: this.output.toJSON(),
+                    inputs: inputData,
+                    output: [this.output.toJSON()],
                     id: this.id || this.cid
                 };
             }

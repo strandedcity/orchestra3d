@@ -8,7 +8,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
 
             it("Instantiates a new 'number' output object",function(){
                 expect(typeof outputX).toEqual("object");
-                expect(outputX.type).toEqual("number");
+                expect(outputX.type).toEqual(dataFlow.OUTPUT_TYPES.NUMBER);
             });
             it("Throws an error when not specifying type",function(){
                 expect(function(){new dataFlow.Output()}).toThrow(new Error("No type specified for Output"));

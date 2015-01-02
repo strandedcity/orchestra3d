@@ -1,1 +1,532 @@
-[{"componentName":"PointComponent","position":{"x":500,"y":0},"drawPreview":false,"inputs":{"X":{"shortName":"X","id":"c4","connections":["c42"]},"Y":{"shortName":"Y","id":"c5","connections":["c47"]},"Z":{"shortName":"Z","id":"c6","connections":["c52"]}},"output":{"shortName":"P","id":"c3","connections":[]},"id":"c2"},{"componentName":"PointComponent","position":{"x":500,"y":550},"drawPreview":false,"inputs":{"X":{"shortName":"X","id":"c13","connections":["c42"]},"Y":{"shortName":"Y","id":"c14","connections":["c47"]},"Z":{"shortName":"Z","id":"c15","connections":["c52"]}},"output":{"shortName":"V","id":"c11","connections":[]},"id":"c10"},{"componentName":"VectorDisplayComponent","position":{"x":2200,"y":550},"drawPreview":true,"inputs":{"A":{"shortName":"A","id":"c21","connections":["c3"]},"V":{"shortName":"V","id":"c22","connections":["c34"]}},"output":{"shortName":"x","id":"c20","connections":[]},"id":"c19"},{"componentName":"ShiftComponent","position":{"x":1200,"y":750},"drawPreview":false,"inputs":{"L":{"shortName":"L","id":"c27","connections":["c3"]},"S":{"shortName":"S","id":"c28","connections":[]},"W":{"shortName":"W","id":"c29","connections":[]}},"output":{"shortName":"L","id":"c26","connections":[]},"id":"c25"},{"componentName":"Vector2PtComponent","position":{"x":1700,"y":750},"drawPreview":false,"inputs":{"A":{"shortName":"A","id":"c35","connections":["c3"]},"B":{"shortName":"B","id":"c36","connections":["c26"]},"U":{"shortName":"U","id":"c37","connections":[]}},"output":{"shortName":"V","id":"c34","connections":[]},"id":"c33"},{"componentName":"NumberComponent","position":{"x":-200,"y":100},"drawPreview":false,"inputs":{"#":{"shortName":"#","id":"c43","connections":[]}},"output":{"shortName":"N","id":"c42","connections":[]},"id":"c41"},{"componentName":"NumberComponent","position":{"x":-200,"y":0},"drawPreview":false,"inputs":{"#":{"shortName":"#","id":"c48","connections":[]}},"output":{"shortName":"N","id":"c47","connections":[]},"id":"c46"},{"componentName":"NumberComponent","position":{"x":-200,"y":-100},"drawPreview":false,"inputs":{"#":{"shortName":"#","id":"c53","connections":[]}},"output":{"shortName":"N","id":"c52","connections":[]},"id":"c51"},{"componentName":"CurveControlPointComponent","position":{"x":1400,"y":-250},"drawPreview":true,"inputs":{"V":{"shortName":"V","id":"c58","connections":["c3"]},"D":{"shortName":"D","id":"c59","connections":["c65"]},"P":{"shortName":"P","id":"c60","connections":["c69"]}},"output":{"shortName":"C","id":"c57","connections":[]},"id":"c56"},{"componentName":"NumberComponent","position":{"x":500,"y":-250},"drawPreview":false,"inputs":{"#":{"shortName":"#","id":"c66","connections":[]}},"output":{"shortName":"N","id":"c65","connections":[]},"id":"c64"},{"componentName":"BooleanComponent","position":{"x":500,"y":-450},"drawPreview":false,"inputs":{"B":{"shortName":"B","id":"c70","connections":[]}},"output":{"shortName":"B","id":"c69","connections":[]}},{"componentName":"NumberComponent","position":{"x":500,"y":400},"drawPreview":false,"inputs":{"#":{"shortName":"#","id":"c75","connections":[]}},"output":{"shortName":"N","id":"c74","connections":[]},"id":"c73"},{"componentName":"SeriesComponent","position":{"x":1400,"y":200},"drawPreview":false,"inputs":{"S":{"shortName":"S","id":"c80","connections":[]},"N":{"shortName":"N","id":"c81","connections":[]},"C":{"shortName":"C","id":"c82","connections":[]}},"output":{"shortName":"S","id":"c79","connections":[]},"id":"c78"},{"componentName":"GraftComponent","position":{"x":500,"y":200},"drawPreview":false,"inputs":{"T":{"shortName":"T","id":"c89","connections":[]}},"output":{"shortName":"T","id":"c88","connections":[]},"id":"c87"},{"componentName":"CircleCNRComponent","position":{"x":2200,"y":250},"drawPreview":true,"inputs":{"C":{"shortName":"C","id":"c93","connections":[]},"N":{"shortName":"N","id":"c94","connections":[]},"R":{"shortName":"R","id":"c95","connections":[]}},"output":{"shortName":"C","id":"c92","connections":[]},"id":"c91"},{"componentName":"SliderComponent","position":{"x":-200,"y":400},"drawPreview":false,"inputs":{"S":{"shortName":"S","id":"c101","connections":[]},"E":{"shortName":"E","id":"c102","connections":[]},"I":{"shortName":"I","id":"c103","connections":[]}},"output":{"shortName":"N","id":"c100","connections":[]},"id":"c99"}]
+[
+  {
+    "componentName": "PointComponent",
+    "position": {
+      "x": 500,
+      "y": 0
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "X",
+        "id": "c4",
+        "connections": [
+          "c41"
+        ],
+        "type": 0
+      },
+      {
+        "shortName": "Y",
+        "id": "c5",
+        "connections": [
+          "c46"
+        ],
+        "type": 0
+      },
+      {
+        "shortName": "Z",
+        "id": "c6",
+        "connections": [
+          "c51"
+        ],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "P",
+        "id": "c3",
+        "connections": [],
+        "type": 2
+      }
+    ],
+    "id": "c2"
+  },
+  {
+    "componentName": "VectorComponent",
+    "position": {
+      "x": 500,
+      "y": 550
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "X",
+        "id": "c12",
+        "connections": [
+          "c41"
+        ],
+        "type": 0
+      },
+      {
+        "shortName": "Y",
+        "id": "c13",
+        "connections": [
+          "c46"
+        ],
+        "type": 0
+      },
+      {
+        "shortName": "Z",
+        "id": "c14",
+        "connections": [
+          "c51"
+        ],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "V",
+        "id": "c11",
+        "connections": [],
+        "type": 2
+      }
+    ],
+    "id": "c10"
+  },
+  {
+    "componentName": "VectorDisplayComponent",
+    "position": {
+      "x": 2200,
+      "y": 550
+    },
+    "drawPreview": true,
+    "inputs": [
+      {
+        "shortName": "A",
+        "id": "c20",
+        "connections": [
+          "c3"
+        ],
+        "type": 2
+      },
+      {
+        "shortName": "V",
+        "id": "c21",
+        "connections": [
+          "c33"
+        ],
+        "type": 2
+      }
+    ],
+    "output": [
+      {
+        "shortName": "x",
+        "id": "c19",
+        "connections": [],
+        "type": 6
+      }
+    ],
+    "id": "c18"
+  },
+  {
+    "componentName": "ShiftComponent",
+    "position": {
+      "x": 1200,
+      "y": 750
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "L",
+        "id": "c26",
+        "connections": [
+          "c3"
+        ],
+        "type": 5
+      },
+      {
+        "shortName": "S",
+        "id": "c27",
+        "connections": [],
+        "type": 0
+      },
+      {
+        "shortName": "W",
+        "id": "c28",
+        "connections": [],
+        "type": 1
+      }
+    ],
+    "output": [
+      {
+        "shortName": "L",
+        "id": "c25",
+        "connections": [],
+        "type": 5
+      }
+    ],
+    "id": "c24"
+  },
+  {
+    "componentName": "Vector2PtComponent",
+    "position": {
+      "x": 1700,
+      "y": 750
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "A",
+        "id": "c34",
+        "connections": [
+          "c3"
+        ],
+        "type": 2
+      },
+      {
+        "shortName": "B",
+        "id": "c35",
+        "connections": [
+          "c25"
+        ],
+        "type": 2
+      },
+      {
+        "shortName": "U",
+        "id": "c36",
+        "connections": [],
+        "type": 1
+      }
+    ],
+    "output": [
+      {
+        "shortName": "V",
+        "id": "c33",
+        "connections": [],
+        "type": 2
+      }
+    ],
+    "id": "c32"
+  },
+  {
+    "componentName": "NumberComponent",
+    "position": {
+      "x": -200,
+      "y": 100
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "N",
+        "id": "c42",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c41",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c40"
+  },
+  {
+    "componentName": "NumberComponent",
+    "position": {
+      "x": -200,
+      "y": 0
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "N",
+        "id": "c47",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c46",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c45"
+  },
+  {
+    "componentName": "NumberComponent",
+    "position": {
+      "x": -200,
+      "y": -100
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "N",
+        "id": "c52",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c51",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c50"
+  },
+  {
+    "componentName": "CurveControlPointComponent",
+    "position": {
+      "x": 1400,
+      "y": -250
+    },
+    "drawPreview": true,
+    "inputs": [
+      {
+        "shortName": "V",
+        "id": "c57",
+        "connections": [
+          "c3"
+        ],
+        "type": 2
+      },
+      {
+        "shortName": "D",
+        "id": "c58",
+        "connections": [
+          "c64"
+        ],
+        "type": 0
+      },
+      {
+        "shortName": "P",
+        "id": "c59",
+        "connections": [
+          "c69"
+        ],
+        "type": 1
+      }
+    ],
+    "output": [
+      {
+        "shortName": "C",
+        "id": "c56",
+        "connections": [],
+        "type": 3
+      }
+    ],
+    "id": "c55"
+  },
+  {
+    "componentName": "NumberComponent",
+    "position": {
+      "x": 500,
+      "y": -250
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "N",
+        "id": "c65",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c64",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c63"
+  },
+  {
+    "componentName": "BooleanFalseComponent",
+    "position": {
+      "x": 500,
+      "y": -450
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "B",
+        "id": "c70",
+        "connections": [],
+        "type": 6
+      }
+    ],
+    "output": [
+      {
+        "shortName": "B",
+        "id": "c69",
+        "connections": [],
+        "type": 1
+      }
+    ],
+    "id": "c68"
+  },
+  {
+    "componentName": "NumberComponent",
+    "position": {
+      "x": 500,
+      "y": 400
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "N",
+        "id": "c75",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c74",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c73"
+  },
+  {
+    "componentName": "SeriesComponent",
+    "position": {
+      "x": 1400,
+      "y": 200
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "S",
+        "id": "c80",
+        "connections": [],
+        "type": 0
+      },
+      {
+        "shortName": "N",
+        "id": "c81",
+        "connections": [],
+        "type": 0
+      },
+      {
+        "shortName": "C",
+        "id": "c82",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "S",
+        "id": "c79",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c78"
+  },
+  {
+    "componentName": "GraftComponent",
+    "position": {
+      "x": 500,
+      "y": 200
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "T",
+        "id": "c89",
+        "connections": [],
+        "type": 5
+      }
+    ],
+    "output": [
+      {
+        "shortName": "T",
+        "id": "c88",
+        "connections": [],
+        "type": 5
+      }
+    ],
+    "id": "c87"
+  },
+  {
+    "componentName": "CircleCNRComponent",
+    "position": {
+      "x": 2200,
+      "y": 250
+    },
+    "drawPreview": true,
+    "inputs": [
+      {
+        "shortName": "C",
+        "id": "c93",
+        "connections": [],
+        "type": 2
+      },
+      {
+        "shortName": "N",
+        "id": "c94",
+        "connections": [],
+        "type": 2
+      },
+      {
+        "shortName": "R",
+        "id": "c95",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "output": [
+      {
+        "shortName": "C",
+        "id": "c92",
+        "connections": [],
+        "type": 3
+      }
+    ],
+    "id": "c91"
+  },
+  {
+    "componentName": "SliderComponent",
+    "position": {
+      "x": -200,
+      "y": 400
+    },
+    "drawPreview": false,
+    "inputs": [
+      {
+        "shortName": "S",
+        "id": "c101",
+        "connections": [],
+        "type": 0
+      },
+      {
+        "shortName": "E",
+        "id": "c102",
+        "connections": [],
+        "type": 0
+      },
+      {
+        "shortName": "I",
+        "id": "c103",
+        "connections": [],
+        "type": 1
+      }
+    ],
+    "output": [
+      {
+        "shortName": "N",
+        "id": "c100",
+        "connections": [],
+        "type": 0
+      }
+    ],
+    "id": "c99"
+  }
+]

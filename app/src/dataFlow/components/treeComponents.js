@@ -7,14 +7,18 @@ define([
 
     components.GraftComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputMultiType();
+            //var output = new DataFlow.OutputMultiType();
+            var output = this.createIObjectsFromJSON([
+                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "output");
 
-            var input = new DataFlow.OutputMultiType({required: true, shortName: "T"});
+            //var inputs = [new DataFlow.OutputMultiType({required: true, shortName: "T"})];
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "inputs");
 
             var args = _.extend(opts || {},{
-                inputs: [
-                    input
-                ],
+                inputs: inputs,
                 output: output,
                 componentPrettyName: "Graft"
             });
@@ -35,18 +39,22 @@ define([
 
     components.ShiftComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputMultiType({shortName: "L"});
+            //var output = new DataFlow.OutputMultiType({shortName: "L"});
+            var output = this.createIObjectsFromJSON([
+                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "output");
 
-            var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
-            var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
-            var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
+            //var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
+            //var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
+            //var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD},
+                {required: false, shortName: "S", default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
 
             var args = _.extend(opts || {},{
-                inputs: [
-                    inputData,
-                    shiftDir,
-                    wrap
-                ],
+                inputs: inputs,
                 output: output,
                 componentPrettyName: "Shift"
             });

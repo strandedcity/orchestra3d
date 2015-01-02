@@ -8,12 +8,17 @@ define([
 
     components.NumberComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputNumber();
+            var output = this.createIObjectsFromJSON([
+                {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "output");
+            //var output = new DataFlow.OutputNumber();
+
+            var inputs = this.createIObjectsFromJSON([
+                {required: false, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "inputs");
 
             var args = _.extend(opts || {},{
-                inputs: [
-                    new DataFlow.OutputNumber({required: false, shortName: "#"})
-                ],
+                inputs: inputs,
                 output: output,
                 componentPrettyName: "Number"
             });
@@ -21,7 +26,7 @@ define([
         },
         recalculate: function(){
             this.output.clearValues();
-            this.output.values = this.inputs['#'].values.copy();
+            this.output.values = this.inputs['N'].values.copy();
             this._recalculate();
         },
         parseInputAndSet: function(input){
@@ -40,21 +45,29 @@ define([
 
     components.SeriesComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputNumber({shortName: "S"});
+            //var output = new DataFlow.OutputNumber({shortName: "S"});
+            var output = this.createIObjectsFromJSON([
+                {shortName: "S", type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "output");
 
             /* S = start of series, N = step size, C = # of values in series */
-            var inputs = [
-                new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),
-                new DataFlow.OutputNumber({shortName: "N", required:false, default: 1}),
-                new DataFlow.OutputNumber({shortName: "C", required:false, default: 10})
-            ];
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "N", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "C", required:false, default: 10, type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "inputs");
+            //var inputs = [
+            //    new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),
+            //    new DataFlow.OutputNumber({shortName: "N", required:false, default: 1}),
+            //    new DataFlow.OutputNumber({shortName: "C", required:false, default: 10})
+            //];
 
-            var args = _.extend({
+            var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Series",
                 drawPreview: false
-            },opts || {});
+            });
             this.base_init(args);
             this.recalculate(); // since it doesn't need any inputs to have valid output
         },
@@ -81,21 +94,29 @@ define([
 
     components.SliderComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
+            //var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
+            var output = this.createIObjectsFromJSON([
+                {shortName: "N", default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "output");
 
             /* S = start of series, N = step size, C = # of values in series */
-            var inputs = [
-                new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),  // Start Value (min)
-                new DataFlow.OutputNumber({shortName: "E", required:false, default: 1}),  // End Value (max)
-                new DataFlow.OutputBoolean({shortName: "I", required:false, default: false}) // Integers only?
-            ];
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
+            //var inputs = [
+            //    new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),  // Start Value (min)
+            //    new DataFlow.OutputNumber({shortName: "E", required:false, default: 1}),  // End Value (max)
+            //    new DataFlow.OutputBoolean({shortName: "I", required:false, default: false}) // Integers only?
+            //];
 
-            var args = _.extend({
+            var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Slider",
                 drawPreview: false
-            },opts || {});
+            });
             this.base_init(args);
         },
         recalculate: function(){
