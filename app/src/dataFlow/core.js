@@ -33,8 +33,14 @@ define([
                     }
                 }
                 this.interpretAs = parameterType;
+
+                // restore user-saved values to the component
+                if (!_.isUndefined(args._persistedData)) {
+                    this.assignValues(args._persistedData);
+                }
             },
             assignValues: function(values, forPath){
+                /* This function stores user-entered data directly. When saved, the output will store these values in JSON format */
                 if (!_.isArray(values)) {
                     this.setNull(true);
                     throw new Error("'Values' must be an array");
@@ -45,7 +51,7 @@ define([
 
                 // store data
                 this.values.addChildAtPath(values,forPath || [0],true);
-
+                this._persistedData = values.slice(0);
                 this.setNull(this.values.isEmpty());
 
                 this.trigger('change');
@@ -130,14 +136,20 @@ define([
                 this.trigger("connectedOutput", outputModel);
             },
             toJSON: function(){
-                return {
+                var obj = {
                     shortName: this.shortName,
                     id: this.id || this.cid,
                     connections: _.map(this._listeningTo,function(output){
                         return output.id || output.cid;
                     }),
                     type: this.type
+                };
+
+                if (!_.isUndefined(this._persistedData)) {
+                    obj._persistedData = this._persistedData;
                 }
+
+                return obj;
             }
 
 

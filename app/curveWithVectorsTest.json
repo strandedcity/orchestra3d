@@ -220,7 +220,19 @@
         "shortName": "N",
         "id": "c41",
         "connections": [],
-        "type": 0
+        "type": 0,
+        "_persistedData": [
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ]
       }
     ],
     "id": "c40"
@@ -245,7 +257,19 @@
         "shortName": "N",
         "id": "c46",
         "connections": [],
-        "type": 0
+        "type": 0,
+        "_persistedData": [
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0
+        ]
       }
     ],
     "id": "c45"
@@ -270,7 +294,19 @@
         "shortName": "N",
         "id": "c51",
         "connections": [],
-        "type": 0
+        "type": 0,
+        "_persistedData": [
+          0,
+          0.5,
+          1,
+          1.5,
+          2,
+          2.5,
+          3,
+          3.5,
+          4,
+          4.5
+        ]
       }
     ],
     "id": "c50"
@@ -338,7 +374,10 @@
         "shortName": "N",
         "id": "c64",
         "connections": [],
-        "type": 0
+        "type": 0,
+        "_persistedData": [
+          3
+        ]
       }
     ],
     "id": "c63"
@@ -388,7 +427,10 @@
         "shortName": "N",
         "id": "c74",
         "connections": [],
-        "type": 0
+        "type": 0,
+        "_persistedData": [
+          1
+        ]
       }
     ],
     "id": "c73"
