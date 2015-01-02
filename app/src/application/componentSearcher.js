@@ -52,9 +52,10 @@ define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
                     var nameMatch = [],
                         descriptionMatch = [],
                         other = [],
-                        re = new RegExp(this.query, 'i');
+                        re = new RegExp(this.query, 'i'),
+                        item; // for the loop
 
-                    while ((item = items.shift())) {
+                    while ((item = items.pop())) {
                         if (item.name.search(re) === 0) nameMatch.splice(0,0,item);
                         else if (item.name.search(re) > -1) nameMatch.push(item);
                         else if (item.shortDescription.search(re) > -1) descriptionMatch.push(item);
