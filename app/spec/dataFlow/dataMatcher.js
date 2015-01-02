@@ -15,7 +15,7 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             // The tests below will run simple calculations across output objects to verify that the lists of data they contain match up correctly.
             // Numbers make it easy to tell which list items are being combined.
             outputs = [];
-            for (var i=0; i<3; i++) {outputs[i] = new dataFlow.OutputNumber();}
+            for (var i=0; i<3; i++) {outputs[i] = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});}
         });
 
         it("Selects the correct master list when there are equal numbers of branches, but a deeper path in one case",function(){

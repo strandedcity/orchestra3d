@@ -3,7 +3,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
         describe("Output",function(){
             var outputX;
             beforeEach(function(){
-                outputX = new dataFlow.OutputNumber();
+                outputX = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
             });
 
             it("Instantiates a new 'number' output object",function(){

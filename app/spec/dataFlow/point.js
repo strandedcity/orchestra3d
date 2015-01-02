@@ -6,9 +6,9 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             // "outputs" are actually inputs to the "point" component. They are outputs
             // in the sense that they are assumed to be emitted from a prior component.
             // Output objects are tested separately in DataFlow --> Core --> Output Objects
-            outputX = new dataFlow.OutputNumber();
-            outputY = new dataFlow.OutputNumber();
-            outputZ = new dataFlow.OutputNumber();
+            outputX = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
+            outputY = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
+            outputZ = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
 
             outputX.assignValues([1,2]);
             outputY.assignValues([2,4]);
@@ -104,7 +104,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             spyOn(pointComponent, '_recalculate');
 
             // create new input
-            var outputZReplacement = new dataFlow.OutputNumber();
+            var outputZReplacement = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
             outputZReplacement.assignValues([9,10]);
             pointComponent.assignInput("Z",outputZReplacement);
 

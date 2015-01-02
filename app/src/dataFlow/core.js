@@ -142,26 +142,6 @@ define([
 
 
         });
-        //
-        /*  Output Data types */
-        DataFlow.OutputNumber = function OutputNumber(opts) {
-            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.NUMBER, shortName: "N"},opts || {}));
-        };
-        DataFlow.OutputPoint = function OutputPoint(opts) {
-            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.POINT, shortName: "P"},opts || {}));
-        };
-        DataFlow.OutputCurve = function OutputCurve(opts) {
-            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.CURVE, shortName: "C"},opts || {}));
-        };
-        DataFlow.OutputBoolean = function OutputBoolean(opts) {
-            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.BOOLEAN, shortName: "B"},opts || {}));
-        };
-        DataFlow.OutputMultiType = function OutputMultiType(opts) {
-            return new DataFlow.Output( _.extend({type: ENUMS.OUTPUT_TYPES.WILD, shortName: "T"}, opts || {}));
-        };
-        DataFlow.OutputNull = function OutputNull(opts) {
-            return new DataFlow.Output(_.extend({type: ENUMS.OUTPUT_TYPES.NULL, shortName: "x"}, opts || {}));
-        };
 
         var Component = DataFlow.Component = Backbone.Model.extend({
 
