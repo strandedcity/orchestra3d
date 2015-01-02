@@ -10,9 +10,14 @@
     "shortDescription": "Measures the distance between two supplied points"
   },
   {
-    "functionName": "ShiftListComponent",
+    "functionName": "ShiftComponent",
     "name": "Shift List",
     "shortDescription": "Removes items from the beginning of a data list, and optionally tacks them back onto the end"
+  },
+  {
+    "functionName": "GraftComponent",
+    "name": "Graft Tree",
+    "shortDescription": "Creates a separate branch for each data item in the supplied tree"
   },
   {
     "functionName": "BooleanComponent",
