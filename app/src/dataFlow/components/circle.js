@@ -5,11 +5,9 @@ define([
     "dataFlow/UI/geometryPreviews",
     "dataFlow/dataMatcher"
 ],function(_,DataFlow,Geometry,Preview,DataMatcher){
-    var CircleCNRComponent = DataFlow.CircleCNRComponent = function CircleCNRComponent(opts){
-        this.initialize.apply(this, arguments);
-    };
+    var components = {};
 
-    _.extend(CircleCNRComponent.prototype, DataFlow.Component.prototype,{
+    components.CircleCNRComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputCurve();
 
@@ -50,5 +48,5 @@ define([
         }
     });
 
-    return DataFlow;
+    return components;
 });

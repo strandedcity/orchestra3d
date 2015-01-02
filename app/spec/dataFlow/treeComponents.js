@@ -2,16 +2,16 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
     var graftComponent, numberComponent, booleanTrueComponent, mixedBooleanComponent, pointComponent;
 
     beforeEach(function(){
-        graftComponent = new dataFlow.Tree.GraftComponent();
+        graftComponent = dataFlow.createComponentByName("GraftComponent");
 
-        numberComponent = new dataFlow.NumberComponent();
+        numberComponent = dataFlow.createComponentByName("NumberComponent");
 
-        booleanTrueComponent = new dataFlow.BooleanTrueComponent();
+        booleanTrueComponent = dataFlow.createComponentByName("BooleanTrueComponent");
 
-        mixedBooleanComponent = new dataFlow.BooleanComponent();
+        mixedBooleanComponent = dataFlow.createComponentByName("BooleanComponent");
         mixedBooleanComponent.output.assignValues([true,false,true,false,true,false]);
 
-        pointComponent = new dataFlow.PointComponent();
+        pointComponent = dataFlow.createComponentByName("PointComponent");
     });
 
     return [["GraftComponent",function(){

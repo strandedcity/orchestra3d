@@ -4,11 +4,9 @@ define([
     "dataFlow/dataTree",
     "dataFlow/dataMatcher"
 ],function(_,DataFlow,DataTree,DataMatcher){
-    var NumberComponent = DataFlow.NumberComponent = function NumberComponent(opts){
-        this.initialize.apply(this, arguments);
-    };
+    var components = {};
 
-    _.extend(NumberComponent.prototype, DataFlow.Component.prototype,{
+    components.NumberComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputNumber();
 
@@ -40,11 +38,7 @@ define([
         }
     });
 
-    var SeriesComponent = DataFlow.SeriesComponent = function SeriesComponent(opts){
-        this.initialize.apply(this,arguments);
-    };
-
-    _.extend(SeriesComponent.prototype, DataFlow.Component.prototype,{
+    components.SeriesComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputNumber({shortName: "S"});
 
@@ -85,11 +79,7 @@ define([
         },
     });
 
-    var SliderComponent = DataFlow.SliderComponent = function SliderComponent(opts){
-        this.initialize.call(this,opts);
-    };
-
-    _.extend(SliderComponent.prototype, DataFlow.Component.prototype,{
+    components.SliderComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
 
@@ -130,6 +120,6 @@ define([
         }
     });
 
-    return DataFlow;
+    return components;
 });
 

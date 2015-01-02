@@ -14,7 +14,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             outputY.assignValues([2,4]);
             outputZ.assignValues([4,8]);
 
-            pointComponent = new dataFlow.PointComponent();
+            pointComponent = new dataFlow.components.point.PointComponent();
         });
 
         // Each test is separate, but we'll need to assign inputs for several of them (not all)
@@ -25,7 +25,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
         };
 
         it("Has a constructor named 'PointComponent'",function(){
-            expect(pointComponent.constructor.name).toEqual("PointComponent");
+            expect(pointComponent.componentName).toEqual("PointComponent");
         });
         it("Should assign numerical inputs to the dataFlow Point object",function(){
             assignInputs();

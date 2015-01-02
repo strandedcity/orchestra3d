@@ -3,13 +3,9 @@ define([
     "dataFlow/core"
 ],function(_,DataFlow){
 
-    var Tree = {};
+    var components = {};
 
-    Tree.GraftComponent = function GraftComponent(opts){
-        this.initialize.apply(this, arguments);
-    };
-
-    _.extend(Tree.GraftComponent.prototype, DataFlow.Component.prototype,{
+    components.GraftComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputMultiType();
 
@@ -37,10 +33,7 @@ define([
         }
     });
 
-    Tree.ShiftComponent = function ShiftComponent(opts){
-        this.initialize.apply(this,arguments);
-    };
-    _.extend(Tree.ShiftComponent.prototype, DataFlow.Component.prototype,{
+    components.ShiftComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputMultiType({shortName: "L"});
 
@@ -89,6 +82,6 @@ define([
         }
     });
 
-    return {Tree: Tree};
+    return components;
 });
 

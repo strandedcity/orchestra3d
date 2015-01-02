@@ -22,9 +22,9 @@ require(["appconfig"],function(){
                 // Create the navbar, and listen for it to add new components to the workspace
                 var navbar = new Nav();
                 navbar.on('createNewComponent',function(component){
-                    new ComponentView(new dataFlow[component.functionName]({
+                    new ComponentView(dataFlow.createComponentByName(component.functionName),{
                         position: {x: 0, y: 0}
-                    }));
+                    });
                 });
 
                 var axisHelper = new THREE.AxisHelper( 2 );
@@ -84,63 +84,66 @@ require(["appconfig"],function(){
             };
 
             App.prototype.NURBSCurveTest = function(){
-                var point1 = new ComponentView(new dataFlow.PointComponent({
+
+                var samplePointComponent = dataFlow.createComponentByName("PointComponent",{
                     position: {x: 500, y: 0}
-                }));
-                var vec1 = new ComponentView(new dataFlow.VectorComponent({
+                });
+                var point1 = new ComponentView(samplePointComponent);
+
+                var vec1 = new ComponentView(dataFlow.createComponentByName("VectorComponent",{
                     position: {x: 500, y: 550}
                 }));
-                var vecDisplay = new ComponentView(new dataFlow.VectorDisplayComponent({
+                var vecDisplay = new ComponentView(dataFlow.createComponentByName("VectorDisplayComponent",{
                     position: {x: 2200, y: 550}
                 }));
-                var shift1 = new ComponentView(new dataFlow.Tree.ShiftComponent({
+                var shift1 = new ComponentView(dataFlow.createComponentByName("ShiftComponent",{
                     position: {x: 1200, y: 750}
                 }));
-                var vec2pt = new ComponentView(new dataFlow.Vector2PtComponent({
+                var vec2pt = new ComponentView(dataFlow.createComponentByName("Vector2PtComponent",{
                     position: {x: 1700, y: 750}
                 }));
 
-                var number1 = new ComponentView(new dataFlow.NumberComponent({
+                var number1 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: 100}
                 }));
-                var number2 = new ComponentView(new dataFlow.NumberComponent({
+                var number2 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: 0}
                 }));
-                var number3 = new ComponentView(new dataFlow.NumberComponent({
+                var number3 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
                     position: {x: -200, y: -100}
                 }));
 
-                var curve = new ComponentView(new dataFlow.CurveControlPointComponent({
+                var curve = new ComponentView(dataFlow.createComponentByName("CurveControlPointComponent",{
                     position: {x: 1400, y: -250}
                 }));
 
-                var degree = new ComponentView(new dataFlow.NumberComponent({
+                var degree = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
                     position: {x: 500, y: -250}
                 }));
 
-                var periodic = new ComponentView(new dataFlow.BooleanTrueComponent({
+                var periodic = new ComponentView(dataFlow.createComponentByName("BooleanTrueComponent",{
                     position: {x: 500, y: -450}
                 }));
 
 
-                var degree2 = new ComponentView(new dataFlow.NumberComponent({
+                var degree2 = new ComponentView(dataFlow.createComponentByName("NumberComponent",{
                     position: {x: 500, y: 400}
                 }));
 
-                var series = new ComponentView(new dataFlow.SeriesComponent({
+                var series = new ComponentView(dataFlow.createComponentByName("SeriesComponent",{
                     position: {x: 1400, y: 200}
                 }));
 
-                var graftTree = new ComponentView(new dataFlow.Tree.GraftComponent({
+                var graftTree = new ComponentView(dataFlow.createComponentByName("GraftComponent",{
                     position: {x: 500, y: 200}
                 }));
 
 
-                var circle = new ComponentView(new dataFlow.CircleCNRComponent({
+                var circle = new ComponentView(dataFlow.createComponentByName("CircleCNRComponent",{
                     position: {x: 2200, y: 250}
                 }));
 
-                var slider1 = new ComponentView(new dataFlow.SliderComponent({
+                var slider1 = new ComponentView(dataFlow.createComponentByName("SliderComponent",{
                     position: {x: -200, y: 400}
                 }));
                 /* Make connections between inputs and outputs of components */
@@ -170,6 +173,11 @@ require(["appconfig"],function(){
                     degree.component.output.assignValues([3]);
                     degree2.component.output.assignValues([1]);
 
+
+                    //console.log(samplePointComponent.toJSON());
+                    //
+                    //window.DataFlow = dataFlow;
+
                     workspace.render();
                 });
             };
@@ -191,7 +199,7 @@ require(["appconfig"],function(){
                 var line2 = new THREE.Line(endPointGeo, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 0.1, gapSize: 0.1, linewidth: 2 } ), THREE.LineStrip);
                 viewer.scene.add(line2);
             };
-console.log(dataFlow);
+
             return new App();
         }
     );

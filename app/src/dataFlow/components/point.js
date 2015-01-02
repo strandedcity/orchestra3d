@@ -1,16 +1,14 @@
 define([
         "underscore",
         "dataFlow/core",
-        "SISL/sisl_loader",
+        "threejs",
         "dataFlow/UI/geometryPreviews",
         "dataFlow/dataTree",
         "dataFlow/dataMatcher"
-    ],function(_,DataFlow,Geometry,Preview,DataTree,DataMatcher){
-        var PointComponent = DataFlow.PointComponent = function PointComponent(opts){
-            this.initialize.apply(this, arguments);
-        };
+    ],function(_,DataFlow,THREE,Preview,DataTree,DataMatcher){
+        var components = {};
 
-        _.extend(PointComponent.prototype, DataFlow.Component.prototype,{
+        components.PointComponent = DataFlow.Component.extend({
             initialize: function(opts){
                 var output = new DataFlow.OutputPoint();
 
@@ -32,7 +30,7 @@ define([
                 this.clearPreviews();
 
                 var resultObject = DataMatcher([this["X"],this["Y"],this["Z"]],function(x,y,z){
-                    return new Geometry.Point(x,y,z);
+                    return new THREE.Vector3(x,y,z);
                 });
 
                 this.output.replaceData(resultObject.tree);
@@ -56,10 +54,7 @@ define([
         });
 
         /*  VectorComponent and PointComponent are mostly the same, but there's a separate component name and prototype if differences emerge */
-        var VectorComponent = DataFlow.VectorComponent = function VectorComponent(opts){
-            this.initialize.apply(this, arguments);
-        };
-        _.extend(VectorComponent.prototype, DataFlow.Component.prototype,{
+        components.VectorComponent = components.PointComponent.extend({
             initialize: function(opts){
 
                 var output = new DataFlow.OutputPoint({shortName: "V"});
@@ -69,17 +64,14 @@ define([
                     drawPreview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"
                 },opts || {});
-                PointComponent.prototype.initialize.call(this,args);
+                components.PointComponent.prototype.initialize.call(this,args);
 
-                _.extend(this,PointComponent.prototype);
+                _.extend(this,components.PointComponent.prototype);
             }
         });
 
         /*  Another way to define a vector: the vector connecting two points*/
-        var Vector2PtComponent = DataFlow.Vector2PtComponent = function Vector2PtComponent(opts){
-            this.initialize.apply(this, arguments);
-        };
-        _.extend(Vector2PtComponent.prototype, DataFlow.Component.prototype,{
+        components.Vector2PtComponent = components.PointComponent.extend({
             initialize: function(opts){
                 var output = new DataFlow.OutputPoint({shortName: "V"});
 
@@ -112,10 +104,7 @@ define([
         });
 
         /*  Vector Normalize  */
-        DataFlow.VectorNormalizeComponent = function VectorNormalizeComponent(opts){
-            this.initialize.apply(this,arguments);
-        };
-        _.extend(DataFlow.VectorNormalizeComponent.prototype, DataFlow.Component.prototype,{
+        components.VectorNormalizeComponent = components.PointComponent.extend({
             initialize: function(opts){
                 var output = new DataFlow.OutputPoint({shortName: "V"});
 
@@ -144,10 +133,7 @@ define([
         });
 
         /* Distance between two points */
-        DataFlow.PointDistanceComponent = function PointDistanceComponent(opts){
-            this.initialize.apply(this,arguments);
-        };
-        _.extend(DataFlow.PointDistanceComponent.prototype, DataFlow.Component.prototype,{
+        components.PointDistanceComponent = components.PointComponent.extend({
             initialize: function(opts){
                 var output = new DataFlow.OutputNumber({shortName: "D"});
 
@@ -179,11 +165,7 @@ define([
         /*  A special component displays the vectors. This is because the 'anchor' property
             belongs to the preview alone, and is not part of the vector's mathematical properties.
          */
-        var VectorDisplayComponent = DataFlow.VectorDisplayComponent = function VectorDisplayComponent(opts){
-            this.initialize.apply(this,arguments);
-        };
-
-        _.extend(VectorDisplayComponent.prototype, DataFlow.Component.prototype,{
+        components.VectorDisplayComponent = components.PointComponent.extend({
             initialize: function(opts){
                 var output = new DataFlow.OutputNull();
 
@@ -218,6 +200,6 @@ define([
             }
         });
 
-        return DataFlow;
+        return components;
 });
 

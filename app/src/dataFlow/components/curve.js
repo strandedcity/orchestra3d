@@ -4,11 +4,8 @@ define([
     "SISL/sisl_loader",
     "dataFlow/UI/geometryPreviews"
 ],function(_,DataFlow,Geometry,Preview){
-    var CurveControlPointComponent = DataFlow.CurveControlPointComponent = function CurveControlPointComponent(opts){
-        this.initialize.apply(this, arguments);
-    };
-
-    _.extend(CurveControlPointComponent.prototype, DataFlow.Component.prototype,{
+    var components = {};
+    components.CurveControlPointComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = new DataFlow.OutputCurve();
 
@@ -56,6 +53,6 @@ define([
         }
     });
 
-    return DataFlow;
+    return components;
 });
 
