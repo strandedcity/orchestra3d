@@ -109,6 +109,14 @@
             width: 30px;
             display: inline-block;
         }
+        .context-menu input {
+            border-radius: 17px;
+            border: 1px solid lightgray;
+            padding-left: 23px;
+        }
+        .context-menu input:focus {
+            outline-width: 0;
+        }
     </style>
     <script data-main="app" type="text/javascript" src="lib/require.js"></script>
 
@@ -174,7 +182,7 @@
         <!-- Basic context menu HTML -->
         <div class="context-menu">
         <ul class="dropdown-menu" role="menu">
-        <li><a tabindex="-1"><span class=" icongutter"></span><input type="text" placeholder="Component Name" value="<%= componentPrettyName %>"/></a></li>
+        <li><a tabindex="-1"><input type="text" placeholder="Component Name" value="<%= componentPrettyName %>"/></a></li>
         <li class="divider"></li>
         <li><a class="previewToggle" tabindex="-1"><span class="<% if (preview === true) {print('glyphicon glyphicon-ok');}%> icongutter"></span>Preview</a></li>
         <!--<li class="divider"></li>

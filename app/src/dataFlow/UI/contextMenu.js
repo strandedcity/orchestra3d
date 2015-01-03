@@ -12,6 +12,7 @@ define([
     var ContextMenu = Backbone.View.extend({
         events: {
             'click input': "keepMenu",
+            'contextmenu input': "keepMenu",
             'click a.previewToggle': "togglePreview",
             'keyup input': "editComponentPrettyName"
         },

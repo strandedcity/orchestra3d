@@ -272,6 +272,9 @@ define([
         }
         function doDoubleClick(e){
             console.log('dblclick');
+            try {
+                view.component.output.getTree().log();
+            } catch (e) {/* eh, so we couldn't log the data. */}
         }
         function doDrag(e){
             console.log('drag');

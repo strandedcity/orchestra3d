@@ -25,7 +25,8 @@ define([
     function SliderComponentView(component) {
         /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
          * the slider, but not the display of the slider itself. */
-        _.extend(this,ComponentView.prototype,{
+        var that = this;
+         _.extend(this,ComponentView.prototype,{
             // Show Slider UI
             click: function(x,y){
                 // Show the slider and overlay. It cleans up itself.
@@ -41,6 +42,14 @@ define([
             },
             sliderUpdateValue: function(value){
                 component.output.assignValues([value],[0]);
+                that.displayVals();
+            },
+            displayVals: function(){
+                if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
+                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+                } else {
+                    this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
+                }
             }
         });
         _.bindAll(this,"click","sliderUpdateValue");
@@ -103,6 +112,11 @@ define([
         // With dom elements created, bind events:
         this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
         this.changeSufficiency(this.component.hasSufficientInputs());
+        this.listenTo(this.component,"change:componentPrettyName",this.displayVals);
+    };
+
+    ComponentView.prototype.displayVals = function(){
+        this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
     };
 
     ComponentView.prototype.changeSufficiency = function(state){
@@ -158,11 +172,14 @@ define([
 
         // add each input:
         _.each(inputs, function(ipt,idx){
-            that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt.type,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+            if (ipt.type !== DataFlow.OUTPUT_TYPES.NULL) {
+                that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt.type,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+            }
         },this);
     };
 
     ComponentView.prototype.createOutputs = function(){
+        if (this.component.output.type === DataFlow.OUTPUT_TYPES.NULL) return;
         this.createOutputWithNameAndParent(this.component.output.shortName,this.component.output.type,this.cssObject,0);
     };
     ComponentView.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
