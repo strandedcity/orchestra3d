@@ -630,7 +630,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
-	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	this.domElement.addEventListener( 'contextmenu', function ( event ) {
+		// prevent the context menu, treat the right click as a regular mousedown event
+		//event.preventDefault();
+		onMouseDown(event);
+	}, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
