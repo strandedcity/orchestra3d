@@ -27,7 +27,7 @@ define([
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "NURBS Crv",
-                drawPreview: true
+                preview: true
             });
             this.base_init(args);
         },

@@ -1,11 +1,12 @@
 [
   {
+    "componentPrettyName": "Point(x,y,z)",
     "componentName": "PointComponent",
     "position": {
       "x": 500,
       "y": 0
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "X",
@@ -43,12 +44,13 @@
     "id": "c2"
   },
   {
+    "componentPrettyName": "Vec(x,y,z)",
     "componentName": "VectorComponent",
     "position": {
       "x": 500,
       "y": 550
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "X",
@@ -86,12 +88,13 @@
     "id": "c10"
   },
   {
+    "componentPrettyName": "VDisplay",
     "componentName": "VectorDisplayComponent",
     "position": {
       "x": 2200,
       "y": 550
     },
-    "drawPreview": true,
+    "preview": true,
     "inputs": [
       {
         "shortName": "A",
@@ -121,12 +124,13 @@
     "id": "c18"
   },
   {
+    "componentPrettyName": "Shift",
     "componentName": "ShiftComponent",
     "position": {
       "x": 1200,
       "y": 750
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "L",
@@ -160,12 +164,13 @@
     "id": "c24"
   },
   {
+    "componentPrettyName": "Vec2Pt",
     "componentName": "Vector2PtComponent",
     "position": {
       "x": 1700,
       "y": 750
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "A",
@@ -201,12 +206,13 @@
     "id": "c32"
   },
   {
+    "componentPrettyName": "Number",
     "componentName": "NumberComponent",
     "position": {
       "x": -200,
       "y": 100
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "N",
@@ -238,12 +244,13 @@
     "id": "c40"
   },
   {
+    "componentPrettyName": "Number",
     "componentName": "NumberComponent",
     "position": {
       "x": -200,
       "y": 0
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "N",
@@ -275,12 +282,13 @@
     "id": "c45"
   },
   {
+    "componentPrettyName": "Number",
     "componentName": "NumberComponent",
     "position": {
       "x": -200,
       "y": -100
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "N",
@@ -312,12 +320,13 @@
     "id": "c50"
   },
   {
+    "componentPrettyName": "NURBS Crv",
     "componentName": "CurveControlPointComponent",
     "position": {
       "x": 1400,
       "y": -250
     },
-    "drawPreview": true,
+    "preview": true,
     "inputs": [
       {
         "shortName": "V",
@@ -355,12 +364,13 @@
     "id": "c55"
   },
   {
+    "componentPrettyName": "Number",
     "componentName": "NumberComponent",
     "position": {
       "x": 500,
       "y": -250
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "N",
@@ -383,12 +393,13 @@
     "id": "c63"
   },
   {
+    "componentPrettyName": "Bool",
     "componentName": "BooleanFalseComponent",
     "position": {
       "x": 500,
       "y": -450
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "B",
@@ -408,12 +419,13 @@
     "id": "c68"
   },
   {
+    "componentPrettyName": "Number",
     "componentName": "NumberComponent",
     "position": {
       "x": 500,
       "y": 400
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "N",
@@ -436,12 +448,13 @@
     "id": "c73"
   },
   {
+    "componentPrettyName": "Series",
     "componentName": "SeriesComponent",
     "position": {
       "x": 1400,
       "y": 200
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "S",
@@ -473,12 +486,13 @@
     "id": "c78"
   },
   {
+    "componentPrettyName": "Graft",
     "componentName": "GraftComponent",
     "position": {
       "x": 500,
       "y": 200
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "T",
@@ -498,12 +512,13 @@
     "id": "c87"
   },
   {
+    "componentPrettyName": "Circle",
     "componentName": "CircleCNRComponent",
     "position": {
       "x": 2200,
       "y": 250
     },
-    "drawPreview": true,
+    "preview": true,
     "inputs": [
       {
         "shortName": "C",
@@ -535,12 +550,13 @@
     "id": "c91"
   },
   {
+    "componentPrettyName": "Slider",
     "componentName": "SliderComponent",
     "position": {
       "x": -200,
       "y": 400
     },
-    "drawPreview": false,
+    "preview": false,
     "inputs": [
       {
         "shortName": "S",

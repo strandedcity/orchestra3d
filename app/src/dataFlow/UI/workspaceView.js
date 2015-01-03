@@ -7,12 +7,13 @@
 // See http://learningthreejs.com/blog/2013/04/30/closing-the-gap-between-html-and-webgl/
 define([
     "jquery",
+    "dataFlow/UI/contextMenu",
     "threejs",
     "CSS3DRenderer",
     "OrbitControls",
     "underscore",
     "backbone"
-],function($){
+],function($,ContextMenu){
 
     // Helpers for drag-and-drop scopes
     _.extend(THREE.CSS3DObject.prototype,Backbone.Events,{
@@ -175,41 +176,30 @@ define([
     };
 
     Workspace.prototype.setupContextMenu = function(){
-        /* When interacting with the context menu, make sure events don't propagate upwards, closing the menu */
-        $('#context-menu').on("click",function(e){
-            e.stopPropagation();
-        });
+        ///* When interacting with the context menu, make sure events don't propagate upwards, closing the menu */
+        //$('#context-menu').on("click",function(e){
+        //    e.stopPropagation();
+        //});
 
         $('div.TOP').on("contextmenu","div.draggable",function(e){
             e.stopPropagation();
             e.preventDefault();
 
             // The "view" object associated with the thing that was clicked for context menu:
-            var viewObject = $(e.currentTarget).data();
+            var viewObject = $(e.currentTarget).data('viewObject'),
+                x = e.clientX,
+                y = e.clientY;
 
-            /* Show the context menu */
-            $('#context-menu').css({
-                display: 'block',
-                top: e.clientY+'px',
-                left: e.clientX +'px',
-                position: 'absolute'
-            }).find('.dropdown-menu').css({
-                top: '0px',
-                display: 'block'
-            });
-
-
-            /* Make sure the context menu goes away when any interaction occurs */
-            var eventHandlers = {click: hideMenu,contextmenu: hideMenu,mousewheel: hideMenu};
-
-            function hideMenu(){
-                $(document).off(eventHandlers);
-                $('#context-menu').css({
-                    display: 'none'
+            // Context menu for a component:
+            if (!_.isUndefined(viewObject.component)) {
+                new ContextMenu({
+                    x: x,
+                    y: y,
+                    model: viewObject.component
                 });
+            } else {
+                // No context options available
             }
-
-            $(document).on(eventHandlers);
         });
     };
 
@@ -258,9 +248,9 @@ define([
                     doubleClickTimer = null;
 
                     // Decide: was this event a drag (mouse button stayed down), single click or double click?
-                    if (holdActive === true) doDrag();
-                    else if (clicks === 1) doSingleClick();
-                    else doDoubleClick();
+                    if (holdActive === true) doDrag(e);
+                    else if (clicks === 1) doSingleClick(e);
+                    else doDoubleClick(e);
                     clicks = 0;
                 },holdDelay);
             }
@@ -276,13 +266,14 @@ define([
             onMouseUp();
         }
 
-        function doSingleClick(){
+        function doSingleClick(e){
             console.log('click');
+            if (typeof view.click === "function" && !_.isUndefined(e)) view.click(e.clientX, e.clientY);
         }
-        function doDoubleClick(){
+        function doDoubleClick(e){
             console.log('dblclick');
         }
-        function doDrag(){
+        function doDrag(e){
             console.log('drag');
         }
     };

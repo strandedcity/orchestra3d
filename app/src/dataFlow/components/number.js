@@ -66,7 +66,7 @@ define([
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Series",
-                drawPreview: false
+                preview: false
             });
             this.base_init(args);
             this.recalculate(); // since it doesn't need any inputs to have valid output
@@ -115,7 +115,7 @@ define([
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Slider",
-                drawPreview: false
+                preview: false
             });
             this.base_init(args);
         },

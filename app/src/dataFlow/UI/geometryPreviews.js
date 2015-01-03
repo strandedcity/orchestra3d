@@ -23,6 +23,7 @@ define([
         });
 
         this.line = this.draw(this.line);
+        viewer.render();
     };
     CurvePreview.prototype.draw = function(line){
         var minParameter =  this.curve.getMinParameter();
@@ -48,15 +49,14 @@ define([
             viewer.scene.add(currentLine);
         }
 
-        viewer.render();
         return currentLine;
     };
     CurvePreview.prototype.remove = function(){
         if (!_.isUndefined(this.line)) {
-            //console.log('removing ',this.line);
             viewer.scene.remove(this.line);
             this.line.remove();
             delete this.line;
+            viewer.render();
         }
     };
 
@@ -89,13 +89,14 @@ define([
         _.defer(function(){
             viewer.render();
         });
-        //viewer.render();
+        viewer.render();
     };
     PointListPreview.prototype.remove = function(){
         if (!_.isUndefined(this.system)) {
             viewer.scene.remove(this.system);
             this.system.remove();
             delete this.system;
+            viewer.render();
         }
     };
 
@@ -123,6 +124,7 @@ define([
             viewer.scene.remove(this.arrowHelper);
             this.arrowHelper.remove();
             delete this.arrowHelper;
+            viewer.render();
         }
     };
 

@@ -18,7 +18,7 @@ define([
                     inputs: this.getStandardPointInputs(opts),
                     output: output,
                     componentPrettyName: "Point(x,y,z)",
-                    drawPreview: false
+                    preview: false
                 });
                 this.base_init(args);
             },
@@ -66,7 +66,7 @@ define([
                 var args = _.extend(opts || {},{
                     inputs: this.getStandardPointInputs(opts),
                     output: output, // Different name, same thing
-                    drawPreview: false, // in case the base class changes this behavior
+                    preview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"
                 });
 
@@ -96,7 +96,7 @@ define([
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "Vec2Pt",
-                    drawPreview: false
+                    preview: false
                 });
                 this.base_init(args);
             },
@@ -132,7 +132,7 @@ define([
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "VecNormal",
-                    drawPreview: false
+                    preview: false
                 },opts || {});
                 this.base_init(args);
             },
@@ -168,7 +168,7 @@ define([
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "Distance",
-                    drawPreview: false
+                    preview: false
                 },opts || {});
                 this.base_init(args);
             },
@@ -206,7 +206,7 @@ define([
                     inputs: inputs,
                     output: output,
                     componentPrettyName: "VDisplay",
-                    drawPreview: true
+                    preview: true
                 });
                 this.base_init(args);
             },

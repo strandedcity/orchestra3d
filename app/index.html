@@ -95,6 +95,20 @@
             height: 100%;
             border: none;
         }
+
+        /* Context menu stuff */
+        .context-menu {
+            position: absolute;
+            display: none;
+        }
+        .context-menu .dropdown-menu {
+            top: 0;
+            display: block;
+        }
+        .context-menu .icongutter {
+            width: 30px;
+            display: inline-block;
+        }
     </style>
     <script data-main="app" type="text/javascript" src="lib/require.js"></script>
 
@@ -155,21 +169,24 @@
             </div><!-- /.container-fluid -->
         </nav>
     </script>
+
+    <script type="text/template" id="contextMenu">
+        <!-- Basic context menu HTML -->
+        <div class="context-menu">
+        <ul class="dropdown-menu" role="menu">
+        <li><a tabindex="-1"><span class=" icongutter"></span><input type="text" placeholder="Component Name" value="<%= componentPrettyName %>"/></a></li>
+        <li class="divider"></li>
+        <li><a class="previewToggle" tabindex="-1"><span class="<% if (preview === true) {print('glyphicon glyphicon-ok');}%> icongutter"></span>Preview</a></li>
+        <!--<li class="divider"></li>
+        <li><a tabindex="-1"><span class=" icongutter"></span>Set One Vector</a></li>
+        <li><a tabindex="-1"><span class=" icongutter"></span>Set Multiple Vectors</a></li>-->
+        </ul>
+        </div>
+    </script>
 </head>
 
 <body>
 <div id="navContainer"></div>
-
-<!-- Basic context menu HTML -->
-<div id="context-menu">
-    <ul class="dropdown-menu" role="menu">
-        <li><a tabindex="-1">Action</a></li>
-        <li><a tabindex="-1">Another action</a></li>
-        <li><a tabindex="-1">Something else here</a></li>
-        <li class="divider"></li>
-        <li><a tabindex="-1">Separated link</a></li>
-    </ul>
-</div>
 
 </body>
 </html>

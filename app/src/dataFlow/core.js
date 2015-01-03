@@ -206,13 +206,21 @@ define([
                 this.inputTypes = opts.inputTypes;
                 this.output = opts.output; // Contains raw result object pointers after async calculation completes.
                 this.inputs = this.initializeInputs(opts.inputs);
-                this.componentPrettyName = opts.componentPrettyName;
                 this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
                 this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
 
-                this._drawPreview = opts.drawPreview || false;
+                this.set('componentPrettyName', opts.componentPrettyName);
+                this.set('preview',opts.preview || false);
                 this.previews = [];
+
+                // Update previews. This is sort of "view stuff" but it's close to being "data stuff." Located here for now.
+                this.on("change:preview",function(){
+                    this.clearPreviews();
+                    if (this.get('preview') === true) {
+                        this.drawPreviews();
+                    }
+                });
             },
             initializeInputs: function(inputs){
                 // when no inputs are required, sufficiency must be calculated differently
@@ -248,6 +256,7 @@ define([
                 this._calculateSufficiency();
             },
             destroy: function(){
+                this.off();
                 this.stopListening();
                 delete this.inputs;
                 this.output.destroy();
@@ -302,7 +311,7 @@ define([
                 this.output.setNull(this.output.values.isEmpty());
 
                 // run whatever calculations are necessary, if all inputs are available
-                if (this._drawPreview) {
+                if (this.get('preview') === true) {
                     this.drawPreviews();
                 }
 
@@ -332,9 +341,10 @@ define([
                 });
 
                 return {
+                    componentPrettyName: this.attributes.componentPrettyName,
                     componentName: this.componentName,
                     position: this.position,
-                    drawPreview: this._drawPreview,
+                    preview: this.attributes.preview,
                     inputs: inputData,
                     output: [this.output.toJSON()],
                     id: this.id || this.cid

@@ -28,7 +28,7 @@ define([
                 inputs: inputs,
                 output: output,
                 componentPrettyName: "Circle",
-                drawPreview: true
+                preview: true
             });
             this.base_init(args);
         },

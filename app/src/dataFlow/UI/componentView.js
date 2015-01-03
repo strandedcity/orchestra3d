@@ -13,9 +13,9 @@ define([
             throw new Error('ComponentView objects must be instantiated with the DataFlow.Component which they represent');
         }
 
-        if (component.componentPrettyName === "Slider") {
+        if (component.componentName === "SliderComponent") {
             return new SliderComponentView(component);
-        } else if (component.componentPrettyName === "Number") {
+        } else if (component.componentName === "NumberComponent") {
             return new EditableNumberComponentView(component);
         } else {
             return new ComponentView(component);
@@ -54,7 +54,7 @@ define([
         _.extend(this,ComponentView.prototype,{
             displayVals: function(){
                 if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
-                    this.cssObject.element.firstChild.value = this.component.componentPrettyName;
+                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
                 } else {
                     this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
                 }
@@ -85,7 +85,7 @@ define([
         _.extend(this,Backbone.Events);
 
         _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
-        this.cssObject = this.createComponentWithNamePosition(this.component.componentPrettyName, this.component.position.x, this.component.position.y);
+        this.cssObject = this.createComponentWithNamePosition(this.component.get('componentPrettyName'), this.component.position.x, this.component.position.y);
 
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
