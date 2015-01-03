@@ -435,8 +435,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false || scope.noZoom === true ) return;
 
-		event.preventDefault();
-		event.stopPropagation();
+		//event.preventDefault();
+		//event.stopPropagation();
 
 		var delta = 0;
 
@@ -632,7 +632,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.domElement.addEventListener( 'contextmenu', function ( event ) {
 		// prevent the context menu, treat the right click as a regular mousedown event
-		//event.preventDefault();
+		event.preventDefault();
 		onMouseDown(event);
 	}, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );

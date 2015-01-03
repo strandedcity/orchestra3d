@@ -6,12 +6,13 @@
 //
 // See http://learningthreejs.com/blog/2013/04/30/closing-the-gap-between-html-and-webgl/
 define([
+    "jquery",
     "threejs",
     "CSS3DRenderer",
     "OrbitControls",
     "underscore",
     "backbone"
-],function(){
+],function($){
 
     // Helpers for drag-and-drop scopes
     _.extend(THREE.CSS3DObject.prototype,Backbone.Events,{
@@ -93,6 +94,9 @@ define([
         this.renderer.domElement.className = "TOP";
 
         this.attachControls();
+
+        this.setupContextMenu();
+        this.setupDraggableEventHandlers();
     };
 
     Workspace.prototype.render = function(){
@@ -170,14 +174,52 @@ define([
         this.intersectionObjects = this.computeDroppableObjects();
     };
 
-    /* Never intended to be used by the workspace itself, this is a mixin for "draggables" from other classes */
-    Workspace.prototype.setupDraggableView = function(view){
-        if (_.isUndefined(view.cssObject) || _.isUndefined(view.glObject)) throw new Error("Draggable views must have both cssObject and glObject properties");
+    Workspace.prototype.setupContextMenu = function(){
+        /* When interacting with the context menu, make sure events don't propagate upwards, closing the menu */
+        $('#context-menu').on("click",function(e){
+            e.stopPropagation();
+        });
 
-        var that = this;
-        view.cssObject.element.addEventListener("mousedown",onMouseDown);
-        view.cssObject.element.addEventListener("mouseup",onMouseUp);
-        view.cssObject.element.addEventListener("mouseout",onMouseOut);
+        $('div.TOP').on("contextmenu","div.draggable",function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            // The "view" object associated with the thing that was clicked for context menu:
+            var viewObject = $(e.currentTarget).data();
+
+            /* Show the context menu */
+            $('#context-menu').css({
+                display: 'block',
+                top: e.clientY+'px',
+                left: e.clientX +'px',
+                position: 'absolute'
+            }).find('.dropdown-menu').css({
+                top: '0px',
+                display: 'block'
+            });
+
+
+            /* Make sure the context menu goes away when any interaction occurs */
+            var eventHandlers = {click: hideMenu,contextmenu: hideMenu,mousewheel: hideMenu};
+
+            function hideMenu(){
+                $(document).off(eventHandlers);
+                $('#context-menu').css({
+                    display: 'none'
+                });
+            }
+
+            $(document).on(eventHandlers);
+        });
+    };
+
+    Workspace.prototype.setupDraggableEventHandlers = function(){
+
+        var that = this,
+            view;
+        $('div.TOP').on("mousedown","div.draggable",onMouseDown)
+        .on("mouseup","div.draggable",onMouseUp)
+        .on("mouseout","div.draggable",onMouseOut);
 
         // Timeout, started on mousedown, triggers the beginning of a hold
         var holdStarter = null,
@@ -191,6 +233,7 @@ define([
             if ( that.controls.enabled === false ) return; // ignore events if the workspace is disabled
 
             // start dragging right away. If you drop quickly enough, the event will turn into a click event after the fact!
+            view = $(e.currentTarget).data('viewObject');
             e.object = view; // add the view to the drag event
             that.startDraggingObject(e);
 
@@ -201,6 +244,7 @@ define([
             }, holdDelay);
         }
         function onMouseUp(e){
+
             if (holdStarter) {
                 clearTimeout(holdStarter);
                 holdStarter = null;
@@ -228,6 +272,15 @@ define([
         function onMouseOut(){
             onMouseUp();
         }
+    };
+
+    /* Never intended to be used by the workspace itself, this is a mixin for "draggables" from other classes */
+    Workspace.prototype.setupDraggableView = function(view){
+        if (_.isUndefined(view.cssObject) || _.isUndefined(view.glObject)) throw new Error("Draggable views must have both cssObject and glObject properties");
+
+        // The drag events themselves are delegated to avoid a huge number of separate event handlers.
+        // However, to get access to the data when clicked, the view object gets attached to the DOM
+        $(view.cssObject.element).data('viewObject',view);
     };
 
     Workspace.prototype.computeDroppableObjects = function(){
