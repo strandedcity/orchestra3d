@@ -8,12 +8,13 @@
 define([
     "jquery",
     "dataFlow/UI/contextMenu",
+    "dataFlow/enums",
     "threejs",
     "CSS3DRenderer",
     "OrbitControls",
     "underscore",
     "backbone"
-],function($,ContextMenu){
+],function($,ContextMenu,ENUMS){
 
     // Helpers for drag-and-drop scopes
     _.extend(THREE.CSS3DObject.prototype,Backbone.Events,{
@@ -35,7 +36,7 @@ define([
             else if (this.getDroppableScopes().indexOf("output") !== -1 && scopeNames.indexOf("output") === -1) { return false; }
 
             // all IOs are droppable for "wild" draggables so long as the input/output scopes match up
-            if (scopeNames.indexOf("wild") > -1 || this.getDraggableScopes().indexOf("wild") > -1 ) {return true;}
+            if (scopeNames.indexOf(ENUMS.OUTPUT_TYPES.WILD) > -1 || this.getDraggableScopes().indexOf(ENUMS.OUTPUT_TYPES.WILD) > -1 ) {return true;}
 
             // to be a valid drop target, the input/output setting must match PLUS at least one other scope.
             return  _.without(_.intersection(this.getDroppableScopes(),scopeNames),"input","output").length > 0;
