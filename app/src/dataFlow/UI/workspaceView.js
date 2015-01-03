@@ -226,7 +226,7 @@ define([
             holdDelay = 200,
             holdActive = false,
             doubleClickTimer = null,
-            doubleClickActive = false;
+            clicks = 0;
 
         function onMouseDown(e){
             if ( e.button !== 0 ) return; // left mouse button only
@@ -235,42 +235,55 @@ define([
             // start dragging right away. If you drop quickly enough, the event will turn into a click event after the fact!
             view = $(e.currentTarget).data('viewObject');
             e.object = view; // add the view to the drag event
+
+            // THIS COVERS DRAG AND DROP!
             that.startDraggingObject(e);
 
-            holdStarter = setTimeout(function() {
-                holdStarter = null;
-                holdActive = true;
-                console.log("DRAG");
-            }, holdDelay);
+            // In this context, we just need to handle clicks vs double clicks, but not do them when drag events are in progress:
+            clicks ++;
+
+            // Timer to detect when the mouse button stays down
+            if (_.isNull(holdStarter)) { // don't start time    r multiple times!
+                holdStarter = setTimeout(function() {
+                    clearTimeout(holdStarter);
+                    holdStarter = null;
+                    holdActive = true;
+                }, holdDelay);
+            }
+
+            // Timer to count number of clicks that are part of a "single" event:
+            if (!doubleClickTimer){ // don't start the timer multiple times!
+                doubleClickTimer = setTimeout(function(){
+                    clearTimeout(doubleClickTimer);
+                    doubleClickTimer = null;
+
+                    // Decide: was this event a drag (mouse button stayed down), single click or double click?
+                    if (holdActive === true) doDrag();
+                    else if (clicks === 1) doSingleClick();
+                    else doDoubleClick();
+                    clicks = 0;
+                },holdDelay);
+            }
         }
         function onMouseUp(e){
-
-            if (holdStarter) {
+            if (!_.isNull(holdStarter)){
                 clearTimeout(holdStarter);
                 holdStarter = null;
-                if (doubleClickActive === false ){
-                    console.log("CLICK");
-                    if (typeof view.click === "function" && !_.isUndefined(e)) view.click(e.clientX, e.clientY);
-                    doubleClickActive = true;
-                    doubleClickTimer = setTimeout(function(){
-                        doubleClickActive = false;
-                        clearTimeout(doubleClickTimer);
-                    },200);
-                } else {
-                    //console.log("DOUBLE CLICK");
-                    view.component.output.getTree().log();
-                    window.TEST = view.component;
-                    clearTimeout(doubleClickTimer);
-                    doubleClickActive = false;
-                }
-            }
-            else if (holdActive) {
                 holdActive = false;
-                console.log("DROP");
             }
         }
         function onMouseOut(){
             onMouseUp();
+        }
+
+        function doSingleClick(){
+            console.log('click');
+        }
+        function doDoubleClick(){
+            console.log('dblclick');
+        }
+        function doDrag(){
+            console.log('drag');
         }
     };
 
