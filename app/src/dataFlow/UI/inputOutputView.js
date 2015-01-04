@@ -92,6 +92,9 @@ define([
     };
 
     InputView.prototype.connectToOutput = function(output){
+        // TEMPORARILY! This code is confusing, and should be fixed.
+        this.removeAllWires();
+
         var outputView = output.IOView;
 
         // must pre-render to make sure that the matrices for the referenced GL elements are updated
@@ -109,6 +112,21 @@ define([
         // post-render to make sure the wire gets drawn
         workspace.render();
     };
+
+    InputView.prototype.removeAllWires = function(){
+        var that = this;
+
+        // Remove prior wires
+        _.each(this.connectionWires,function(wire){
+            wire.parent.remove(wire);
+        });
+        _.each(this.connectedOutputViews,function(outView){
+            that.stopListening(outView.glObject.parent, "changePosition");
+        });
+        this.connectionWires = [];
+        this.connectedOutputViews = [];
+    };
+
     InputView.prototype.redrawWireForConnectedOutput = function(outputView,wireView){
         outputView.glObject.updateMatrixWorld();
         this.glObject.updateMatrixWorld();
