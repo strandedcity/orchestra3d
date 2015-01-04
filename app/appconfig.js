@@ -8,6 +8,10 @@ requirejs.config({
             deps: ['underscore', 'jquery'],
             exports: 'Backbone'
         },
+        'parse': {
+            deps: ['jquery'],
+            exports: 'Parse'
+        },
         'underscore': {
             exports: '_'
         },
@@ -48,6 +52,7 @@ requirejs.config({
         // general libraries
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
+        parse: 'lib/parse-1.3.3.min',
         underscore: 'lib/underscore-min',
         bootstrap: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead

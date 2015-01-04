@@ -127,6 +127,16 @@ define([
         this.connectedOutputViews = [];
     };
 
+    InputView.prototype.drawAllConnections = function(){
+        var that = this,
+            connections = this.model._listeningTo;
+        if (!_.isEmpty(connections)){
+            _.each(_.values(connections),function(outputModel){
+                that.connectToOutput.call(that,outputModel);
+            });
+        }
+    };
+
     InputView.prototype.redrawWireForConnectedOutput = function(outputView,wireView){
         outputView.glObject.updateMatrixWorld();
         this.glObject.updateMatrixWorld();

@@ -6,7 +6,8 @@ require(["appconfig"],function(){
             "viewer/modelView",
             "dataFlow/UI/workspaceView",
             "windowControls", // File, Model, Settings, Login, etc.... the top bar
-            "dataFlow/UI/componentView"
+            "dataFlow/UI/componentView",
+            "dataFlow/project"
         ],
         function(
             $,
@@ -15,7 +16,8 @@ require(["appconfig"],function(){
             viewer,
             workspace,
             Nav,
-            ComponentView
+            ComponentView,
+            OrchestraProject
         ){
             function App(){
                 viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
@@ -81,47 +83,64 @@ require(["appconfig"],function(){
 
                 // Demonstration programs...
                 //this.NURBSCurveTest();
-                this.loadJSONFileTest();
+                this.currentProject = null;
+                //this.loadJSONProject('curveWithVectorsTest.json?');
+                this.loadParseProject("JnbJpY8YjG");
 
                 viewer.render();
             };
 
-            App.prototype.loadJSONFileTest = function(){
-                $.get('curveWithVectorsTest.json?'+Math.random(),function(json){
-                    // loading occurs in two stages since connections can't easily be made until all components are added
-                    // first step: create each component, and keep track of EVERY IO as they go by so connections can be made directly
-                    var IOIdsForConnections = {};
-                    var connectionRoutes = [];
-                    _.each(json,function(cpt){
-                        var component = dataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
-                        new ComponentView(component);
+            App.prototype.save = function(){
+                var proj = this.currentProject;
+                if (_.isNull(proj)) throw new Error("No current project available to save");
 
-                        // if the inputs are supposed to be connected to something, keep track of them for a moment
-                        _.each(cpt.inputs,function(iptJSON){
-                            if (iptJSON.connections.length > 0) {
-                                IOIdsForConnections[iptJSON.id] = component[iptJSON.shortName];
-                                _.each(iptJSON.connections,function(connectedIptId){
-                                    var route = {};
-                                    route[iptJSON.id] = connectedIptId;
-                                    connectionRoutes.push(route);
-                                });
-                            }
-                        });
+                require(["dataFlow/projectLoader"],function(Loader){
+                    Loader.saveProjectToParse(proj);
+                });
+            };
 
-                        // keep track of all outputs:
-                        IOIdsForConnections[cpt.output[0].id] = component.output;
-
+            App.prototype.loadParseProject = function(projectId){
+                var that = this;
+                require(["dataFlow/projectLoader"],function(Loader){
+                    // no reference necessary. The slider will clean itself up.
+                    Loader.loadProjectFromParse(projectId,function(proj){
+                        that.loadWorkspace(proj);
+                        console.log('\n\nLOADED PROJECT FROM PARSE');
+                        //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
                     });
+                });
+            };
 
-                    // To help the drawing along, it's easier for now to defer the connection making for one render cycle
-                    _.defer(function() {
-                        _.each(connectionRoutes,function(route){
-                            var inputId = _.keys(route)[0],
-                                outputId = route[inputId],
-                                inputObject = IOIdsForConnections[inputId],
-                                outputObject = IOIdsForConnections[outputId];
+            App.prototype.loadJSONProject = function(url){
+                var that = this;
 
-                            inputObject.connectAdditionalOutput(outputObject);
+                require(["dataFlow/projectLoader"],function(Loader){
+                    Loader.loadProjectFromUrl(url,function(proj){
+                        that.loadWorkspace(proj);
+                        console.log('\n\nLOADED PROJECT FROM FILE');
+                    });
+                });
+            };
+
+            App.prototype.loadWorkspace = function(proj){
+                this.currentProject = proj;
+
+                // Draw Componets, Inputs and Outputs in workspace:
+                _.each(proj.get('components'),function(cpt){
+                    new ComponentView(cpt);
+                });
+
+                // CONNECTIONS between I/O's can't be drawn until all components have been drawn
+                // (the views must exist before they can be connected)
+                // TODO: ELIMINATE THIS DEFER STATEMENT -- PERHAPS WITH A PROMISE? PERHAPS BY SETTING THE IOVIEW PROPERTY SYNCHRONOUSLY
+                // TODO: THEN PUTTING THE _.DEFER STATEMENT INSIDE THE DRAWALLCONNECTIONS FUNCTION?
+                _.defer(function(){
+                    _.each(proj.get('components'),function(cpt){
+                        _.each(cpt.inputs,function(ipt){
+                            var inputView = ipt.IOView;
+                            if (inputView) {
+                                inputView.drawAllConnections();
+                            }
                         });
                     });
                 });
