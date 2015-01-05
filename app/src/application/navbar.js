@@ -3,17 +3,44 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         el: '#navContainer',
         template: _.template($('#navTemplate').html()),
         events: {
-            'click a': 'handleClick'
+            'click a': 'handleClick',
+            'click .openProjectLink': "openProject",
+            'click #newProjectButton': "newProject"
         },
         handleClick: function(){
             // Little functions like this can route clicks for everything in the navbar.... straightforward stuff.
-            console.log('click detected!');
+            console.log('CLICK NOT IMPLEMENTED');
+        },
+        openProject: function(e){
+            var projectId = $(e.target).attr('id');
+            this.trigger('openParseProject',projectId);
+        },
+        newProject: function(e){
+            this.trigger("openNewProject");
         },
         initialize: function(){
             var that = this;
             $(document).ready(function(){
-                that.render.apply(that);
+                that.fetchUser.call(that);
+                that.render.call(that);
                 that.initSearchbar('componentChooser');
+            });
+        },
+        fetchUser: function(){
+            var that = this;
+            require(["dataFlow/user"],function(User){
+                User.fetchCurrentUser(function(currentUser){
+                    if (_.isNull(currentUser)) {
+                        // show login menu
+                        that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_out').html()));
+                    } else {
+                        // show logged-in view
+                        User.fetchProjects(function(list){
+                            var model = currentUser.toJSON();
+                            that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_in').html(),model));
+                        });
+                    }
+                });
             });
         },
         initSearchbar: function(inputId){

@@ -99,6 +99,7 @@ define([
                 });
             },
             destroy: function(){
+                //console.log(_.values(this._listeningTo));
                 this.clearValues();
                 this.stopListening();
             },
@@ -256,6 +257,9 @@ define([
                 this._calculateSufficiency();
             },
             destroy: function(){
+                _.each(this.inputs,function(ipt){
+                    ipt.destroy();
+                });
                 this.off();
                 this.stopListening();
                 delete this.inputs;

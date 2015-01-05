@@ -5,7 +5,7 @@ require(["appconfig"],function(){
             'dataFlow/dataFlow_loader',
             "viewer/modelView",
             "dataFlow/UI/workspaceView",
-            "windowControls", // File, Model, Settings, Login, etc.... the top bar
+            "navbar", // File, Model, Settings, Login, etc.... the top bar
             "dataFlow/UI/componentView",
             "dataFlow/project"
         ],
@@ -20,19 +20,6 @@ require(["appconfig"],function(){
             OrchestraProject
         ){
             function App(){
-                viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
-                workspace.createWorkspace();
-
-                // Create the navbar, and listen for it to add new components to the workspace
-                var navbar = new Nav();
-                navbar.on('createNewComponent',function(component){
-                    new ComponentView(dataFlow.createComponentByName(component.functionName),{
-                        position: {x: 0, y: 0}
-                    });
-                });
-
-                var axisHelper = new THREE.AxisHelper( 2 );
-                viewer.scene.add( axisHelper );
 
 //                var dir = new THREE.Vector3( 1, 0, 0 );
 //                var origin = new THREE.Vector3( 0, 0, 0 );
@@ -77,17 +64,57 @@ require(["appconfig"],function(){
             }
 
             App.prototype.init = function(){
-                // Activate only one at a time, maybe? In any case, global controls:
-                //workspace.enableControls(false);
-                //viewer.enableControls(true);
-
-                // Demonstration programs...
-                //this.NURBSCurveTest();
                 this.currentProject = null;
+                _.bindAll(this,"newProject","save","loadJSONProject","loadParseProject","clearWorkspace");
+
+                viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
+                workspace.createWorkspace();
+
+                // Create the navbar, and listen for it to add new components to the workspace
+                var that = this,
+                    navbar = new Nav(),
+                    axisHelper = new THREE.AxisHelper( 2 );
+                    viewer.scene.add( axisHelper );
+
+                // Navbar has a bunch of things that can interact with the workspaces:
+                navbar.on('createNewComponent',function(component){
+                    new ComponentView(dataFlow.createComponentByName(component.functionName),{
+                        position: {x: 0, y: 0}
+                    });
+                }).on('openParseProject',function(projectId){
+                    that.clearWorkspace();
+                    that.loadParseProject(projectId);
+                }).on('openExampleProject',function(url){
+                    that.clearWorkspace();
+                    that.loadJSONProject(url);
+                }).on('saveCurrentProject',function(){
+                    that.save();
+                }).on('openNewProject',function(){
+                    that.clearWorkspace();
+                });
+
+                // Demonstration programs... Helpful to have handy for testing
+                //this.NURBSCurveTest();
                 //this.loadJSONProject('curveWithVectorsTest.json?');
                 this.loadParseProject("JnbJpY8YjG");
 
+                setTimeout(function(){
+                    that.clearWorkspace();
+                },1500);
+
                 viewer.render();
+            };
+
+            App.prototype.newProject = function(){
+                console.log('UNIMPLEMENTED: NEW PROJECT')
+            };
+
+            App.prototype.clearWorkspace = function(){
+                console.log('UNIMPLEMENTED: CLEAR WORKSPACE');
+                if (!_.isNull(this.currentProject)) {
+                    this.currentProject.destroy();
+                }
+                this.currentProject = new OrchestraProject();
             };
 
             App.prototype.save = function(){

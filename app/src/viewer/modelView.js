@@ -9,6 +9,8 @@ define(["threejs","OrbitControls"],function(){
         this.renderer = new THREE.WebGLRenderer(),
         this.animating = true;
         //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
+
+        _.bindAll(this,"render");
     }
 
     ModelSpace.prototype.createScene = function(){
@@ -19,11 +21,8 @@ define(["threejs","OrbitControls"],function(){
         this.renderer.domElement.style.left = this.width;
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
-//THIS APPROACH IS MUCH BETTER --- NO REASON TO ANIMATE IF NOTHING IS MOVING
-        var that = this;
-        this.controls.addEventListener( 'change', function(){
-            that.render.call(that);
-        } );
+
+        this.controls.addEventListener( 'change', this.render);
 
         this.camera.position.z = 7;
         this.camera.position.y = 0;

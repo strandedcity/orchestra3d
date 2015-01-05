@@ -1,11 +1,9 @@
 define(["jquery","parse","dataFlow/project"],function($,Parse,Project){
-    Parse.initialize("PKe6uzh8RhcfpeEfJS7IGId4wr7YbINnhkQnPMFv", "3fINWMPQ0mS9wQXYCosurMA3bb9jHfMpJK26L84v");
-
     // I don't want to actually subclass parse objects for all of my models, so to edit existing models I have to keep a reference
     // to the project as retrieved from Parse. That object will stay in memory, and the same object will just be saved with new json
     // from my own project class. That should keep the persistence layer completely separate from the rest of the application,
     // and limit the fallout if I need to ditch parse later.
-    var OrchestraProject = Parse.Object.extend("OrchestraProject"),
+    var OrchestraProject = Parse.ORCHESTRA_OBJECTS.PROJECT,
         currentProject = null;
 
     function saveProjectToParse(proj){

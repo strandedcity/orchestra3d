@@ -27,37 +27,27 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">File <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Open...</a></li>
-                                <li><a href="#">Save As...</a></li>
-                                <li><a href="#">Fork...</a></li>
+                                <li><a href="#" id="newProjectButton">New</a></li>
+                                <li><a href="#">Open Project...</a></li>
+                                <li><a href="#">Demos...</a></li>
                                 <li><a href="#">Browse...</a></li>
                                 <li class="divider"></li>
-                                <li><a href="#">Quit</a></li>
+                                <li><a href="#">Export STL...</a></li>
+                                <li><a href="#">Export PDF...</a></li>
                             </ul>
                         </li>
-
-                        <li class="active"><a href="#">Model</a></li>
-                        <li><a href="#">Parameters</a></li>
-                        <li><a href="#">Split</a></li>
                     </ul>
                     <form class="navbar-form navbar-left" role="search">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="New Component..." autocomplete="off" id="componentChooser">
                         </div>
                     </form>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Learn</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= username %> <span class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Precision</a></li>
-                                <li><a href="#">Another option...</a></li>
-                                <li class="divider"></li>
-                                <li><a href="#">Profile</a></li>
-                                <li class="divider"></li>
-                                <li><a href="#">Log Out</a></li>
-                            </ul>
-                        </li>
+                    <ul class="nav navbar-nav navbar-right" id="nav-loggedin-area">
+                        <!-- Placeholder div for the title-entry input -->
+                        <span id="title_entry_area"></span>
+
+                        <!-- Placeholder div for the user options, depending on login state -->
+                        <span id="user_menu"></span>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
@@ -73,6 +63,37 @@
         <li><a class="previewToggle" tabindex="-1"><span class="<% if (preview === true) {print('glyphicon glyphicon-ok');}%> icongutter"></span>Preview</a></li>
         </ul>
         </div>
+    </script>
+
+    <script type="text/template" id="user_menu_template_logged_in">
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= username %> <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Precision</a></li>
+                <li><a href="#">Another option...</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Log Out</a></li>
+                <li class="divider"></li>
+                <% _.each(projects,function(project){ %>
+                    <li class="openProjectLink"><a href="#" id="<%= project.id %>"><%= project.title %></a></li>
+                <% }); %>
+            </ul>
+        </li>
+    </script>
+    <script type="text/template" id="user_menu_template_logged_out">
+        <li id="login_link"><a href="#">Log In</a></li>
+        <li id="signup_link"><a href="#">Sign Up</a></li>
+    </script>
+    <script type="text/template" id="project_title_entry_template">
+        <li>
+            <form class="navbar-form navbar-right">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Project Title" autocomplete="off" id="titleChooser" value="<%= project.title %>">
+                </div>
+            </form>
+        </li>
     </script>
 
 

@@ -8,7 +8,7 @@ requirejs.config({
             deps: ['underscore', 'jquery'],
             exports: 'Backbone'
         },
-        'parse': {
+        'parse-lib': {
             deps: ['jquery'],
             exports: 'Parse'
         },
@@ -46,13 +46,14 @@ requirejs.config({
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.min',
         OrbitControls: 'src/viewer/OrbitControls',
-        windowControls: 'src/application/windowControls',
+        navbar: 'src/application/navbar',
         componentSearcher: 'src/application/componentSearcher',
 
         // general libraries
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
-        parse: 'lib/parse-1.3.3.min',
+        "parse-lib": 'lib/parse-1.3.3.min',
+        parse: 'src/dataFlow/parseInitializer',
         underscore: 'lib/underscore-min',
         bootstrap: 'lib/bootstrap.min',
         'bootstrap3-typeahead': 'lib/bootstrap3-typeahead.min', // https://github.com/bassjobsen/Bootstrap-3-Typeahead

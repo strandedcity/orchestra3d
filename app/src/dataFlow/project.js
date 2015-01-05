@@ -4,7 +4,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             return {
                 authorName: "anonymous",
                 authorId: "",
-                title: "[Untitled]",
+                title: "",
                 description: "",
                 projectId: "",
                 createdAt: new Date(),
@@ -13,7 +13,8 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             }
         },
         initialize: function(opts){
-            if (opts.components) {
+            _.bindAll(this,"destroy");
+            if (opts && opts.components) {
                 this.loadComponentsFromJSON(opts.components);
             }
         },
@@ -37,6 +38,14 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
         },
         removeComponent: function(component){
             /* Remove all the CONNECTIONS to the component first, then remove the component from the array */
+            component.destroy();
+        },
+        destroy: function(){
+            _.each(this.get('components'),function(cpt){
+                cpt.destroy();
+            });
+            this.stopListening();
+            console.log('destroyed project');
         },
         toJSON: function(){
             var attrs = _.clone(this.attributes);
