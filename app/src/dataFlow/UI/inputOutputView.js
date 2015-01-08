@@ -119,8 +119,11 @@ define([
             index = _.indexOf(this.connectedOutputViews,outputView),
             wire = this.connectionWires[index];
 
-        wire.parent.remove(wire);
+        // Remove wire and output from tracking arrays
+        this.connectionWires = _.without(this.connectionWires,wire);
         this.connectedOutputViews = _.without(this.connectedOutputViews,outputView);
+
+        wire.parent.remove(wire);
 
         // update the view to this effect
         workspace.render();

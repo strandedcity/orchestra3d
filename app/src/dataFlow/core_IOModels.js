@@ -99,6 +99,8 @@ define([
         },
         _destroy: function(){
             // for each connected input, trigger disconnection
+
+            this.disconnectAll();
             this.setNull(true);
             this.stopListening();
         },
@@ -173,7 +175,6 @@ define([
         destroy: function(){
             // custom INPUT destroy stuff
 
-            this.disconnectAll();
             this._destroy();
         }
     });
@@ -185,6 +186,10 @@ define([
 
             this.clearValues();
             this._destroy();
+        },
+        disconnectAll: function(){
+            // For outputs
+            this.trigger('disconnectAll',this); // completely remove the input
         }
     });
 

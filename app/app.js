@@ -108,9 +108,11 @@ require(["appconfig"],function(){
 
                 // We'll remove the views directly here, since we don't actually want to remmove the components from the project
                 // model itself. That could cause weird behavior if a save occurred at the wrong moment, this is safer.
-                _.each(this.currentProject.get('components').slice(0),function(cpt){
-                    cpt.componentView.remove();
-                });
+                if (!_.isNull(this.currentProject)) {
+                    _.each(this.currentProject.get('components').slice(0),function(cpt){
+                        cpt.componentView.remove();
+                    });
+                }
 
                 this.currentProject = new OrchestraProject();
 
