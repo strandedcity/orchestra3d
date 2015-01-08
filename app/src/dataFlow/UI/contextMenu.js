@@ -14,6 +14,7 @@ define([
             'click input': "keepMenu",
             'contextmenu input': "keepMenu",
             'click a.previewToggle': "togglePreview",
+            'click a.deleteComponent': "deleteComponent",
             'keyup input': "editComponentPrettyName"
         },
         template: template,
@@ -43,6 +44,9 @@ define([
         },
         togglePreview: function(){
             this.model.set('preview',!this.model.get('preview'));
+        },
+        deleteComponent: function(){
+            this.model.destroy();
         },
         render: function(x,y){
             var html = this.template(this.model.toJSON());

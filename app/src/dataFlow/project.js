@@ -41,11 +41,12 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             component.destroy();
         },
         destroy: function(){
-            _.each(this.get('components'),function(cpt){
-                cpt.destroy();
-            });
-            this.stopListening();
-            console.log('destroyed project');
+            console.warn("DESTROY on project isn't really a good idea. I should just remove VIEW stuff, not DATA stuff.");
+            //_.each(this.get('components'),function(cpt){
+            //    cpt.destroy();
+            //});
+            //this.stopListening();
+            //console.log('destroyed project');
         },
         toJSON: function(){
             var attrs = _.clone(this.attributes);

@@ -21,22 +21,19 @@ define([
 
         _.extend(this, Backbone.Events);
 
-        // The backbone way: listen to data changes to make view changes
-        this.listenTo(this.model,"connectedOutput",this.connectToOutput);
-
         this._remove = function(){
             this.stopListening();
+            //this.stretchy.remove();
+            this.stretchy.parent.remove(this.stretchy);
+            this.glObject.parent.remove(this.glObject);
+            this.cssObject.parent.remove(this.cssObject);
+
             delete this.glObject.IOView;
             delete this.cssObject.IOView;
-            this.stretchy.remove();
-            this.glObject.remove();
-            this.cssObject.remove();
-
             delete this.model.IOView;
             delete this.model;
             delete this.glObject;
             delete this.cssObject;
-            delete this;
         };
         this.setupStretchyWire = function(){
             // All inputs and outputs are connected via a "stretchy band" to their home positions
@@ -79,6 +76,10 @@ define([
         this.listenTo(this.cssObject, "drop", function(droppedCSSObj){
             this.model.connectOutput(droppedCSSObj.IOView.model);
         });
+
+        // The backbone way: listen to data changes to make view changes
+        this.listenTo(this.model,"connectedOutput",this.connectToOutput);
+        this.listenTo(this.model,"disconnectedOutput",this.disconnectFromOutput);
     }
 
     InputView.prototype.remove = function(){
@@ -110,6 +111,18 @@ define([
         });
 
         // post-render to make sure the wire gets drawn
+        workspace.render();
+    };
+
+    InputView.prototype.disconnectFromOutput = function(output){
+        var outputView = output.IOView,
+            index = _.indexOf(this.connectedOutputViews,outputView),
+            wire = this.connectionWires[index];
+
+        wire.parent.remove(wire);
+        this.connectedOutputViews = _.without(this.connectedOutputViews,outputView);
+
+        // update the view to this effect
         workspace.render();
     };
 

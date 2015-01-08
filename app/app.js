@@ -72,20 +72,18 @@ require(["appconfig"],function(){
 
                 // Create the navbar, and listen for it to add new components to the workspace
                 var that = this,
-                    navbar = new Nav(),
-                    axisHelper = new THREE.AxisHelper( 2 );
-                    viewer.scene.add( axisHelper );
+                    navbar = new Nav();
 
                 // Navbar has a bunch of things that can interact with the workspaces:
                 navbar.on('createNewComponent',function(component){
-                    new ComponentView(dataFlow.createComponentByName(component.functionName),{
+                    var cptObject = dataFlow.createComponentByName(component["functionName"]);
+                    that.currentProject.addComponentToProject(cptObject);
+                    new ComponentView(cptObject,{
                         position: {x: 0, y: 0}
                     });
                 }).on('openParseProject',function(projectId){
-                    that.clearWorkspace();
                     that.loadParseProject(projectId);
                 }).on('openExampleProject',function(url){
-                    that.clearWorkspace();
                     that.loadJSONProject(url);
                 }).on('saveCurrentProject',function(){
                     that.save();
@@ -98,10 +96,6 @@ require(["appconfig"],function(){
                 //this.loadJSONProject('curveWithVectorsTest.json?');
                 this.loadParseProject("JnbJpY8YjG");
 
-                setTimeout(function(){
-                    that.clearWorkspace();
-                },1500);
-
                 viewer.render();
             };
 
@@ -110,11 +104,19 @@ require(["appconfig"],function(){
             };
 
             App.prototype.clearWorkspace = function(){
-                console.log('UNIMPLEMENTED: CLEAR WORKSPACE');
-                if (!_.isNull(this.currentProject)) {
-                    this.currentProject.destroy();
-                }
+                console.warn('DO SOME TESTS TO MAKE SURE THAT ZOMBIES DONT REMAIN');
+
+                // We'll remove the views directly here, since we don't actually want to remmove the components from the project
+                // model itself. That could cause weird behavior if a save occurred at the wrong moment, this is safer.
+                _.each(this.currentProject.get('components').slice(0),function(cpt){
+                    cpt.componentView.remove();
+                });
+
                 this.currentProject = new OrchestraProject();
+
+                // This is a pretty straightforward threejs scene. We can just remove things from it.
+                viewer.clearScene();
+                workspace.render(); // render workspace once to remove wires from view
             };
 
             App.prototype.save = function(){
@@ -127,6 +129,7 @@ require(["appconfig"],function(){
             };
 
             App.prototype.loadParseProject = function(projectId){
+                this.clearWorkspace();
                 var that = this;
                 require(["dataFlow/projectLoader"],function(Loader){
                     // no reference necessary. The slider will clean itself up.
@@ -139,6 +142,7 @@ require(["appconfig"],function(){
             };
 
             App.prototype.loadJSONProject = function(url){
+                this.clearWorkspace();
                 var that = this;
 
                 require(["dataFlow/projectLoader"],function(Loader){

@@ -10,7 +10,7 @@ define(["threejs","OrbitControls"],function(){
         this.animating = true;
         //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
 
-        _.bindAll(this,"render");
+        _.bindAll(this,"render","clearScene");
     }
 
     ModelSpace.prototype.createScene = function(){
@@ -28,6 +28,25 @@ define(["threejs","OrbitControls"],function(){
         this.camera.position.y = 0;
 
         this.animating = true;
+
+        this.setupScene();
+    };
+
+    ModelSpace.prototype.setupScene = function(){
+        var axisHelper = new THREE.AxisHelper( 2 );
+        this.scene.add( axisHelper )
+    };
+
+    ModelSpace.prototype.clearScene = function(){
+        var child;
+
+        // scene.children is mutated as each child is removed, so it's actually possible to "loop" over the first item:
+        while (child = this.scene.children[0]){
+            this.scene.remove(child);
+        }
+
+        this.setupScene();
+        this.render();
     };
 
     ModelSpace.prototype.render = function(){

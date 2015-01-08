@@ -60,7 +60,8 @@
         <li class="comp_Name"><span><%= componentName %></span></li>
         <li><a tabindex="-1"><input type="text" placeholder="Component Name" value="<%= componentPrettyName %>"/></a></li>
         <li class="divider"></li>
-        <li><a class="previewToggle" tabindex="-1"><span class="<% if (preview === true) {print('glyphicon glyphicon-ok');}%> icongutter"></span>Preview</a></li>
+            <li><a class="previewToggle" tabindex="-1"><span class="glyphicon glyphicon-eye-<% if (preview === true) {print('open');} else {print('close');} %> icongutter"></span>Preview</a></li>
+            <li><a class="deleteComponent" tabindex="-1"><span class="glyphicon glyphicon-trash icongutter"></span>Delete</a></li>
         </ul>
         </div>
     </script>

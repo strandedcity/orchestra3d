@@ -99,7 +99,10 @@ define([
                 });
             },
             destroy: function(){
-                //console.log(_.values(this._listeningTo));
+                // for each connected input, trigger disconnection
+                this.setNull(true);
+                this.disconnectAll();
+                this.trigger('disconnectAll',this); // completely remove the input
                 this.clearValues();
                 this.stopListening();
             },
@@ -118,20 +121,34 @@ define([
                     console.warn('Caught an error during connection: ', e.message, e.stack);
                 }
             },
+            disconnectOutput: function(outputModel){
+                this.stopListening(outputModel);
+                //outputModel["connectedInputs"] = _.without(outputModel["connectedInputs"], outputModel);
+                this.trigger("disconnectedOutput", outputModel);
+                this.trigger("change");
+            },
+            disconnectAll: function(){
+                // For inputs
+                var that = this;
+                if (!_.isUndefined(this._listeningTo)) {
+                    _.each(this._listeningTo,function(outputModel){
+                        that.disconnectOutput.call(that,outputModel);
+                    });
+                }
+            },
             connectAdditionalOutput: function(outputModel, validateModels){
                 if (validateModels !== false) this.validateOutput(outputModel);
 
                 var that=this;
                 this.listenTo(outputModel, "change",function(){
-                    // check for changes in null state and value
-                    //var changed = false;
-                    //if (that.getTree() !== outputModel.getTree()) { // THIS TEST FAILS. I'm trying to test if values IN the tree have changed, but when the components are previously connected this prevents change events from propagating.
                     that.values = outputModel.values;
                     that._isNull = outputModel._isNull;
-                    //changed = true;
-                    //}
-                    //if (changed === true) that.trigger("change"); // the input can trigger its change event right away. The COMPONENT does the recalculation
                     that.trigger("change");
+                });
+
+                // "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
+                this.listenTo(outputModel,"disconnectAll",function(outputModel){
+                    that.disconnectOutput.call(that,outputModel);
                 });
                 outputModel.trigger("change"); // check for completed flow on hookup
                 this.trigger("connectedOutput", outputModel);
@@ -257,13 +274,14 @@ define([
                 this._calculateSufficiency();
             },
             destroy: function(){
+                this.output.destroy();
+                this.trigger('removed');
                 _.each(this.inputs,function(ipt){
                     ipt.destroy();
                 });
                 this.off();
                 this.stopListening();
                 delete this.inputs;
-                this.output.destroy();
                 delete this.output;
             },
             recalculateIfReady: function(){

@@ -76,6 +76,8 @@ define([
         // bind some extra events for the editable number components.
         var that = this;
         this.listenTo(this.component.output,"change",this.displayVals);
+
+        console.warn("DON'T DO THIS! OR, DESTROY THE EVENT LISTENER LATER");
         this.cssObject.element.firstChild.onchange = function(){
             that.component.parseInputAndSet(this.value);
         };
@@ -101,6 +103,7 @@ define([
             workspace.setupDraggableView(this);  // make the view draggable!
         }.bind(this));
 
+        component.componentView = this;
         this.inputViews = {};
         this.outputView = null;
         this.createInputs();
@@ -113,6 +116,7 @@ define([
         this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
         this.changeSufficiency(this.component.hasSufficientInputs());
         this.listenTo(this.component,"change:componentPrettyName",this.displayVals);
+        this.listenTo(this.component,"removed",this.remove);
     };
 
     ComponentView.prototype.displayVals = function(){
@@ -155,9 +159,21 @@ define([
     ComponentView.prototype.remove = function(){
         this.stopListening();
 
-        // remove inputs
-        // remove gl element
-        // remove css element
+        // Delete input views first, the connections live there
+        _.each(this.component.inputs,function(ipt){
+            if (!_.isEmpty(ipt.IOView)) ipt.IOView.remove();
+        });
+
+        if (!_.isEmpty(this.component.output.IOView)) {
+            this.component.output.IOView.remove();
+        }
+
+        workspace.scene.remove(this.cssObject);
+        workspace.glscene.remove(this.glObject);
+        delete this.component.componentView; // remove references to the view
+        delete this.component; // shouldn't be necessary but can't really hurt
+
+        workspace.render(); // get rid of input wires
     };
 
 
