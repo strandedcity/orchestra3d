@@ -6,7 +6,7 @@ define([
 ],function(_,Backbone,DataTree, ENUMS){
 
 
-    var output = Backbone.Model.extend({
+    var io = Backbone.Model.extend({
         initialize: function(opts){
             // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
             // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
@@ -97,14 +97,31 @@ define([
                 node.data.splice(0,node.data.length); // clear out all values
             });
         },
-        destroy: function(){
+        _destroy: function(){
             // for each connected input, trigger disconnection
             this.setNull(true);
-            this.disconnectAll();
-            this.trigger('disconnectAll',this); // completely remove the input
-            this.clearValues();
             this.stopListening();
         },
+        toJSON: function(){
+            var obj = {
+                shortName: this.shortName,
+                id: this.id || this.cid,
+                connections: _.map(this._listeningTo,function(output){
+                    return output.id || output.cid;
+                }),
+                type: this.type
+            };
+
+            if (!_.isUndefined(this._persistedData)) {
+                obj._persistedData = this._persistedData;
+            }
+
+            return obj;
+        }
+    });
+
+    // CONNECTIONS are stored only on inputs, so there are a few custom methods here:
+    var input = io.extend({
         validateOutput: function(outputModel){
             // for inputs only, supports the data-flow attachment mechanism
             var wild = ENUMS.OUTPUT_TYPES.WILD;
@@ -134,6 +151,7 @@ define([
                     that.disconnectOutput.call(that,outputModel);
                 });
             }
+            this.trigger('disconnectAll',this); // completely remove the input
         },
         connectAdditionalOutput: function(outputModel, validateModels){
             if (validateModels !== false) this.validateOutput(outputModel);
@@ -152,28 +170,27 @@ define([
             outputModel.trigger("change"); // check for completed flow on hookup
             this.trigger("connectedOutput", outputModel);
         },
-        toJSON: function(){
-            var obj = {
-                shortName: this.shortName,
-                id: this.id || this.cid,
-                connections: _.map(this._listeningTo,function(output){
-                    return output.id || output.cid;
-                }),
-                type: this.type
-            };
+        destroy: function(){
+            // custom INPUT destroy stuff
 
-            if (!_.isUndefined(this._persistedData)) {
-                obj._persistedData = this._persistedData;
-            }
-
-            return obj;
+            this.disconnectAll();
+            this._destroy();
         }
+    });
 
+    var output = io.extend({
+        destroy: function(){
+            // custom OUTPUT destroy stuff
+            // Slightly involved, since the connections TO THIS OUTPUT are actually stored on INPUT OBJECTS, not on "this"
 
+            this.clearValues();
+            this._destroy();
+        }
     });
 
     return {
-        Output: output
+        Output: output,
+        Input: input
     }
 
 });

@@ -29,7 +29,11 @@ define([
             this.base_init.apply(this, arguments);
         },
         createIObjectsFromJSON: function(schemaListJSON,opts,dataKey){
-            var objectList = [];
+            var objectList = [],
+                constructorMap = {
+                    output: IOModels["Output"],
+                    inputs: IOModels["Input"]
+                };
             // "schemaList" we trust -- it's part of the program.
             // "inputList" we don't -- it's data that gets saved with the files
             // Basically we take the schema, ask the inputlist if it has anything that modifies those inputs in appropriate ways, and move on.
@@ -37,7 +41,7 @@ define([
             var correspondingUserData = _.isUndefined(opts) ? {} : _.isUndefined(opts[dataKey]) ? {} : opts[dataKey];
             _.each(_.values(schemaListJSON),function(spec){
                 var providedData = _.findWhere(correspondingUserData, {shortName: spec.shortName, type: spec.type});
-                var outputObject = new IOModels.Output(_.extend(providedData || {},spec));
+                var outputObject = new constructorMap[dataKey](_.extend(providedData || {},spec));
                 objectList.push(outputObject);
             });
 
