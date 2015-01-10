@@ -25,8 +25,9 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.output.clearValues();
-            this.output.values = this.inputs['B'].values.copy();
+            this.getOutput("B").clearValues();
+            this.getOutput("B").replaceData(this.getInput("B").getTree().copy());
+            //this.getOutput("B").values = this.getInput("B").getTree().copy();
             this._recalculate();
         }
     });

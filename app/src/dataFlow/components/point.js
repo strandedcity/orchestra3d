@@ -36,18 +36,18 @@ define([
                     return new THREE.Vector3(x,y,z);
                 });
 
-                this.output.replaceData(resultObject.tree);
+                this.getOutput("P").replaceData(resultObject.tree);
                 this._recalculate();
             },
             drawPreviews: function(){
-                var output = this.output.values;
+                var output = this.getOutput("P").getTree();
                 var points = output.flattenedTree().dataAtPath([0]);
                 this.previews.push(new Preview.PointListPreview(points));
             },
 
             fetchPointCoordinates: function(){
                 /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
-                var outputs = this.output.getTree().flattenedTree().dataAtPath([0]);
+                var outputs = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
                 var outputVals = [];  // returns array of GeoPoints
                 _.each(outputs,function(GeoPoint){
                     outputVals.push(GeoPoint.toArray());
@@ -81,11 +81,6 @@ define([
                     {shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
                 ], opts, "output");
 
-                //var inputs = [
-                //    new DataFlow.OutputPoint({required: true, shortName: "A"}),
-                //    new DataFlow.OutputPoint({required: true,shortName: "B"}),
-                //    new DataFlow.OutputBoolean({required: false, shortName: "U", default: false})
-                //];
                 var inputs = this.createIObjectsFromJSON([
                     {required: true, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
                     {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT},
@@ -101,7 +96,7 @@ define([
                 this.base_init(args);
             },
             recalculate: function(){
-                this.output.clearValues();
+                this.getOutput("V").clearValues();
 
                 var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
                     var endPt = b.clone().sub(a);
@@ -109,7 +104,7 @@ define([
                     return endPt;
                 });
 
-                this.output.replaceData(result.tree);
+                this.getOutput("V").replaceData(result.tree);
                 this._recalculate();
             }
         });
@@ -121,9 +116,6 @@ define([
                     {shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
                 ], opts, "output");
 
-                //var inputs = [
-                //    new DataFlow.OutputPoint({required: true, shortName: "V"})
-                //];
                 var inputs = this.createIObjectsFromJSON([
                     {required: true, shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}
                 ], opts, "inputs");
@@ -137,13 +129,13 @@ define([
                 this.base_init(args);
             },
             recalculate: function(){
-                this.output.clearValues();
+                this.getOutput("V").clearValues();
 
                 var result = DataMatcher([this["V"]],function(v){
                     return v.clone().normalize();
                 });
 
-                this.output.replaceData(result.tree);
+                this.getOutput("V").replaceData(result.tree);
                 this._recalculate();
             }
         });
@@ -155,10 +147,6 @@ define([
                     {shortName: "D", type: DataFlow.OUTPUT_TYPES.NUMBER}
                 ], opts, "output");
 
-                //var inputs = [
-                //    new DataFlow.OutputPoint({required: true, shortName: "A"}),
-                //    new DataFlow.OutputPoint({required: true, shortName: "B"})
-                //];
                 var inputs = this.createIObjectsFromJSON([
                     {required: true, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
                     {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT}
@@ -173,13 +161,13 @@ define([
                 this.base_init(args);
             },
             recalculate: function(){
-                this.output.clearValues();
+                this.getOutput("D").clearValues();
 
                 var result = DataMatcher([this["A"],this["B"]],function(a,b){
                     return a.distanceTo(b);
                 });
 
-                this.output.replaceData(result.tree);
+                this.getOutput("D").replaceData(result.tree);
                 this._recalculate();
             }
         });
@@ -193,10 +181,6 @@ define([
                     {shortName: "x", type: DataFlow.OUTPUT_TYPES.NULL}
                 ], opts, "output");
 
-                //var inputs = [
-                //    new DataFlow.OutputPoint({shortName: "A", required: false}), // "anchor" for the vector display
-                //    new DataFlow.OutputPoint({shortName: "V"})  // Vector to draw
-                //];
                 var inputs = this.createIObjectsFromJSON([
                     {required: false, shortName: "A", type: DataFlow.OUTPUT_TYPES.POINT},
                     {required: true, shortName: "V", type: DataFlow.OUTPUT_TYPES.POINT}

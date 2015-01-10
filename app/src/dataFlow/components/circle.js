@@ -13,11 +13,6 @@ define([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
             ], opts, "output");
 
-            //var inputs = [
-            //    new DataFlow.OutputPoint({shortName: "C", required: false, default: new THREE.Vector3(0,0,0)}),
-            //    new DataFlow.OutputPoint({shortName: "N", required: false, default: new THREE.Vector3(0,0,1)}),
-            //    new DataFlow.OutputNumber({shortName: "R", required: true})
-            //];
             var inputs = this.createIObjectsFromJSON([
                 {shortName: "C", required: false, default: new THREE.Vector3(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT},
                 {shortName: "N", required: false, default: new THREE.Vector3(0,0,1), type: DataFlow.OUTPUT_TYPES.POINT},
@@ -33,7 +28,7 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.output.clearValues();
+            this.getOutput("C").clearValues();
 
             // TODO: Protect against errors with zero-radius circles
             var result = DataMatcher([this["C"],this["N"],this["R"]],function(c,n,r){
@@ -41,13 +36,13 @@ define([
                 return new Geometry.CircleCNR(c,n,r);
             });
 
-            this.output.replaceData(result.tree);
+            this.getOutput("C").replaceData(result.tree);
             this._recalculate();
         },
         drawPreviews: function(){
             this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
             var that=this;
-            this.output.getTree().recurseTree(function(data){
+            this.getOutput("C").getTree().recurseTree(function(data){
                 _.each(data, function(curve){
                     that.previews.push(new Preview.CurvePreview(curve));
                 });

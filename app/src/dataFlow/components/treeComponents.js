@@ -30,7 +30,7 @@ define([
             // This can always be added later, but it's not critical first-order functionality
 
             // grab the input, construct a new (grafted) tree.
-            this.output.replaceData(this['T'].values.graftedTree());
+            this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
 
             // updating the tree calls this automatically. It's part of the null checks.
             //this._recalculate();
@@ -62,14 +62,14 @@ define([
         },
         recalculate: function(){
             // Construct a new tree with shifted data
-            this.output.clearValues();
+            this.getOutput("L").clearValues();
 
             var that = this,
-                out = that.output.values,
+                out = that.getOutput("L").getTree(),
                 nullOutputs = true,
-                inputData = this["L"].getTree(),
-                shiftDir = this["S"].getTree(),
-                wrap = this["W"].getTree();
+                inputData = this.getInput("L").getTree(),
+                shiftDir = this.getInput("S").getTree(),
+                wrap = this.getInput("W").getTree();
 
             inputData.recurseTree(function(dataList,node){
                 var newList = dataList.slice(0),
@@ -85,7 +85,7 @@ define([
                 out.setDataAtPath(p,newList);
             });
 
-            this.output.setNull(nullOutputs);
+            this.getOutput("L").setNull(nullOutputs);
             this._recalculate();
         }
     });

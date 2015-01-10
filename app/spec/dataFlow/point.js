@@ -50,8 +50,8 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             spyOn(pointComponent,'_recalculate'); // spying on 'recalculate' won't work because of prototype inheritance
             outputX.assignValues([8,8]);
             expect(pointComponent._recalculate).toHaveBeenCalled();
-            expect(pointComponent.output.getTree().dataAtPath([0])[0].toArray()).toEqual([8,2,4]);
-            expect(pointComponent.output.getTree().dataAtPath([0])[1].toArray()).toEqual([8,4,8]);
+            expect(pointComponent.getOutput("N").getTree().dataAtPath([0])[0].toArray()).toEqual([8,2,4]);
+            expect(pointComponent.getOutput("N").getTree().dataAtPath([0])[1].toArray()).toEqual([8,4,8]);
         });
         it("Should NOT recalculate when insufficient inputs are defined", function(){
             assignInputs();

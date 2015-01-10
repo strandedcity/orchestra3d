@@ -57,8 +57,7 @@ define([
             this._sufficient = false;
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
-            this.inputTypes = opts.inputTypes;
-            this.output = opts.output; // Contains raw result object pointers after async calculation completes.
+            this.outputs = [opts.output];
             this.inputs = this.initializeInputs(opts.inputs);
             this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
@@ -93,7 +92,9 @@ define([
             // for components that let users enter data directly, we need to listen directly to the output for changes in value
             // TODO: DOES THIS CAUSE CALCULATIONS TWICE?
             if (hasRequired === false) {
-                this.listenTo(this.output,"change",that._calculateSufficiency   );
+                _.each(this.outputs, function(output){
+                    that.listenTo(output,"change",that._calculateSufficiency);
+                });
             }
 
             return inputs;
@@ -109,8 +110,18 @@ define([
 
             this._calculateSufficiency();
         },
+        getOutput: function(shortName){
+            // when there's only one output or you don't specify which you want, this function returns the only output.
+            if (!shortName || this.outputs.length === 1) return this.outputs[0];
+            return _.findWhere(this.outputs,{shortName: shortName});
+        },
+        getInput: function(shortName){
+            return _.findWhere(this.inputs,{shortName: shortName});
+        },
         destroy: function(){
-            this.output.destroy();
+            _.each(this.outputs,function(out){
+                out.destroy();
+            });
             this.trigger('removed',this);
             _.each(this.inputs,function(ipt){
                 ipt.destroy();
@@ -118,7 +129,7 @@ define([
             this.off();
             this.stopListening();
             delete this.inputs;
-            delete this.output;
+            delete this.outputs;
         },
         recalculateIfReady: function(){
             // clear previews for any change in input. They will either be removed and replaced, or only removed:
@@ -128,7 +139,9 @@ define([
             if (this._calculateSufficiency() === true) {
                 this.recalculate();
             } else {
-                this.output.setNull(true);
+                _.each(this.outputs,function(out){
+                    out.setNull(true);
+                });
             }
         },
         hasSufficientInputs: function(){
@@ -148,7 +161,7 @@ define([
 
             // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
             // However, in this case, the output value must be actually set before the component can be called sufficient
-            if (this._hasRequiredInputs === false && _.isNull(this.output.getTree())) {
+            if (this._hasRequiredInputs === false && _.isNull(this.getOutput().getTree())) {
                 sufficient = false;
             }
 
@@ -166,21 +179,27 @@ define([
             this._recalculate();
         },
         _recalculate: function(){
-            this.output.setNull(this.output.values.isEmpty());
-
             // run whatever calculations are necessary, if all inputs are available
             if (this.get('preview') === true) {
                 this.drawPreviews();
             }
 
-            this.output.trigger('change');
+            // if there's no data on the first output, consider the calculation a loss. This COULD cause some issue with some components, but
+            // is probably fine. Not sure if there's a better way to test this, even, without knowing specifically what that component is supposed
+            // to be doing
+            var firstOutputEmpty = this.getOutput().getTree().isEmpty();
+            _.each(this.outputs,function(out){
+                out.setNull(firstOutputEmpty);
+                out.trigger('change');
+            });
         },
         fetchOutputs: function(){
             /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */
-            return this.output.getTree().flattenedTree().dataAtPath([0]);
+            return this.getOutput().getTree().flattenedTree().dataAtPath([0]);
         },
         isNull: function(){
-            return this.output.isNull();
+            // return null based on the status of the FIRST output. Not sure if this is smart or not ?
+            return this.getOutput().isNull();
         },
         drawPreviews: function(){
             console.warn(this.constructor.name + " objects have a no-op 'drawPreviews' function.")
@@ -193,9 +212,13 @@ define([
             this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
         },
         toJSON: function(){
-            var inputData = [];
+            var inputData = [],
+                outputData = [];
             _.each(this.inputs,function(ipt){
                 inputData.push(ipt.toJSON());
+            });
+            _.each(this.outputs,function(out){
+                outputData.push(out.toJSON());
             });
 
             return {
@@ -204,7 +227,7 @@ define([
                 position: this.position,
                 preview: this.attributes.preview,
                 inputs: inputData,
-                output: [this.output.toJSON()],
+                output: outputData,
                 id: this.id || this.cid
             };
         }

@@ -83,7 +83,10 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 });
 
                 // keep track of all outputs:
-                IOIdsForConnections[cpt.output[0].id] = component.output;
+                //IOIdsForConnections[cpt.output[0].id] = component.output;
+                _.each(component.outputs,function(out){
+                    IOIdsForConnections[out.id] = out;
+                });
             });
 
             // Now that all the component objects exist, they can be connected to each other:

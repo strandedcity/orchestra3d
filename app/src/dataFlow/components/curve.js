@@ -10,13 +10,7 @@ define([
             var output = this.createIObjectsFromJSON([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
             ], opts, "output");
-            //var output = new DataFlow.OutputCurve();
 
-            //var inputs = [
-            //    new DataFlow.OutputPoint({shortName: "V"}),
-            //    new DataFlow.OutputNumber({shortName: "D"}),
-            //    new DataFlow.OutputBoolean({shortName: "P"})
-            //];
             var inputs = this.createIObjectsFromJSON([
                 {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
                 {shortName: "D", required: false, default: 3, type: DataFlow.OUTPUT_TYPES.NUMBER},
@@ -32,10 +26,9 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.output.clearValues();
+            this.getOutput("C").clearValues();
 
-            var that = this,
-                out = that.output.values;
+            var out = this.getOutput("C").getTree();
 
             // TEMPORARILY -- just use the first value for degree and periodic:
             var degree = this["D"].getFirstValueOrDefault(),
@@ -52,12 +45,9 @@ define([
             });
 
             this._recalculate();
-
-
-
         },
         drawPreviews: function(){
-            var curves = this.output.values.flattenedTree().dataAtPath([0]);
+            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
             _.each(curves,function(c){
                 this.previews.push(new Preview.CurvePreview(c));
             },this);

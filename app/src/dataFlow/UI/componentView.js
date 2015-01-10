@@ -30,10 +30,10 @@ define([
             // Show Slider UI
             click: function(x,y){
                 // Show the slider and overlay. It cleans up itself.
-                var val = component.output.getFirstValueOrDefault(),
-                    min = component["S"].getFirstValueOrDefault(),
-                    max = component["E"].getFirstValueOrDefault(),
-                    integers =  component["I"].getFirstValueOrDefault(),
+                var val = component.getOutput("N").getFirstValueOrDefault(),
+                    min = component.getInput("S").getFirstValueOrDefault(),
+                    max = component.getInput("E").getFirstValueOrDefault(),
+                    integers =  component.getInput("I").getFirstValueOrDefault(),
                     callback = this.sliderUpdateValue;
                 require(["dataFlow/UI/sliderView"],function(SliderView){
                     // no reference necessary. The slider will clean itself up.
@@ -41,14 +41,14 @@ define([
                 });
             },
             sliderUpdateValue: function(value){
-                component.output.assignValues([value],[0]);
+                component.getOutput("N").assignValues([value],[0]);
                 that.displayVals();
             },
             displayVals: function(){
-                if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
+                if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
                     this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
                 } else {
-                    this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
+                    this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
                 }
             }
         });
@@ -62,10 +62,10 @@ define([
     function EditableNumberComponentView(component){
         _.extend(this,ComponentView.prototype,{
             displayVals: function(){
-                if (_.isEmpty(this.component.output.values.dataAtPath([0]))) {
+                if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
                     this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
                 } else {
-                    this.cssObject.element.firstChild.value = this.component.output.values.dataAtPath([0]).toString();
+                    this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
                 }
             }
         });
@@ -75,7 +75,7 @@ define([
 
         // bind some extra events for the editable number components.
         var that = this;
-        this.listenTo(this.component.output,"change",this.displayVals);
+        this.listenTo(this.component.getOutput("N"),"change",this.displayVals);
 
         console.warn("DON'T DO THIS! OR, DESTROY THE EVENT LISTENER LATER");
         this.cssObject.element.firstChild.onchange = function(){
@@ -106,6 +106,7 @@ define([
         component.componentView = this;
         this.inputViews = {};
         this.outputView = null;
+        this.outputViews = {};
         this.createInputs();
         this.createOutputs();
 
@@ -164,9 +165,15 @@ define([
             if (!_.isEmpty(ipt.IOView)) ipt.IOView.remove();
         });
 
-        if (!_.isEmpty(this.component.output.IOView)) {
-            this.component.output.IOView.remove();
-        }
+        _.each(this.component.outputs,function(out){
+            if (!_.isEmpty(out.IOView)) {
+                out.IOView.remove();
+            }
+        });
+
+        //if (!_.isEmpty(this.component.output.IOView)) {
+        //    this.component.output.IOView.remove();
+        //}
 
         workspace.scene.remove(this.cssObject);
         workspace.glscene.remove(this.glObject);
@@ -195,8 +202,14 @@ define([
     };
 
     ComponentView.prototype.createOutputs = function(){
-        if (this.component.output.type === DataFlow.OUTPUT_TYPES.NULL) return;
-        this.createOutputWithNameAndParent(this.component.output.shortName,this.component.output.type,this.cssObject,0);
+        _.each(this.component.outputs, function(out){
+            if (out.type !== DataFlow.OUTPUT_TYPES.NULL) {
+                this.outputViews[out.shortName] = this.createOutputWithNameAndParent(out.shortName,out.type,this.cssObject,0);
+            }
+        },this);
+
+        //if (this.component.getOutput().type === DataFlow.OUTPUT_TYPES.NULL) return;
+        //this.createOutputWithNameAndParent(this.component.output.shortName,this.component.output.type,this.cssObject,0);
     };
     ComponentView.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
         var that = this,
@@ -204,7 +217,7 @@ define([
 
         _.defer(function(){
             var glObject = that.createGLElementToMatch(inputCSSObj);
-            that.inputViews[name] = new ioView.InputView(that.component[name],glObject,inputCSSObj);
+            that.inputViews[name] = new ioView.InputView(that.component.getInput(name),glObject,inputCSSObj);
         });
         return inputCSSObj;
     };
@@ -214,7 +227,8 @@ define([
 
         _.defer(function(){
             var glObject = that.createGLElementToMatch(outputCSSObj);
-            that.outputView = new ioView.OutputView(that.component.output,glObject,outputCSSObj);
+            that.outputViews[name] = new ioView.OutputView(that.component.getOutput(name),glObject,outputCSSObj);
+            //that.outputView = new ioView.OutputView(that.component.output,glObject,outputCSSObj);
         });
         return outputCSSObj;
     };

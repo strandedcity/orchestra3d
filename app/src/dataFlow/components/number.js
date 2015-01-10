@@ -11,7 +11,6 @@ define([
             var output = this.createIObjectsFromJSON([
                 {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "output");
-            //var output = new DataFlow.OutputNumber();
 
             var inputs = this.createIObjectsFromJSON([
                 {required: false, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
@@ -25,8 +24,7 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.output.clearValues();
-            this.output.values = this.inputs['N'].values.copy();
+            this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
             this._recalculate();
         },
         parseInputAndSet: function(input){
@@ -39,7 +37,7 @@ define([
             }
 
             // empty out number if failure to parse
-            this.output.assignValues(arr);
+            this.getOutput("N").assignValues(arr);
         }
     });
 
@@ -56,11 +54,6 @@ define([
                 {shortName: "N", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
                 {shortName: "C", required:false, default: 10, type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "inputs");
-            //var inputs = [
-            //    new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),
-            //    new DataFlow.OutputNumber({shortName: "N", required:false, default: 1}),
-            //    new DataFlow.OutputNumber({shortName: "C", required:false, default: 10})
-            //];
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
@@ -87,9 +80,9 @@ define([
                 final.setDataAtPath(node.getPath(),data[0]);
             });
 
-            this.output.replaceData(final);
+            this.getOutput("S").replaceData(final);
             this._recalculate();
-        },
+        }
     });
 
     components.SliderComponent = DataFlow.Component.extend({
@@ -105,11 +98,6 @@ define([
                 {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
                 {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "inputs");
-            //var inputs = [
-            //    new DataFlow.OutputNumber({shortName: "S", required:false, default: 0}),  // Start Value (min)
-            //    new DataFlow.OutputNumber({shortName: "E", required:false, default: 1}),  // End Value (max)
-            //    new DataFlow.OutputBoolean({shortName: "I", required:false, default: false}) // Integers only?
-            //];
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
@@ -124,10 +112,10 @@ define([
             // However, when max/min and integer values change, the single output value must be checked to make sure that
             // it does, in fact, satisfy specified conditions.
             // Since the slider can select only a single value, only the first value in each list is considered.
-            var currVal = this.output.getTree().dataAtPath([0],false);
-            var min = this["S"].getFirstValueOrDefault(),
-                max = this["E"].getFirstValueOrDefault(),
-                integers = this["I"].getFirstValueOrDefault();
+            var currVal = this.getOutput("N").getTree().dataAtPath([0],false);
+            var min = this.getInput("S").getFirstValueOrDefault(),
+                max = this.getInput("E").getFirstValueOrDefault(),
+                integers = thie.getInput("I").getFirstValueOrDefault();
             if (integers === true && Math.floor(currVal) != currVal) {
                 currVal = Math.floor(currVal);
             }
@@ -135,7 +123,7 @@ define([
             if (currVal > max) currVal = max;
             if (currVal < min) currVal = min;
 
-            this.output.getTree().setDataAtPath([0],[currVal]);
+            this.getOutput("N").getTree().setDataAtPath([0],[currVal]);
 
             this._recalculate();
         }
