@@ -22,6 +22,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             /* When the component is already defined elsewhere, and just needs to be part of the persistable model */
             var components = this.get('components');
             components.push(component);
+            this.listenTo(component,'removed',this.removeComponent);
             this.set('components',components);
             return this;
         },
@@ -38,7 +39,9 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
         },
         removeComponent: function(component){
             /* Remove all the CONNECTIONS to the component first, then remove the component from the array */
-            component.destroy();
+            this.stopListening(component);
+            var remainingComponents = _.without(this.get('components'),component);
+            this.set('components', remainingComponents);
         },
         destroy: function(){
             console.warn("DESTROY on project isn't really a good idea. I should just remove VIEW stuff, not DATA stuff.");
@@ -61,9 +64,11 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             var IOIdsForConnections = {};
             var connectionRoutes = [];
             var components = [];
+            var that = this;
             _.each(json, function (cpt) {
                 var component = DataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
                 components.push(component);
+                that.addComponentToProject.call(that,component);
 
                 // if the inputs are supposed to be connected to something, keep track of them for a moment
                 _.each(cpt.inputs, function (iptJSON) {

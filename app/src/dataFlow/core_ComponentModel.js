@@ -111,7 +111,7 @@ define([
         },
         destroy: function(){
             this.output.destroy();
-            this.trigger('removed');
+            this.trigger('removed',this);
             _.each(this.inputs,function(ipt){
                 ipt.destroy();
             });

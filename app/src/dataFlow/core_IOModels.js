@@ -148,8 +148,8 @@ define([
         disconnectAll: function(){
             // For inputs
             var that = this;
-            if (!_.isUndefined(this._listeningTo)) {
-                _.each(this._listeningTo,function(outputModel){
+            if (_.isArray(this._listeningTo)) {
+                _.each(_.clone(this._listeningTo),function(outputModel){
                     that.disconnectOutput.call(that,outputModel);
                 });
             }
