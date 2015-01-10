@@ -28,7 +28,7 @@ define([
                 if (!_.has(_.keys(ENUMS.INTERPRET_AS), args.interpretAs)) {
                     console.warn("Invalid list interpretation type passed to an input. Using default ITEM interpretation. See ENUMS.INTERPRET_AS");
                 } else {
-                    parameterType = ENUMS.INTERPRET_AS[args.interpretAs];
+                    parameterType = args.interpretAs;
                 }
             }
             this.interpretAs = parameterType;

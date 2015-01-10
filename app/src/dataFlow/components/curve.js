@@ -2,8 +2,9 @@ define([
     "underscore",
     "dataFlow/core",
     "SISL/sisl_loader",
-    "dataFlow/UI/geometryPreviews"
-],function(_,DataFlow,Geometry,Preview){
+    "dataFlow/UI/geometryPreviews",
+    "dataFlow/dataMatcher"
+],function(_,DataFlow,Geometry,Preview,DataMatcher){
     var components = {};
     components.CurveControlPointComponent = DataFlow.Component.extend({
         initialize: function(opts){
@@ -12,7 +13,7 @@ define([
             ], opts, "output");
 
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST},
                 {shortName: "D", required: false, default: 3, type: DataFlow.OUTPUT_TYPES.NUMBER},
                 {shortName: "P", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "inputs");
@@ -28,22 +29,12 @@ define([
         recalculate: function(){
             this.getOutput("C").clearValues();
 
-            var out = this.getOutput("C").getTree();
-
-            // TEMPORARILY -- just use the first value for degree and periodic:
-            var degree = this["D"].getFirstValueOrDefault(),
-                periodic = this["P"].getFirstValueOrDefault();
-
-            // first attempt at a data-matching strategy. This should match grasshopper's behavior exactly.
-            // recurse over point lists ("V"), and for each list encountered, find the closest-matching single value
-            this["V"].values.recurseTree(function(pointList,node){
-                var curveList = [];
-
-                curveList.push(new Geometry.Curve(pointList,degree,periodic));
-
-                out.setDataAtPath(node.getPath(),curveList);
+            /* D = degree, P = periodic, V = points (AS LIST) */
+            var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(degree,periodic,pointList){
+                return new Geometry.Curve(pointList,degree,periodic)
             });
 
+            this.getOutput("C").replaceData(result.tree);
             this._recalculate();
         },
         drawPreviews: function(){

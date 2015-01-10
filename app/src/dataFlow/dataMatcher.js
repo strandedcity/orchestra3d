@@ -62,11 +62,17 @@ define([
                 // Huzzah! Only one "item" typed list with the maximum path length, it wins
                 return itemTypeContenders[0];
             } else if (itemTypeContenders.length === 0) {
-                // TODO: Not sure how grasshopper treats this, so just return the first item for now
-                // back to full contenders list....
-                return contenders[0];
+                // The longest list is NOT a list of item type. Check list-type contenders, then.
+                var listTypeContenders = _.filter(contenders,function(input){
+                    return input.interpretAs === ENUMS.INTERPRET_AS.LIST;
+                });
+
+                // gotcha! Just one list-type input
+                if (listTypeContenders.length === 0) return contenders[0]; // TODO: Poorly defined behavior. No ITEM or LIST inputs found!
+                if (listTypeContenders.length === 1) return listTypeContenders[0]; // Well defined: no ITEM type inputs, and just one LIST type
+                return listTypeContenders[0]; // TODO: Poorly defined: multiple LIST type inputs with same path level?
             } else { // itemTypeContenders.length > 1
-                // TODO: Not sure how grasshopper treats this, so just return the first item for now
+                // TODO: Poorly defined: multiple ITEM type inputs with same path level?
                 return itemTypeContenders[0];
             }
         }
@@ -79,12 +85,20 @@ define([
             // Basically we print out the "used" paths in recursive order for each element, then go down the line
             // doing calculations for lists and then repeating the last list when one runs out.
 
-            var flattenedNodeList = [];   // will contain lists OF OBJECTS corresponding to each node with data.
-                                        // each object will know the path of the node it should go to
+            var flattenedNodeList = [];     // will contain lists OF OBJECTS corresponding to each node with data.
+                                            // each object will know the path of the node it should go to
 
             function appendUsedDataPaths(input){
-                var dataListForTree = [];
-                input.getTree().recurseTree(function(data,node){
+                var dataListForTree = [],
+                    inputTree = input.getTree().copy();
+
+                if (input.interpretAs === ENUMS.INTERPRET_AS.LIST) {
+                    input.getTree().recurseTree(function(data,node){
+                        inputTree.setDataAtPath(node.getPath(),[data]);
+                    });
+                }
+
+                inputTree.recurseTree(function(data,node){
                     dataListForTree.push(node);
                 });
                 if (dataListForTree.length === 0){
@@ -96,7 +110,7 @@ define([
                 return dataListForTree;
             }
 
-            // putting the master input first will help us below.
+            // gotta know where the master input is, and which params to treat as lists:
             var indexOfMaster = _.indexOf(inputs,masterInput);
             _.each(inputs,function(ipt){
                 flattenedNodeList.push(appendUsedDataPaths(ipt));
@@ -110,8 +124,8 @@ define([
 
             // Count number of nodes (same for each input now). For each "row" of lists:
             // -Calculate the correct destination path based on the master list's path
-            // -Extract data arrays for each input, build an array
-            // -Align these data arrays
+            // -Extract data arrays for each input, build an array of these arrays
+            // -Align these data arrays (repeat items until they are comparable lengths
             // -Calculate the result list
             var prevPath = [], prevPathUsed = false;
             for (var rowIndex=0; rowIndex < flattenedNodeList[0].length; rowIndex++){
@@ -135,7 +149,12 @@ define([
                 rowData = alignArrays(rowData);
 
                 // calculate results item by item, and store
-                result = calculateItemsForAlignedLists(rowData,calculation);
+                try {
+                    result = calculateItemsForAlignedLists(rowData,calculation);
+                } catch (e) {
+                    result = [null];
+                    console.log('Runtime error during calculation process. Inputs:\n',rowData,'\nCalculation Error:\n', e.stack);
+                }
                 outputTree.setDataAtPath(destPath,result);
             }
 
