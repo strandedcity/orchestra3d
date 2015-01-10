@@ -105,7 +105,6 @@ define([
 
         component.componentView = this;
         this.inputViews = {};
-        this.outputView = null;
         this.outputViews = {};
         this.createInputs();
         this.createOutputs();
@@ -207,9 +206,6 @@ define([
                 this.outputViews[out.shortName] = this.createOutputWithNameAndParent(out.shortName,out.type,this.cssObject,0);
             }
         },this);
-
-        //if (this.component.getOutput().type === DataFlow.OUTPUT_TYPES.NULL) return;
-        //this.createOutputWithNameAndParent(this.component.output.shortName,this.component.output.type,this.cssObject,0);
     };
     ComponentView.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
         var that = this,
@@ -228,7 +224,6 @@ define([
         _.defer(function(){
             var glObject = that.createGLElementToMatch(outputCSSObj);
             that.outputViews[name] = new ioView.OutputView(that.component.getOutput(name),glObject,outputCSSObj);
-            //that.outputView = new ioView.OutputView(that.component.output,glObject,outputCSSObj);
         });
         return outputCSSObj;
     };
