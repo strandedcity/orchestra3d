@@ -92,9 +92,11 @@ define([
                     // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
                     // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
                     if (!_.isNull(object) && typeof object.destroy === "function") object.destroy();
-                    else if (!_.isNull(object)) console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
+                    else if (!_.isNull(object) && !_.isNumber(object)) {
+                        console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
+                    }
                 });
-                node.data.splice(0,node.data.length); // clear out all values
+                node.data = []; // clear out all values
             });
         },
         _destroy: function(){

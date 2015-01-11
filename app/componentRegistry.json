@@ -5,6 +5,11 @@
     "shortDescription": "Creates a Point Object from X, Y, and Z coordinate values"
   },
   {
+    "functionName": "EvaluateCurveComponent",
+    "name": "Evaluate Curve at Parameter",
+    "shortDescription": "Given an input curve 'C' and parameter 't', find the position and tangent at that parameter"
+  },
+  {
     "functionName": "PointDistanceComponent",
     "name": "Distance(p1,p2)",
     "shortDescription": "Measures the distance between two supplied points"

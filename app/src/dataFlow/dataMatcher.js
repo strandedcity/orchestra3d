@@ -16,16 +16,25 @@ define([
         */
 
         /* The DataMatcher doesn't really need any properties; it just returns a fully calculated output tree */
-        var DataMatcher = function DataMatcher(inputs,calculationFunction){
+        var DataMatcher = function DataMatcher(inputs,calculationFunction,outputs){
             if (!_.isFunction(calculationFunction)) {throw new Error("DataMatcher requires a calculation function");}
             if (!_.isArray(inputs)) {throw new Error("DataMatcher expects an array of inputs");}
+            if (!_.isUndefined(outputs) && !_.isObject(outputs)) {throw new Error("'outputs' parameter for dataMatcher must be an object if defined.")}
+
+            // Outputs, if defined, should be something like this:
+            //{
+            //    A: DataTree
+            //    B: DataTree
+            //}
+            //... where A and B are named parameters in an object that will need to be returned by the corresponding calculation function.
 
             // DataMatcher is really just meant to be used as a function, but in some cases it may
             // be useful to create an object and read some additional properties.
-            var masterInput = identifyMasterInput(inputs);
+            var masterInput = identifyMasterInput(inputs),
+                tree = createCorrespondingOutputTree(inputs,masterInput,calculationFunction,outputs);
 
             return {
-                tree: createCorrespondingOutputTree(inputs,masterInput,calculationFunction),
+                tree: tree,
                 masterInput: masterInput
             };
         };
@@ -77,8 +86,9 @@ define([
             }
         }
 
-        function createCorrespondingOutputTree(inputs,masterInput,calculation){
-            var outputTree = new DataTree();
+        function createCorrespondingOutputTree(inputs,masterInput,calculation,outputs){
+            var outputTree = new DataTree(),
+                outputKeys = _.isObject(outputs) ? _.keys(outputs) : undefined;
 
             // Grasshopper matches lists the same way it matches list *items*, so yes, it's possible that a master
             // input path may match an output path exactly, but the contained data may not align.
@@ -152,10 +162,19 @@ define([
                 try {
                     result = calculateItemsForAlignedLists(rowData,calculation);
                 } catch (e) {
-                    result = [null];
+                    result = null;
                     console.log('Runtime error during calculation process. Inputs:\n',rowData,'\nCalculation Error:\n', e.stack);
                 }
                 outputTree.setDataAtPath(destPath,result);
+
+                // If outputs are supplied they can be filled in now:
+                if (_.isObject(outputs)) {
+                    _.each(result,function(resultItem){
+                        _.each(outputKeys,function(key){
+                            outputs[key].setDataAtPath(destPath,resultItem[key]);
+                        });
+                    });
+                }
             }
 
             return outputTree;

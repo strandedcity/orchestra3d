@@ -102,22 +102,21 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             return curveParametricStart(this._pointer) + 1;
         },
         getPositionAt: function (param) {
-            if (typeof param === "undefined") {throw new Error("Curve parameter must be defined");}
-            // void s1227(*curve, int #derivatives to compute: 0=position 1=tangent, parvalue, *leftknot (opt), double[] derive, *stat))
-            var buffer = Module._malloc(16*3);
-            s1227(this._pointer,0,param,0,buffer,0);
-            var position = Module.Utils.copyCArrayToJS(buffer,3);
-            Module._free(buffer);
-            return new Geo.Point(position[0],position[1],position[2]);
+            var evaluation = this._evalAt(param);
+            return new Geo.Point(evaluation[0],evaluation[1],evaluation[2]);
         },
         getTangentAt: function(param){
+            var evaluation = this._evalAt(param);
+            return new Geo.Point(evaluation[3],evaluation[4],evaluation[5]);
+        },
+        _evalAt: function(param){
+            // void s1227(*curve, int #derivatives to compute: 0=position 1=tangent, parvalue, *leftknot (opt), double[] derive, *stat))
             if (typeof param === "undefined") {throw new Error("Curve parameter must be defined");}
             var buffer = Module._malloc(16*6);
             s1227(this._pointer,1,param,0,buffer,0);
             var derivs = Module.Utils.copyCArrayToJS(buffer,6);
-            var tangent = new Geo.Point(derivs[3],derivs[4],derivs[5]);
             Module._free(buffer);
-            return tangent;
+            return derivs;
         },
         destroy: function(){
             freeCurve(this._pointer);

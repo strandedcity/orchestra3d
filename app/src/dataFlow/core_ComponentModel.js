@@ -32,6 +32,7 @@ define([
             var objectList = [],
                 constructorMap = {
                     output: IOModels["Output"],
+                    outputs: IOModels["Output"],
                     inputs: IOModels["Input"]
                 };
             // "schemaList" we trust -- it's part of the program.
@@ -50,14 +51,14 @@ define([
             return objectList;
         },
         base_init: function(opts){
-            if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || _.isUndefined(opts.output) ) {
+            if (_.isUndefined(opts) || _.isUndefined(opts.inputs) || (_.isUndefined(opts.output) && _.isUndefined(opts.outputs)) ) {
                 throw new Error("Insufficient specifications for a Component");
             }
 
             this._sufficient = false;
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
-            this.outputs = [opts.output];
+            this.outputs = _.isUndefined(opts.outputs) ? [opts.output] : opts.outputs;
             this.inputs = this.initializeInputs(opts.inputs);
             this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
