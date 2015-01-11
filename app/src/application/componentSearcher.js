@@ -1,4 +1,6 @@
 define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
+    // https://github.com/bassjobsen/Bootstrap-3-Typeahead
+    //
     // This file essentially customizes typeahead behavior for component selection, and bottles it up for use in
     // any context. To use, just call ComponentSearcher on a jQuery input, then listen for its only event on the
     // very same object that got passed in:
@@ -63,23 +65,23 @@ define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
                     }
 
                     return nameMatch.concat(descriptionMatch,other);
-                }
-            });
-            $input.change(function() {
-                var current = $input.typeahead("getActive");
-                if (current && matcher(current,$input.val()) === true) {
-                    // must check that the current value is a match. If not, nothing was actually selected by the user!
-                    // To test, type something that starts as a match but then empties the list, such as
-                    // "Vector lkjasldj" and hit enter. Without this condition, the first item that WAS selected is passed.
+                },
+                afterSelect: function(){
+                    var current = $input.typeahead("getActive");
+                    if (current && matcher(current,$input.val()) === true) {
+                        // must check that the current value is a match. If not, nothing was actually selected by the user!
+                        // To test, type something that starts as a match but then empties the list, such as
+                        // "Vector lkjasldj" and hit enter. Without this condition, the first item that WAS selected is passed.
 
-                    // TADA! We have selected a new component.
-                    $(that).trigger("selectedComponent",[current]);
-                } else {
-                    // Bad match, do nothing
-                }
+                        // TADA! We have selected a new component.
+                        $(that).trigger("selectedComponent",[current]);
+                    } else {
+                        // Bad match, do nothing
+                    }
 
-                // either way, clear out for next round
-                $input.val("");
+                    // either way, clear out for next round
+                    $input.val("");
+                }
             });
         });
     };
