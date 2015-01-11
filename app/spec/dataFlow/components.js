@@ -2,9 +2,10 @@ define([
     "jquery",
     "underscore",
     "dataFlow/dataFlow_loader",
-    "./point", // specs
+    "./point", // specs,
+    "./curve", // specs
     "./treeComponents" // specs
-],function($,_,DataFlow,pointComponent,treeComponents){
+],function($,_,DataFlow,pointComponent,curveComponent,treeComponents){
     return ["Components -->",function(){
         describe("All Components -->",function(){
             var componentList = {};
@@ -47,6 +48,7 @@ define([
             });
         });
         describe.apply(this,pointComponent);
+        describe.apply(this,curveComponent);
         for (var i=0; i<treeComponents.length; i++){
             describe.apply(this,treeComponents[i]);
         }
