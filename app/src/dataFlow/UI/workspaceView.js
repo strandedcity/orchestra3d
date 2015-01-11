@@ -66,7 +66,7 @@ define([
     Workspace.prototype.init = function(){
 
         // drag and drop related
-        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject");
+        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -116,6 +116,14 @@ define([
 
     Workspace.prototype.enableControls = function(value){
         this.controls.enabled = value;
+    };
+
+    Workspace.prototype.getCurrentVisibleCenterPoint = function(){
+        // So we can place things in the middle of the user's screen, no matter where he's panned to
+        return {
+            x: this.camera.position.x,
+            y: this.camera.position.y
+        };
     };
 
 

@@ -76,11 +76,11 @@ require(["appconfig"],function(){
 
                 // Navbar has a bunch of things that can interact with the workspaces:
                 navbar.on('createNewComponent',function(component){
-                    var cptObject = dataFlow.createComponentByName(component["functionName"]);
-                    that.currentProject.addComponentToProject(cptObject);
-                    new ComponentView(cptObject,{
-                        position: {x: 0, y: 0}
+                    var cptObject = dataFlow.createComponentByName(component["functionName"],{
+                        position: workspace.getCurrentVisibleCenterPoint()
                     });
+                    that.currentProject.addComponentToProject(cptObject);
+                    new ComponentView(cptObject);
                 }).on('openParseProject',function(projectId){
                     that.loadParseProject(projectId);
                 }).on('openExampleProject',function(url){
