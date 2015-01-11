@@ -95,7 +95,7 @@ define([
 
         _.extend(this,Backbone.Events);
 
-        _.bindAll(this,"createInputWithNameAndParent","createGLElementToMatch");
+        _.bindAll(this,"processIOViews","createGLElementToMatch");
         this.cssObject = this.createComponentWithNamePosition(this.component.get('componentPrettyName'), this.component.position.x, this.component.position.y);
 
         _.defer(function(){
@@ -106,8 +106,8 @@ define([
         component.componentView = this;
         this.inputViews = {};
         this.outputViews = {};
-        this.createInputs();
-        this.createOutputs();
+        this.processIOViews(this.component.inputs,this.inputViews,true);
+        this.processIOViews(this.component.outputs,this.outputViews,false);
 
         // call once at the end!
         workspace.render();
@@ -170,10 +170,6 @@ define([
             }
         });
 
-        //if (!_.isEmpty(this.component.output.IOView)) {
-        //    this.component.output.IOView.remove();
-        //}
-
         workspace.scene.remove(this.cssObject);
         workspace.glscene.remove(this.glObject);
         delete this.component.componentView; // remove references to the view
@@ -182,54 +178,33 @@ define([
         workspace.render(); // get rid of input wires
     };
 
+    ComponentView.prototype.processIOViews = function(IOModelArray,IOViewsArray,inputsBoolean){
+        var verticalStart = INPUT_HEIGHT * (_.keys(IOModelArray).length - 1) / 2,
+            cssObj = this.cssObject,
+            ioViewConstructor = inputsBoolean ? ioView.InputView : ioView.OutputView;
 
-    /*
-    Inputs and Outputs!
-     */
-    ComponentView.prototype.createInputs = function(){
-        // calculate start position for inputs:
-        var inputs = this.component.inputs,
-            that = this;
-        var verticalStart = INPUT_HEIGHT * (_.keys(inputs).length - 1) / 2;
+        _.each(IOModelArray, function(ioModel,idx){
+            if (ioModel.type !== DataFlow.OUTPUT_TYPES.NULL) {
+                //this.createOutputWithNameAndParent(ioModel.shortName,ioModel.type,this.cssObject,verticalStart - idx * INPUT_HEIGHT);
 
-        // add each input:
-        _.each(inputs, function(ipt,idx){
-            if (ipt.type !== DataFlow.OUTPUT_TYPES.NULL) {
-                that.inputViews[ipt.shortName] = this.createInputWithNameAndParent(ipt.shortName,ipt.type,this.cssObject, verticalStart - idx * INPUT_HEIGHT );
+                var name = ioModel.shortName,
+                    outputCSSObj = this._createIOWithNameAndParent(
+                        name,
+                        cssObj,
+                        verticalStart - idx * INPUT_HEIGHT,
+                        inputsBoolean,
+                        ioModel.type
+                    ),
+                    that = this;
+
+                _.defer(function(){
+                    var glObject = that.createGLElementToMatch(outputCSSObj);
+                    IOViewsArray[name] = new ioViewConstructor(ioModel,glObject,outputCSSObj);
+                });
             }
         },this);
     };
 
-    ComponentView.prototype.createOutputs = function(){
-        var outputs = this.component.outputs,
-            verticalStart = INPUT_HEIGHT * (_.keys(outputs).length - 1) / 2;
-
-        _.each(this.component.outputs, function(out,idx){
-            if (out.type !== DataFlow.OUTPUT_TYPES.NULL) {
-                this.outputViews[out.shortName] = this.createOutputWithNameAndParent(out.shortName,out.type,this.cssObject,verticalStart - idx * INPUT_HEIGHT);
-            }
-        },this);
-    };
-    ComponentView.prototype.createInputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var that = this,
-            inputCSSObj = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, true, dragScope);
-
-        _.defer(function(){
-            var glObject = that.createGLElementToMatch(inputCSSObj);
-            that.inputViews[name] = new ioView.InputView(that.component.getInput(name),glObject,inputCSSObj);
-        });
-        return inputCSSObj;
-    };
-    ComponentView.prototype.createOutputWithNameAndParent = function(name, dragScope, parentCSSElement,verticalOffset){
-        var outputCSSObj = this._createIOWithNameAndParent(name,parentCSSElement, verticalOffset, false, dragScope),
-            that = this;
-
-        _.defer(function(){
-            var glObject = that.createGLElementToMatch(outputCSSObj);
-            that.outputViews[name] = new ioView.OutputView(that.component.getOutput(name),glObject,outputCSSObj);
-        });
-        return outputCSSObj;
-    };
     ComponentView.prototype._createIOWithNameAndParent = function(name, parentCSSElement, verticalOffset, isInput, dragScope){
         var element = document.createElement("div");
         element.className = 'draggable IO';
