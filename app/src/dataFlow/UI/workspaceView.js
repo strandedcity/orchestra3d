@@ -264,7 +264,10 @@ define([
             }
         }
         function onMouseOut(){
-            onMouseUp();
+            // DO NOT PUT onMouseUp() in here! If you start dragging fast, the UI may not 100% keep up with the mouse,
+            // triggering a mouseout event. If the mouseout event triggers the mouseup handler, the entire gesture can
+            // register as a click. Not good!
+            // onMouseUp();
         }
 
         function doSingleClick(e){
