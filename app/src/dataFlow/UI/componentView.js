@@ -38,9 +38,9 @@ define([
             },
             displayVals: function(){
                 if (_.isEmpty(this.component.getOutput("B").getTree().dataAtPath([0]))) {
-                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+                    this.setDisplayLabel(this.component.get('componentPrettyName'));
                 } else {
-                    this.cssObject.element.firstChild.value = this.component.getOutput("B").getTree().dataAtPath([0]).toString();
+                    this.setDisplayLabel(this.component.getOutput("B").getTree().dataAtPath([0]).toString());
                 }
             }
         });
@@ -74,9 +74,9 @@ define([
             },
             displayVals: function(){
                 if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
-                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+                    this.setDisplayLabel(this.component.get('componentPrettyName'));
                 } else {
-                    this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
+                    this.setDisplayLabel(this.component.getOutput("N").getTree().dataAtPath([0]).toString());
                 }
             }
         });
@@ -88,15 +88,7 @@ define([
 
     /* Editable Number Components let you type numbers directly into the component */
     function EditableNumberComponentView(component){
-        _.extend(this,ComponentView.prototype,{
-            //displayVals: function(){
-            //    if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
-            //        this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
-            //    } else {
-            //        this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
-            //    }
-            //}
-        });
+        _.extend(this,ComponentView.prototype);
         _.bindAll(this,"displayVals");
 
         this.init(component);
@@ -148,7 +140,7 @@ define([
     };
 
     ComponentView.prototype.displayVals = function(){
-        this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+        this.setDisplayLabel(this.component.get('componentPrettyName'));
     };
 
     ComponentView.prototype.doubleclick = function(){
@@ -162,21 +154,29 @@ define([
         if (state === false) classToAdd = "insufficient";
         if (state === "error") classToAdd = "error";
 
-        this.cssObject.element.firstChild.classList.remove("sufficient");
-        this.cssObject.element.firstChild.classList.remove("insufficient");
-        this.cssObject.element.firstChild.classList.remove("error");
-        this.cssObject.element.firstChild.classList.add(classToAdd);
+        var displayDiv = this.getDisplayDiv();
+        displayDiv.classList.remove("sufficient");
+        displayDiv.classList.remove("insufficient");
+        displayDiv.classList.remove("error");
+        displayDiv.classList.add(classToAdd);
+    };
+
+    ComponentView.prototype.getDisplayDiv = function(){
+        return this.cssObject.element.firstChild;
+    };
+
+    ComponentView.prototype.setDisplayLabel = function(text){
+        this.getDisplayDiv().textContent = text;
     };
 
     ComponentView.prototype.createComponentWithNamePosition = function(name, x, y){
         var element = document.createElement( 'div' );
         element.className = 'draggable';
 
-        var number = document.createElement( 'input' );
-        number.type = "text";
-        number.className = 'number';
-        number.value = name;
-        element.appendChild( number );
+        var label = document.createElement( 'div' );
+        label.className = 'componentLabel';
+        label.textContent = name;
+        element.appendChild( label );
 
         var cssObject = new THREE.CSS3DObject( element );
         cssObject.position.x = x || 0;

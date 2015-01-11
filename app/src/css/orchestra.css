@@ -23,25 +23,28 @@ canvas {
     border-radius: 0px !important;
 }
 
-input.number {
+/* Main Component Styling */
+div.componentLabel {
+    background-color: #ffca3d;
     border: 1px solid black;
     border-radius: 60px;
     height: 80px;
     width: 240px;
     text-align: center;
     font-size: 30px;
+    line-height: 80px;
     text-transform: capitalize;
-}
-input.number:focus {
-    outline: none;
-}
-input.number:hover {
-    border: 5px solid orange;
-}
+    cursor: pointer;
 
-input.insufficient {/*background-color: lightgray;*/}
-input.sufficient {background-color: #5cb85c;}
-input.error {background-color: orangered;}
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+div.componentLabel.insufficient {/*background-color: lightgray;*/}
+div.componentLabel.sufficient {background-color: #e8e8e8;}
+div.componentLabel.error {background-color: orangered;}
 
 div.IO {
     box-sizing: border-box;

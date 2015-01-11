@@ -30,11 +30,14 @@ define([
             // This can always be added later, but it's not critical first-order functionality
 
             // grab the input, construct a new (grafted) tree.
-            this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
+            //this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
 
-            // updating the tree calls this automatically. It's part of the null checks.
-            //this._recalculate();
-        }
+            // clearValues() should NOT try to destroy each object in the tree; the graft component just reorganizes the objects!
+            this.getOutput("T").values = this.getInput("T").getTree().graftedTree();
+
+            // Calling replaceData would call this automatically, but in this case we prefer not to call replaceData. See comment.
+            this._recalculate();
+        },
     });
 
     components.ShiftComponent = DataFlow.Component.extend({
