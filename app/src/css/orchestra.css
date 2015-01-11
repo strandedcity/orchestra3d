@@ -121,3 +121,10 @@ div.IO.glHover {
     font-weight: bold;
     font-style: italic;
 }
+
+/* Roaming component searchbar / typeahead */
+.mobileComponentSearchInput {
+    z-index: 20;
+    position: absolute;
+    display: block;
+}

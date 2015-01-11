@@ -76,11 +76,7 @@ require(["appconfig"],function(){
 
                 // Navbar has a bunch of things that can interact with the workspaces:
                 navbar.on('createNewComponent',function(component){
-                    var cptObject = dataFlow.createComponentByName(component["functionName"],{
-                        position: workspace.getCurrentVisibleCenterPoint()
-                    });
-                    that.currentProject.addComponentToProject(cptObject);
-                    new ComponentView(cptObject);
+                    that.newComponent.call(that,component);
                 }).on('openParseProject',function(projectId){
                     that.loadParseProject(projectId);
                 }).on('openExampleProject',function(url){
@@ -91,12 +87,26 @@ require(["appconfig"],function(){
                     that.clearWorkspace();
                 });
 
+                // New components can be created directly in the workspace, as well as from the global nav:
+                workspace.on('createNewComponent',function(component){
+                    that.newComponent.call(that,component);
+                });
+
                 // Demonstration programs... Helpful to have handy for testing
                 //this.NURBSCurveTest();
                 //this.loadJSONProject('curveWithVectorsTest.json?');
                 this.loadParseProject("JnbJpY8YjG");
 
                 viewer.render();
+            };
+
+            App.prototype.newComponent = function(component){
+                var position = component.position || workspace.getCurrentVisibleCenterPoint(),
+                    cptObject = dataFlow.createComponentByName(component["functionName"],{
+                        position: position
+                    });
+                this.currentProject.addComponentToProject(cptObject);
+                new ComponentView(cptObject);
             };
 
             App.prototype.newProject = function(){

@@ -86,5 +86,10 @@ define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
         });
     };
 
+    ComponentSearcher.prototype.destroy = function(){
+        this.$input.typeahead('destroy');
+        this.$input.remove();
+    };
+
     return ComponentSearcher;
 });

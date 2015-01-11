@@ -66,7 +66,8 @@ define([
     Workspace.prototype.init = function(){
 
         // drag and drop related
-        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint");
+        _.extend(this,Backbone.Events);
+        _.bindAll(this, "drag", "render", "mouseUp", "clearHover","setupDraggableView","startDraggingObject","getCurrentVisibleCenterPoint","hideChooser");
         this.dragObject = null;
         this.dragOffset = [0,0];
 
@@ -107,11 +108,41 @@ define([
     };
 
     Workspace.prototype.attachControls = function(){
+        var that = this;
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
         this.controls.noRotate = true;
         this.controls.zoomSpeed = 2.0;
         this.controls.addEventListener( 'change', this.render );
+        $(this.controls.domElement).on('dblclick',{workspace: that},this.showChooser);
+        $(this.controls.domElement).on('click',{workspace: that},this.hideChooser);
         this.render();
+    };
+
+    Workspace.prototype.showChooser = function(e){
+        var that = e.data.workspace,
+            screenPosition = {x: e.clientX, y: e.clientY},
+            unprojected = that.unprojectMouse(e.clientX, e.clientY),
+            workspacePosition = that.mouseWorldXYPosition(unprojected),
+            inputId = "mobileSearcher",
+            $input = $('<input id="'+inputId+'" class="mobileComponentSearchInput"/>');
+        
+        $('body').append($input);
+        $input.css({
+            top: screenPosition.y,
+            left: screenPosition.x
+        }).focus();
+
+        require(["componentSearcher"],function(ComponentSearcher){
+            that.searcher = new ComponentSearcher($input);
+            $(that.searcher).on("selectedComponent",function(e,component){
+                component.position = workspacePosition;
+                that.trigger('createNewComponent',component);
+                that.hideChooser();
+            });
+        });
+    };
+    Workspace.prototype.hideChooser = function(){
+        if (this.searcher) this.searcher.destroy();
     };
 
     Workspace.prototype.enableControls = function(value){
@@ -218,7 +249,8 @@ define([
             view;
         $('div.TOP').on("mousedown","div.draggable",onMouseDown)
         .on("mouseup","div.draggable",onMouseUp)
-        .on("mouseout","div.draggable",onMouseOut);
+        .on("mouseout","div.draggable",onMouseOut)
+        .on("dblclick","div.draggable",doDoubleClick); // use the jquery event here so the event can be captured at this level and not bubble up to the whole workspace
 
         // Timeout, started on mousedown, triggers the beginning of a hold
         var holdStarter = null,
@@ -259,7 +291,6 @@ define([
                     // Decide: was this event a drag (mouse button stayed down), single click or double click?
                     if (holdActive === true) doDrag(e);
                     else if (clicks === 1) doSingleClick(e);
-                    else doDoubleClick(e);
                     clicks = 0;
                 },holdDelay);
             }
@@ -283,7 +314,8 @@ define([
             if (typeof view.click === "function" && !_.isUndefined(e)) view.click(e.clientX, e.clientY);
         }
         function doDoubleClick(e){
-            console.log('dblclick');
+            e.stopPropagation(); // prevents double-clicking a component from registering as a doubleclick on the workspace
+            console.log('dblclick component');
             try {
                 // log the FIRST output since this is just a big 'ol hack anyways
                 view.component.getOutput().getTree().log();
