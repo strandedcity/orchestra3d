@@ -201,9 +201,12 @@ define([
     };
 
     ComponentView.prototype.createOutputs = function(){
-        _.each(this.component.outputs, function(out){
+        var outputs = this.component.outputs,
+            verticalStart = INPUT_HEIGHT * (_.keys(outputs).length - 1) / 2;
+
+        _.each(this.component.outputs, function(out,idx){
             if (out.type !== DataFlow.OUTPUT_TYPES.NULL) {
-                this.outputViews[out.shortName] = this.createOutputWithNameAndParent(out.shortName,out.type,this.cssObject,0);
+                this.outputViews[out.shortName] = this.createOutputWithNameAndParent(out.shortName,out.type,this.cssObject,verticalStart - idx * INPUT_HEIGHT);
             }
         },this);
     };
