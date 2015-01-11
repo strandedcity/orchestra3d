@@ -17,9 +17,37 @@ define([
             return new SliderComponentView(component);
         } else if (component.componentName === "NumberComponent") {
             return new EditableNumberComponentView(component);
+        } else if (component.componentName === "BooleanToggleComponent") {
+            console.log('creating toggler')
+            return new BooleanToggleComponentView(component);
         } else {
             return new ComponentView(component);
         }
+    }
+
+    function BooleanToggleComponentView(component){
+        /* This refers only to the dataflow component, not the actual slider. So here, we handle events that interface with
+         * the slider, but not the display of the slider itself. */
+        var that = this;
+        _.extend(this,ComponentView.prototype,{
+            // Show Slider UI
+            doubleclick: function(x,y){
+                // change boolean value on double click
+                var currVal = that.component.getInput("B").getTree().dataAtPath([0])[0];
+                that.component.getInput("B").assignValues([!currVal]);
+            },
+            displayVals: function(){
+                if (_.isEmpty(this.component.getOutput("B").getTree().dataAtPath([0]))) {
+                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+                } else {
+                    this.cssObject.element.firstChild.value = this.component.getOutput("B").getTree().dataAtPath([0]).toString();
+                }
+            }
+        });
+
+        this.init(component);
+
+        this.listenTo(this.component.getOutput("B"),"change",this.displayVals);
     }
 
     function SliderComponentView(component) {
@@ -61,13 +89,13 @@ define([
     /* Editable Number Components let you type numbers directly into the component */
     function EditableNumberComponentView(component){
         _.extend(this,ComponentView.prototype,{
-            displayVals: function(){
-                if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
-                    this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
-                } else {
-                    this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
-                }
-            }
+            //displayVals: function(){
+            //    if (_.isEmpty(this.component.getOutput("N").getTree().dataAtPath([0]))) {
+            //        this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+            //    } else {
+            //        this.cssObject.element.firstChild.value = this.component.getOutput("N").getTree().dataAtPath([0]).toString();
+            //    }
+            //}
         });
         _.bindAll(this,"displayVals");
 
@@ -121,6 +149,11 @@ define([
 
     ComponentView.prototype.displayVals = function(){
         this.cssObject.element.firstChild.value = this.component.get('componentPrettyName');
+    };
+
+    ComponentView.prototype.doubleclick = function(){
+        // default double-clicking just logs the data from the first output
+        this.component.getOutput().getTree().log();
     };
 
     ComponentView.prototype.changeSufficiency = function(state){

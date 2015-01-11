@@ -316,10 +316,9 @@ define([
         function doDoubleClick(e){
             e.stopPropagation(); // prevents double-clicking a component from registering as a doubleclick on the workspace
             console.log('dblclick component');
-            try {
-                // log the FIRST output since this is just a big 'ol hack anyways
-                view.component.getOutput().getTree().log();
-            } catch (e) {/* eh, so we couldn't log the data. */}
+            if (typeof view.doubleclick === "function") {
+                view.doubleclick();
+            }
         }
         function doDrag(e){
             console.log('drag');

@@ -25,7 +25,7 @@
     "shortDescription": "Creates a separate branch for each data item in the supplied tree"
   },
   {
-    "functionName": "BooleanComponent",
+    "functionName": "BooleanToggleComponent",
     "name": "Boolean Toggle",
     "shortDescription": "This component gives you a convenient way to switch between a single True or False value"
   },

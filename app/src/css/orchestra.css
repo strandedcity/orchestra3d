@@ -29,7 +29,8 @@ input.number {
     height: 80px;
     width: 240px;
     text-align: center;
-    font-size: 30px;;
+    font-size: 30px;
+    text-transform: capitalize;
 }
 input.number:focus {
     outline: none;

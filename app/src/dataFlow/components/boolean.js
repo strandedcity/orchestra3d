@@ -3,11 +3,11 @@ define([
     "dataFlow/core"
 ],function(_,DataFlow){
     var components = {};
-    components.BooleanComponent = DataFlow.Component.extend({
+    components.BooleanToggleComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            this.setupBooleanComponent(opts,false,true);
+            this.setupBooleanComponent(opts,true,true,"Boolean");
         },
-        setupBooleanComponent: function(opts,nullInput,defaultValue){
+        setupBooleanComponent: function(opts,nullInput,defaultValue,name){
             var output = this.createIObjectsFromJSON([
                 {shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "output");
@@ -20,7 +20,7 @@ define([
             var args = _.extend(opts || {},{
                 inputs: inputs,
                 output: output,
-                componentPrettyName: "Bool"
+                componentPrettyName: name
             });
             this.base_init(args);
         },
@@ -33,14 +33,14 @@ define([
     });
 
     // A couple convenience components that don't do much
-    components.BooleanTrueComponent = components.BooleanComponent.extend({
+    components.BooleanTrueComponent = components.BooleanToggleComponent.extend({
         initialize: function(opts){
-            this.setupBooleanComponent(opts,true,true);
+            this.setupBooleanComponent(opts,true,true,"True");
         }
     });
-    components.BooleanFalseComponent = components.BooleanComponent.extend({
+    components.BooleanFalseComponent = components.BooleanToggleComponent.extend({
         initialize: function(opts){
-            this.setupBooleanComponent(opts,true,false);
+            this.setupBooleanComponent(opts,true,false,"False");
         }
     });
 
