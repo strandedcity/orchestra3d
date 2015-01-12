@@ -26,18 +26,6 @@ define([
         recalculate: function(){
             this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
             this._recalculate();
-        },
-        parseInputAndSet: function(input){
-            var arr = [];
-            try {
-                var arrStr = "[" + input.replace(/[\s,]+$/, "") + "]";
-                    arr = JSON.parse(arrStr);
-            } catch (e){
-                console.warn("Failed to parse user-entered numbers: " + input);
-            }
-
-            // empty out number if failure to parse
-            this.getOutput("N").assignValues(arr);
         }
     });
 

@@ -88,19 +88,22 @@ define([
 
     /* Editable Number Components let you type numbers directly into the component */
     function EditableNumberComponentView(component){
-        _.extend(this,ComponentView.prototype);
-        _.bindAll(this,"displayVals");
+        _.extend(this,ComponentView.prototype,{
+            click: function(x,y){
+                // Show the table-number-enterer UI. It cleans up after itself.
+                var data = component.getOutput("N").getTree(),
+                    callback = function(){
+                        component.getOutput("N").trigger("change");
+                    };
+                require(["dataFlow/UI/tableValueEnterer"],function(TableView){
+                    // no reference necessary. The slider will clean itself up.
+                    new TableView(data,x,y,callback);
+                });
+            }
+        });
+        _.bindAll(this,"click");
 
         this.init(component);
-
-        // bind some extra events for the editable number components.
-        var that = this;
-        this.listenTo(this.component.getOutput("N"),"change",this.displayVals);
-
-        console.warn("DON'T DO THIS! OR, DESTROY THE EVENT LISTENER LATER");
-        this.cssObject.element.firstChild.onchange = function(){
-            that.component.parseInputAndSet(this.value);
-        };
     }
 
     ///////////////////////
