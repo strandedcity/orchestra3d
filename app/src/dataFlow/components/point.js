@@ -15,14 +15,14 @@ define([
                 ], opts, "output");
 
                 var args = _.extend(opts || {},{
-                    inputs: this.getStandardPointInputs(opts),
+                    inputs: this.prepareTwoNumericInputs(opts),
                     output: output,
                     componentPrettyName: "Point(x,y,z)",
                     preview: false
                 });
                 this.base_init(args);
             },
-            getStandardPointInputs: function(opts){
+            prepareTwoNumericInputs: function(opts){
                 return this.createIObjectsFromJSON([
                     {shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMBER},
                     {shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMBER},
@@ -44,7 +44,6 @@ define([
                 var points = output.flattenedTree().dataAtPath([0]);
                 this.previews.push(new Preview.PointListPreview(points));
             },
-
             fetchPointCoordinates: function(){
                 /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
                 var outputs = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
@@ -64,7 +63,7 @@ define([
                 ], opts, "output");
 
                 var args = _.extend(opts || {},{
-                    inputs: this.getStandardPointInputs(opts),
+                    inputs: this.prepareTwoNumericInputs(opts),
                     output: output, // Different name, same thing
                     preview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"

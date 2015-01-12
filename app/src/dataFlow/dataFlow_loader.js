@@ -6,8 +6,9 @@ define([
         "dataFlow/components/point",
         "dataFlow/components/curve",
         "dataFlow/components/circle",
-        "dataFlow/components/treeComponents"
-    ],function(_,core,boolean,number,point,curve,circle,tree){
+        "dataFlow/components/treeComponents",
+        "dataFlow/components/math_simple"
+    ],function(_,core,boolean,number,point,curve,circle,tree,simpleMath){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
 
@@ -18,6 +19,7 @@ define([
         dataFlow["components"]["curve"] = curve;
         dataFlow["components"]["curve"] = _.extend(dataFlow["components"]["curve"],circle);
         dataFlow["components"]["tree"] = tree;
+        dataFlow["components"]["simpleMath"] = simpleMath;
 
         // TODO: Use this ONCE to create an index, then use the index ?
         dataFlow._iterateComponents = function(callbackNameFunction){

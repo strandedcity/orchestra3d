@@ -83,5 +83,45 @@
     "functionName": "VectorNormalizeComponent",
     "name": "Vector Normalize",
     "shortDescription": "Returns a unit vector with the same direction as the supplied vector"
+  },
+  {
+    "functionName": "MathMultiplyComponent",
+    "name": "Multiply",
+    "shortDescription": "Returns the product of two numbers"
+  },
+  {
+    "functionName": "MathDivideComponent",
+    "name": "Divide",
+    "shortDescription": "Divides the first input (a) by the second input (b)"
+  },
+  {
+    "functionName": "MathAddComponent",
+    "name": "Adde",
+    "shortDescription": "Returns the sum of two numbers"
+  },
+  {
+    "functionName": "MathSubtractComponent",
+    "name": "Subtract",
+    "shortDescription": "Subtracts the second input (b) from the first input (a)"
+  },
+  {
+    "functionName": "MathSineComponent",
+    "name": "Sine(x)",
+    "shortDescription": "Returns the sine of the input angle in radians"
+  },
+  {
+    "functionName": "MathCosineComponent",
+    "name": "Cosine(x)",
+    "shortDescription": "Returns the cosine of the input angle in radians"
+  },
+  {
+    "functionName": "MathTangentComponent",
+    "name": "Tangent(x)",
+    "shortDescription": "Returns the tangent of the input angle in radians"
+  },
+  {
+    "functionName": "MathExponentComponent",
+    "name": "Exponent a^b",
+    "shortDescription": "Returns the first input (a) raised to a power of the second input (b)."
   }
 ]
