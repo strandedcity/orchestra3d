@@ -5,7 +5,34 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         events: {
             'click .saveBtn': "saveProject",
             'click .openProjectLink': "openProject",
-            'click #newProjectButton': "newProject"
+            'click #newProjectButton': "newProject",
+            'click .navbar-project-title': "toggleTitleEntryState",
+            'blur #titleChanger': "toggleTitleEntryState",
+            'change .titleChangerWidget input': "updateProjectTitle"
+        },
+        initialize: function(opts){
+            this.project = null;
+            this.user = null;
+            this.titleIsEditable = false;
+
+            if (!_.isUndefined(opts) && !_.isUndefined(opts.project)) this.setProject(opts.project);
+
+            var that = this;
+            $(document).ready(function(){
+                that.fetchUser.call(that);
+                that.render.call(that);
+                that.initSearchbar('componentChooser');
+            });
+        },
+        setUser: function(user){
+            this.user = user;
+        },
+        setProject: function(project){
+            this.stopListening(this.project);
+
+            this.project = project;
+            this.updateTitleDisplay(project);
+            this.listenTo(this.project,"change:title",this.updateTitleDisplay);
         },
         saveProject: function(e){
             e.preventDefault();
@@ -18,13 +45,35 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         newProject: function(e){
             this.trigger("openNewProject");
         },
-        initialize: function(){
-            var that = this;
-            $(document).ready(function(){
-                that.fetchUser.call(that);
-                that.render.call(that);
-                that.initSearchbar('componentChooser');
-            });
+        toggleTitleEntryState: function(e){
+            var input = $('.titleChangerWidget'),
+                text = $('.navbar-project-title'),
+                curr = this.titleIsEditable;
+
+            if (curr) {
+                input.hide();
+                text.show();
+            } else {
+                input.show();
+                input.find('input').focus();
+                text.hide();
+            }
+
+            // reverse for next time
+            this.titleIsEditable = !curr;
+        },
+        updateProjectTitle: function(e){
+            if (!_.isNull(this.project)) {
+                this.project.set('title',$(e.target).val());
+            } else {
+                console.warn('Tried to set title of null project');
+            }
+        },
+        updateTitleDisplay: function(proj){
+            var displayText = proj.get('title');
+            $('.titleChangerWidget').find('input').val(displayText); // so that the input has the right text when loaded from a new project
+            displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1);
+            $('.navbar-project-title').text(displayText);
         },
         fetchUser: function(){
             var that = this;
@@ -35,6 +84,7 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
                         that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_out').html()));
                     } else {
                         // show logged-in view
+                        that.setUser(currentUser);
                         User.fetchProjects(function(list){
                             var model = currentUser.toJSON();
                             that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_in').html(),model));

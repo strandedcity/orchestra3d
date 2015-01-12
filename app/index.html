@@ -17,7 +17,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Orchestra3D</a>
+                    <a class="navbar-brand" href="http://www.orchestra3d.io">Orchestra3D</a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
@@ -38,11 +38,21 @@
                             </ul>
                         </li>
                     </ul>
-                    <form class="navbar-form navbar-left" role="search">
+                    <form onsubmit="return false;" class="navbar-form navbar-left" role="search">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="New Component..." autocomplete="off" id="componentChooser">
                         </div>
                     </form>
+
+                    <span id="projectTitleWidget">
+                        <form onsubmit="return false;" class="navbar-form navbar-left titleChangerWidget">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Project Title" autocomplete="off" id="titleChanger">
+                            </div>
+                        </form>
+                        <span class="navbar-project-title" ></span>
+                    </span>
+
                     <ul class="nav navbar-nav navbar-right" id="nav-loggedin-area">
 
                         <li class="btn-default"><a href="#" class="saveBtn">Save</a></li>

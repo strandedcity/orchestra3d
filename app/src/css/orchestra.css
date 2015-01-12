@@ -22,6 +22,17 @@ canvas {
     z-index: 20;
     border-radius: 0px !important;
 }
+.navbar-project-title {
+    /*text-transform: capitalize;*/
+    float: left;
+    height: 50px;
+    padding: 15px 15px;
+    font-size: 17px;
+    line-height: 20px;
+    font-style: italic;
+}
+.titleChangerWidget {display: none;}
+#titleChanger {width: 400px;}
 
 /* Main Component Styling */
 div.componentLabel {

@@ -73,6 +73,7 @@ require(["appconfig"],function(){
                 // Create the navbar, and listen for it to add new components to the workspace
                 var that = this,
                     navbar = new Nav();
+                this.navbar = navbar;
 
                 // Navbar has a bunch of things that can interact with the workspaces:
                 navbar.on('createNewComponent',function(component){
@@ -169,6 +170,7 @@ require(["appconfig"],function(){
             };
 
             App.prototype.loadWorkspace = function(proj){
+                this.navbar.setProject(proj);
                 this.currentProject = proj;
 
                 // Draw Componets, Inputs and Outputs in workspace:
