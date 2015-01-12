@@ -125,6 +125,9 @@ require(["appconfig"],function(){
                 }
 
                 this.currentProject = new OrchestraProject();
+                require(["dataFlow/projectLoader"],function(Loader){
+                    Loader.clearCurrentProject();
+                });
 
                 // This is a pretty straightforward threejs scene. We can just remove things from it.
                 viewer.clearScene();
@@ -187,158 +190,6 @@ require(["appconfig"],function(){
                         });
                     });
                 });
-            };
-
-            App.prototype.NURBSCurveTest = function(){
-
-                var components = [];
-
-                var point1 = dataFlow.createComponentByName("PointComponent",{
-                    position: {x: 500, y: 0}
-                });
-                components.push(point1);
-
-                var vec1 = dataFlow.createComponentByName("VectorComponent",{
-                    position: {x: 500, y: 550}
-                });
-                components.push(vec1);
-
-                var vecDisplay = dataFlow.createComponentByName("VectorDisplayComponent",{
-                    position: {x: 2200, y: 550}
-                });
-                components.push(vecDisplay);
-
-                var shift1 = dataFlow.createComponentByName("ShiftComponent",{
-                    position: {x: 1200, y: 750}
-                });
-                components.push(shift1);
-
-                var vec2pt = dataFlow.createComponentByName("Vector2PtComponent",{
-                    position: {x: 1700, y: 750}
-                });
-                components.push(vec2pt);
-
-
-                var number1 = dataFlow.createComponentByName("NumberComponent",{
-                    position: {x: -200, y: 100}
-                });
-                components.push(number1);
-
-                var number2 = dataFlow.createComponentByName("NumberComponent",{
-                    position: {x: -200, y: 0}
-                });
-                components.push(number2);
-
-                var number3 = dataFlow.createComponentByName("NumberComponent",{
-                    position: {x: -200, y: -100}
-                });
-                components.push(number3);
-
-
-                var curve = dataFlow.createComponentByName("CurveControlPointComponent",{
-                    position: {x: 1400, y: -250}
-                });
-                components.push(curve);
-
-
-                var degree = dataFlow.createComponentByName("NumberComponent",{
-                    position: {x: 500, y: -250}
-                });
-                components.push(degree);
-
-
-                var periodic = dataFlow.createComponentByName("BooleanFalseComponent",{
-                    position: {x: 500, y: -450}
-                });
-                components.push(periodic);
-
-
-                var degree2 = dataFlow.createComponentByName("NumberComponent",{
-                    position: {x: 500, y: 400}
-                });
-                components.push(degree2);
-
-                var series = dataFlow.createComponentByName("SeriesComponent",{
-                    position: {x: 1400, y: 200}
-                });
-                components.push(series);
-
-                var graftTree = dataFlow.createComponentByName("GraftComponent",{
-                    position: {x: 500, y: 200}
-                });
-                components.push(graftTree);
-
-
-                var circle = dataFlow.createComponentByName("CircleCNRComponent",{
-                    position: {x: 2200, y: 250}
-                });
-                components.push(circle);
-
-                var slider1 = dataFlow.createComponentByName("SliderComponent",{
-                    position: {x: -200, y: 400}
-                });
-                components.push(slider1);
-
-                /////////////////////////////////////////////////////////////////////////////////
-                // Show the UI for each component in the workspace:
-                /////////////////////////////////////////////////////////////////////////////////
-                _.each(components,function(cpt){
-                    new ComponentView(cpt);
-                });
-
-                /* Make connections between inputs and outputs of components */
-                _.defer(function(){
-                    point1["X"].connectOutput(number1.output);
-                    point1["Y"].connectOutput(number2.output);
-                    point1["Z"].connectOutput(number3.output);
-
-                    // vector testing
-                    vec1["X"].connectOutput(number1.output);
-                    vec1["Y"].connectOutput(number2.output);
-                    vec1["Z"].connectOutput(number3.output);
-                    shift1["L"].connectOutput(point1.output);
-                    vec2pt["A"].connectOutput(point1.output);
-                    vec2pt["B"].connectOutput(shift1.output);
-                    vecDisplay["V"].connectOutput(vec2pt.output);
-                    vecDisplay["A"].connectOutput(point1.output);
-
-                    curve["V"].connectOutput(point1.output);
-                    curve["D"].connectOutput(degree.output);
-                    curve["P"].connectOutput(periodic.output);
-
-                    number1.output.assignValues([0,1,1,0,0,1,1,0,0,1]);
-                    number2.output.assignValues([0,0,1,1,0,0,1,1,0,0]);
-                    number3.output.assignValues([0.0,0.5,1,1.5,2,2.5,3,3.5,4,4.5]);
-
-                    degree.output.assignValues([3]);
-                    degree2.output.assignValues([1]);
-
-                    var jsonTotal = [];
-                    _.each(components,function(cpt){
-                        jsonTotal.push(cpt.toJSON());
-                    });
-                    console.log(JSON.stringify(jsonTotal));
-
-                    workspace.render();
-                });
-            };
-
-            App.prototype.displayControlPoly = function(ctrlpts){
-
-                var endPointGeo = new THREE.Geometry();
-
-                // construct geometry for control polygon
-                for (var a = 0; a < ctrlpts.length; a++) {
-                    var pt = ctrlpts[a].toArray();
-                    endPointGeo.vertices.push(new THREE.Vector3(pt[0], pt[1], pt[2]));
-                }
-
-                var mat2 = new THREE.LineBasicMaterial({
-                    color: 0x00fff0,
-                });
-                endPointGeo.computeLineDistances();
-                var line2 = new THREE.Line(endPointGeo, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 0.1, gapSize: 0.1, linewidth: 2 } ), THREE.LineStrip);
-                viewer.scene.add(line2);
             };
 
             return new App();

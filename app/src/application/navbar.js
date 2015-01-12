@@ -3,13 +3,13 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         el: '#navContainer',
         template: _.template($('#navTemplate').html()),
         events: {
-            'click a': 'handleClick',
+            'click .saveBtn': "saveProject",
             'click .openProjectLink': "openProject",
             'click #newProjectButton': "newProject"
         },
-        handleClick: function(){
-            // Little functions like this can route clicks for everything in the navbar.... straightforward stuff.
-            console.log('CLICK NOT IMPLEMENTED');
+        saveProject: function(e){
+            e.preventDefault();
+            this.trigger("saveCurrentProject");
         },
         openProject: function(e){
             var projectId = $(e.target).attr('id');

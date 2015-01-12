@@ -1,4 +1,4 @@
-define(["jquery","parse","dataFlow/project"],function($,Parse,Project){
+define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Project,User){
     // I don't want to actually subclass parse objects for all of my models, so to edit existing models I have to keep a reference
     // to the project as retrieved from Parse. That object will stay in memory, and the same object will just be saved with new json
     // from my own project class. That should keep the persistence layer completely separate from the rest of the application,
@@ -7,27 +7,33 @@ define(["jquery","parse","dataFlow/project"],function($,Parse,Project){
         currentProject = null;
 
     function saveProjectToParse(proj){
-        var persistable,
-            jsonData = proj.toJSON();
+        User.fetchCurrentUser(function(user){
+            // The project should always be saved with the current user's information, even if it was originally by someone else
+            proj.set('authorId',user.id);
+            proj.set('authorName',user.get('username'));
 
-        console.log('SAVING: \n\n'+JSON.stringify(jsonData));
+            var persistable,
+                jsonData = proj.toJSON();
 
-        // This method can do UPDATES as well as CREATE-NEW operations, and will, depending on if the project was loaded from parse or elsewhere.
-        if (!_.isNull(currentProject) && currentProject.get('objectId') === proj.get('objectId')) persistable = currentProject;
-        else persistable = new OrchestraProject();
+            console.log('SAVING: \n\n'+JSON.stringify(jsonData));
 
-        persistable.save(jsonData, {
-            success: function(object) {
-                console.log('SAVED!\n',object);
-                proj.set({
-                    id: object.id,
-                    createdAt: object.createdAt,
-                    updatedAt: object.updatedAt
-                });
-            },
-            error: function(model, error) {
-                console.log('ERROR');
-            }
+            // This method can do UPDATES as well as CREATE-NEW operations, and will, depending on if the project was loaded from parse or elsewhere.
+            if (!_.isNull(currentProject) && currentProject.get('objectId') === proj.get('objectId')) persistable = currentProject;
+            else persistable = new OrchestraProject();
+
+            persistable.save(jsonData, {
+                success: function(object) {
+                    console.log('SAVED!\n',object);
+                    proj.set({
+                        id: object.id,
+                        createdAt: object.createdAt,
+                        updatedAt: object.updatedAt
+                    });
+                },
+                error: function(model, error) {
+                    console.log('ERROR');
+                }
+            });
         });
     }
 
@@ -59,9 +65,14 @@ define(["jquery","parse","dataFlow/project"],function($,Parse,Project){
         });
     }
 
+    function clearCurrentProject(){
+        currentProject = null;
+    }
+
     return {
         saveProjectToParse: saveProjectToParse,
         loadProjectFromParse: loadProjectFromParse,
-        loadProjectFromUrl: loadProjectFromUrl
+        loadProjectFromUrl: loadProjectFromUrl,
+        clearCurrentProject: clearCurrentProject
     };
 });
