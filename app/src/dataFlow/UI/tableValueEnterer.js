@@ -161,7 +161,7 @@ define([
     TableView.prototype.destroy = function(){
         $('.editData').off();
         this.$tableContainer.remove();
-        if (typeof this.callback === "function") this.callback();
+        if (typeof this.callback === "function") this.callback(this.data);
     };
 
     TableView.prototype.insertTable = function(x,y){

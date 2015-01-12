@@ -92,8 +92,8 @@ define([
             click: function(x,y){
                 // Show the table-number-enterer UI. It cleans up after itself.
                 var data = component.getOutput("N").getTree(),
-                    callback = function(){
-                        component.getOutput("N").trigger("change");
+                    callback = function(tree){
+                        component.getOutput("N").assignPersistedData(tree);
                     };
                 require(["dataFlow/UI/tableValueEnterer"],function(TableView){
                     // no reference necessary. The slider will clean itself up.

@@ -34,8 +34,10 @@ define([
             this.interpretAs = parameterType;
 
             // restore user-saved values to the component
-            if (!_.isUndefined(args._persistedData)) {
-                this.assignValues(args._persistedData);
+            if (!_.isUndefined(args.persistedData)) {
+                var tree = new DataTree();
+                tree.fromJSON(args.persistedData);
+                this.assignPersistedData(tree);
             }
         },
         assignValues: function(values, forPath){
@@ -50,10 +52,18 @@ define([
 
             // store data
             this.values.addChildAtPath(values,forPath || [0],true);
-            this._persistedData = values.slice(0);
             this.setNull(this.values.isEmpty());
 
             this.trigger('change');
+        },
+        assignPersistedData: function(tree){
+            // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
+            // of the tree to be serialized later
+            var that = this;
+            this.set('persistedData',tree);
+            tree.recurseTree(function(data,node){
+                that.assignValues(data,node.getPath());
+            });
         },
         replaceData: function(dataTree){
             if (dataTree.constructor.name !== "DataTree") {
@@ -116,8 +126,8 @@ define([
                 type: this.type
             };
 
-            if (!_.isUndefined(this._persistedData)) {
-                obj._persistedData = this._persistedData;
+            if (!_.isUndefined(this.get('persistedData'))) {
+                obj.persistedData = this.get('persistedData').toJSON();
             }
 
             return obj;

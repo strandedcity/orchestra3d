@@ -38,6 +38,26 @@ define([
         })(this);
     };
 
+    DataTree.prototype.fromJSON = function(json){
+        var tree = this;
+        _.each(json,function(data,pathString){
+            var parsedPath = _.map(pathString.split(";"),function(pathAddress){
+                return Number(pathAddress);
+            });
+            tree.setDataAtPath(parsedPath,data);
+        })
+    };
+
+    DataTree.prototype.toJSON = function(){
+        var jsonobj = {};
+        this.recurseTree(function(data,node){
+            var path = node.getPath(),
+                pathString = path.join(";");
+            jsonobj[pathString] = data;
+        });
+        return jsonobj;
+    };
+
     DataTree.prototype.flattenedTree = function(nocopy){
         // Works like grasshopper. Recurse the whole tree, appending each piece of encountered data to the top-level node's data
         // RETURNS A NEW DATA TREE, leaving the original unmutated and uncopied, unless "nocopy" is specified
