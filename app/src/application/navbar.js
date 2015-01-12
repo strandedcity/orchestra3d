@@ -73,7 +73,7 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
             var displayText = proj.get('title');
             $('.titleChangerWidget').find('input').val(displayText); // so that the input has the right text when loaded from a new project
             displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1);
-            $('.navbar-project-title').text(displayText);
+            $('.navbar-project-title').text(displayText === "" ? "Untitled Project" : displayText);
         },
         fetchUser: function(){
             var that = this;

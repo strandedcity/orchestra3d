@@ -85,7 +85,7 @@ require(["appconfig"],function(){
                 }).on('saveCurrentProject',function(){
                     that.save();
                 }).on('openNewProject',function(){
-                    that.clearWorkspace();
+                    that.newProject();
                 });
 
                 // New components can be created directly in the workspace, as well as from the global nav:
@@ -111,7 +111,8 @@ require(["appconfig"],function(){
             };
 
             App.prototype.newProject = function(){
-                console.log('UNIMPLEMENTED: NEW PROJECT')
+                this.clearWorkspace();
+                this.loadWorkspace(this.currentProject);
             };
 
             App.prototype.clearWorkspace = function(){
