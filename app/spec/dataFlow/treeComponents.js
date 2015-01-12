@@ -1,5 +1,5 @@
 define(["dataFlow/dataFlow_loader"],function(dataFlow){
-    var graftComponent, numberComponent, booleanTrueComponent, mixedBooleanComponent, pointComponent;
+    var graftComponent, numberComponent, booleanTrueComponent, mixedBooleanToggleComponent, pointComponent;
 
     beforeEach(function(){
         graftComponent = dataFlow.createComponentByName("GraftComponent");
@@ -8,8 +8,8 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
 
         booleanTrueComponent = dataFlow.createComponentByName("BooleanTrueComponent");
 
-        mixedBooleanComponent = dataFlow.createComponentByName("BooleanComponent");
-        mixedBooleanComponent.getOutput().assignValues([true,false,true,false,true,false]);
+        mixedBooleanToggleComponent = dataFlow.createComponentByName("BooleanToggleComponent");
+        mixedBooleanToggleComponent.getOutput().assignValues([true,false,true,false,true,false]);
 
         pointComponent = dataFlow.createComponentByName("PointComponent");
     });
@@ -20,7 +20,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             expect(function(){
                 graftComponent["T"].connectOutput(numberComponent.getOutput());
                 graftComponent["T"].connectOutput(booleanTrueComponent.getOutput());
-                graftComponent["T"].connectOutput(mixedBooleanComponent.getOutput());
+                graftComponent["T"].connectOutput(mixedBooleanToggleComponent.getOutput());
                 graftComponent["T"].connectOutput(pointComponent.getOutput());
             }).not.toThrow();
 
@@ -30,7 +30,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             expect(function(){
                 graftComponent["T"].connectAdditionalOutput(numberComponent.getOutput());
                 graftComponent["T"].connectAdditionalOutput(booleanTrueComponent.getOutput());
-                graftComponent["T"].connectAdditionalOutput(mixedBooleanComponent.getOutput());
+                graftComponent["T"].connectAdditionalOutput(mixedBooleanToggleComponent.getOutput());
                 graftComponent["T"].connectAdditionalOutput(pointComponent.getOutput());
             }).not.toThrow();
 
@@ -42,7 +42,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
             // check up on a couple key phases of the data bubbling. Can only spy on one thing at a time, so we need to assignValues() twice
             spyOn(graftComponent.getOutput(),'replaceData');
             numberComponent.getOutput().assignValues([0,1,1,0,0,1,1,0,0,1]);
-            expect(graftComponent.getOutput().replaceData).toHaveBeenCalled();
+            expect(graftComponent.getOutput().replaceData).not.toHaveBeenCalled();
 
             spyOn(graftComponent,'recalculate');
             numberComponent.getOutput().assignValues([0,1,1,0,0,1,1,0,0,1]);
