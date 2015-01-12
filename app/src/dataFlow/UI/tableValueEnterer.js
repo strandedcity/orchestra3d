@@ -21,11 +21,33 @@ define([
         this.populate(data,this.$table);
     };
 
+    TableView.prototype.parseInput = function(newData, item){
+        var parsedData = item; // can't parse it? do jack.
+
+        var parsingTest = Number(newData);
+        // try parsing as a number
+        if (!_.isNaN(parsingTest)) {
+            parsedData = parsingTest;
+        } else {
+            if (newData.toString().toLowerCase().slice(0,1) === "t") parsedData = true;
+            if (newData.toString().toLowerCase().slice(0,1) === "f") parsedData = false;
+        }
+
+        return parsedData;
+    };
+
+    TableView.prototype.headerHtmlFromPath = function(path){
+        return "<tr><td class='headerRow'>{"+path.join(";")+"}</td></tr>";
+    };
+
     TableView.prototype.populate = function(tree,$table){
+        var that = this,
+            lastDataPath = [0],
+            lastDataArray = [];
         tree.recurseTree(function(data,node){
             // print column headers -- these are not editable:
             var path = node.getPath(),
-                headerHtml = "<tr><td class='headerRow'>{"+path.join(";")+"}</td></tr>";
+                headerHtml = that.headerHtmlFromPath(path);
             $table.append($(headerHtml));
 
             _.each(data,function(item,index){
@@ -40,16 +62,7 @@ define([
                 $tr.find('td').data({
                     'd': dataString,
                     'f': function(newData){
-                        var parsedData = item; // can't parse it? do jack.
-
-                        var parsingTest = Number(newData);
-                        // try parsing as a number
-                        if (!_.isNaN(parsingTest)) {
-                            parsedData = parsingTest;
-                        } else {
-                            if (newData.toString().toLowerCase().slice(0,1) === "t") parsedData = true;
-                            if (newData.toString().toLowerCase().slice(0,1) === "f") parsedData = false;
-                        }
+                        var parsedData = that.parseInput(newData,item);
 
                         // replace this item of the array with spec'd data
                         data[index] = parsedData;
@@ -58,11 +71,61 @@ define([
                     }
                 });
             });
+
+            lastDataPath = node.getPath();
+            lastDataArray = data;
         });
 
-        $('.editData').on('focus', function(e) {
+
+        if (tree.isEmpty()) {
+            $table.append($(this.headerHtmlFromPath(lastDataPath)));
+            tree.setDataAtPath(lastDataPath,lastDataArray);
+        }
+/////////////
+// TODO: FIX THIS CODE ITS A MESS!
+//////////////
+        console.warn("FIX THIS CODE IT IS MESSY ");
+        // Make it possible to add a single item at the end:
+        var extraRowHTML = "<tr><td contentEditable='true' class='addData'>(add value)</td></tr>",
+            blankRowHTML = "<tr><td contentEditable='true' class='addData'></td></tr>",
+            $bottomRow = $(blankRowHTML);
+        $table.append($(extraRowHTML));
+        $table.append($bottomRow);
+
+        // Handle events for data ADDITION
+        $table.on('focus','.addData',function(){
+            $(this).text("(add value)");
             selectElementContents(this);
-        }).on('blur',function(){
+        }).on('blur','.addData',function(){
+            var parsed = that.parseInput($(this).text(),undefined);
+
+            if (_.isUndefined(parsed)) $(this).text("(add value)");
+            else {
+                // add to data tree....
+                //console.log('adding to data tree:',parsed);
+                var index = lastDataArray.length;
+                lastDataArray[index] = parsed;
+                $(this).text(parsed.toString()); // show the user any corrections that have been made
+
+                // remove "addData" class, change to "editData" since there's now a corresponding entry in the data tree
+                $(this).removeClass('addData').addClass('editData').data({
+                    'd': parsed,
+                    'f': function(newData){
+                        var newParsedVal = that.parseInput(newData, parsed);
+                        lastDataArray[index] = newParsedVal;
+                    }
+                });
+
+                // create a new row for further addition:
+                var newRow = $(blankRowHTML);
+                $table.append(newRow);
+            }
+        });
+
+        // Handle events for data EDITING
+        $table.on('focus','.editData', function() {
+            selectElementContents(this);
+        }).on('blur','.editData',function(){
             if ($(this).data('d') !== $(this).text()){
                 var setCorrespondingDataFunction = $(this).data('f');
                 setCorrespondingDataFunction($(this).text());
