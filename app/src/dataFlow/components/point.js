@@ -14,11 +14,12 @@ define([
                     {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT}
                 ], opts, "output");
 
-                var args = _.extend(opts || {},{
-                    inputs: this.prepareTwoNumericInputs(opts),
-                    output: output,
+                var args = _.extend({
                     componentPrettyName: "Point(x,y,z)",
                     preview: false
+                },opts || {},{
+                    inputs: this.prepareTwoNumericInputs(opts),
+                    output: output
                 });
                 this.base_init(args);
             },
@@ -152,11 +153,12 @@ define([
                 ], opts, "inputs");
 
                 var args = _.extend({
-                    inputs: inputs,
-                    output: output,
                     componentPrettyName: "Distance",
                     preview: false
-                },opts || {});
+                },opts || {},{
+                    inputs: inputs,
+                    output: output
+                });
                 this.base_init(args);
             },
             recalculate: function(){

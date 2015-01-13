@@ -95,8 +95,8 @@ require(["appconfig"],function(){
 
                 // Demonstration programs... Helpful to have handy for testing
                 //this.NURBSCurveTest();
-                //this.loadJSONProject('curveWithVectorsTest.json?');
-                this.loadParseProject("JnbJpY8YjG");
+                //this.loadJSONProject('example_gridOfPoints.json?');
+                //this.loadParseProject("JnbJpY8YjG");
 
                 viewer.render();
             };

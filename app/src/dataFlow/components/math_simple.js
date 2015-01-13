@@ -14,11 +14,12 @@ define([
                 {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "output");
 
-            var args = _.extend(opts || {},{
-                inputs: this.prepareNumericInputs(opts),
-                output: output,
+            var args = _.extend({
                 componentPrettyName: opts.simpleMathName,
                 preview: false
+            },opts || {},{
+                inputs: this.prepareNumericInputs(opts),
+                output: output
             });
 
             this.recalculate = function(){

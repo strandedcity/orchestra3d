@@ -87,11 +87,12 @@ define([
                 {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                output: output,
+            var args = _.extend({
                 componentPrettyName: "Slider",
                 preview: false
+            },opts || {},{
+                inputs: inputs,
+                output: output
             });
             this.base_init(args);
         },
@@ -103,7 +104,7 @@ define([
             var currVal = this.getOutput("N").getTree().dataAtPath([0],false);
             var min = this.getInput("S").getFirstValueOrDefault(),
                 max = this.getInput("E").getFirstValueOrDefault(),
-                integers = thie.getInput("I").getFirstValueOrDefault();
+                integers = this.getInput("I").getFirstValueOrDefault();
             if (integers === true && Math.floor(currVal) != currVal) {
                 currVal = Math.floor(currVal);
             }

@@ -95,8 +95,9 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                     outputId = route[inputId],
                     inputObject = IOIdsForConnections[inputId],
                     outputObject = IOIdsForConnections[outputId];
-
-                inputObject.connectAdditionalOutput(outputObject);
+                if (!_.isUndefined(inputObject.connectAdditionalOutput))
+                    inputObject.connectAdditionalOutput(outputObject);
+                else (console.warn("COULD NOT MAKE CONNECTION!!", route,inputObject,outputObject));
             });
 
             this.set('components',components);

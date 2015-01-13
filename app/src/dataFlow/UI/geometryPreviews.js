@@ -2,6 +2,10 @@ define([
     "viewer/modelView",
     "underscore"
 ],function(viewer, _){
+    var SETTINGS = {
+        CURVE_SECTIONS: 20
+    };
+
     var Preview = {};
 
     var CurvePreview = Preview.CurvePreview = function CurvePreview(curve){
@@ -35,8 +39,8 @@ define([
         // Curves parameterized 0 --> 1.
         // Step through parameters to get points, draw connecting lines
         // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-        for (var i = 0; i <= 100; i += 1) {
-            var evalAt = i*paramWidth/100 + minParameter;
+        for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
+            var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
             var pt = this.curve.getPositionAt(evalAt).toArray();
             geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
         }
