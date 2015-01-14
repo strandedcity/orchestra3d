@@ -90,6 +90,16 @@
     "shortDescription": "Returns the product of two numbers"
   },
   {
+    "functionName": "MathMaxComponent",
+    "name": "Max",
+    "shortDescription": "Returns the larger (maximum value) of two numbers"
+  },
+  {
+    "functionName": "MathMinComponent",
+    "name": "Min",
+    "shortDescription": "Returns the smaller (minimum value) of two numbers"
+  },
+  {
     "functionName": "MathDivideComponent",
     "name": "Divide",
     "shortDescription": "Divides the first input (a) by the second input (b)"

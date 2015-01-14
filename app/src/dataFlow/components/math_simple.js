@@ -68,6 +68,24 @@ define([
             this.simpleMathInitialize(opts);
         }
     });
+    components.MathMaxComponent = simpleMathComponent.extend({
+        initialize: function(opts){
+            opts.simpleMathName = "Max";
+            opts.simpleMathFunction = function(a,b){return Math.max(a,b);};
+            opts.simpleMathInputCount = 2;
+
+            this.simpleMathInitialize(opts);
+        }
+    });
+    components.MathMinComponent = simpleMathComponent.extend({
+        initialize: function(opts){
+            opts.simpleMathName = "Min";
+            opts.simpleMathFunction = function(a,b){return Math.min(a,b);};
+            opts.simpleMathInputCount = 2;
+
+            this.simpleMathInitialize(opts);
+        }
+    });
 
     components.MathAddComponent = simpleMathComponent.extend({
         initialize: function(opts){
