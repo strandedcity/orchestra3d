@@ -43,7 +43,7 @@ define([
         assignValues: function(values, forPath){
             /* This function stores user-entered data directly. When saved, the output will store these values in JSON format */
             if (!_.isArray(values)) {
-                this.setNull(true);
+                this._isNull = true;
                 throw new Error("'Values' must be an array");
             }
             _.each(values,function(v){
@@ -52,7 +52,7 @@ define([
 
             // store data
             this.values.addChildAtPath(values,forPath || [0],true);
-            this.setNull(this.values.isEmpty());
+            this._isNull = this.values.isEmpty();
 
             this.trigger('change');
         },
@@ -73,7 +73,7 @@ define([
             }
             this.clearValues();
             this.values = dataTree;
-            this.setNull(this.values.isEmpty());
+            this._isNull = this.values.isEmpty();
 
             this.trigger('change');
         },

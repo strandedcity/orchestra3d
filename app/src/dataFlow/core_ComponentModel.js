@@ -191,7 +191,7 @@ define([
             var firstOutputEmpty = this.getOutput().getTree().isEmpty();
             _.each(this.outputs,function(out){
                 out.setNull(firstOutputEmpty);
-                out.trigger('change');
+                //out.trigger('change');
             });
         },
         fetchOutputs: function(){
