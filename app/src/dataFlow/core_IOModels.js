@@ -62,8 +62,10 @@ define([
             var that = this;
             this.set('persistedData',tree);
             tree.recurseTree(function(data,node){
-                that.assignValues(data,node.getPath());
+                that.values.setDataAtPath(node.getPath(),data); // set manually to avoid triggering excessive downstream recalculations
             });
+            this._isNull = this.values.isEmpty(); // we want to trigger a change event regardless of change of null status
+            this.trigger("change");
         },
         replaceData: function(dataTree){
             if (dataTree.constructor.name !== "DataTree") {
