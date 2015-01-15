@@ -19,6 +19,21 @@ require(["appconfig"],function(){
             ComponentView,
             OrchestraProject
         ){
+            var prevTimeStamp = 0, events = [];
+            window.LOG_TIME_EVENT = function(eventName, end){
+                var timestamp = (new Date()).getTime();
+                var timeobj = {};
+                timeobj[eventName] = timestamp - prevTimeStamp;
+                events.push(timeobj);
+                prevTimeStamp = timestamp;
+
+                if (end) {
+                    console.log(JSON.stringify(events).toString().replace(/},{/g,"\n"));
+                    prevTimeStamp = 0;
+                    events = [];
+                }
+            };
+
             function App(){
 
 //                var dir = new THREE.Vector3( 1, 0, 0 );
