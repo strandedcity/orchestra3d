@@ -43,7 +43,6 @@ define([
             this._recalculate();
         },
         clearPreviews: function(){
-            console.trace();
             window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
             DataFlow.Component.prototype.clearPreviews.call(this);
             window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
@@ -67,6 +66,7 @@ define([
             } else {
                 // update the preview geometry
                 this.previews[0].updateCurveList(curves);
+                this.previews[0].show();
             }
 
             window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);

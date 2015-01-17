@@ -38,6 +38,10 @@ define([
             // Calling replaceData would call this automatically, but in this case we prefer not to call replaceData. See comment.
             this._recalculate();
         },
+        _recalculate: function(){
+            this.getOutput()._isNull = this.getOutput().getTree().isEmpty();
+            this.getOutput().trigger("change");
+        }
     });
 
     components.ShiftComponent = DataFlow.Component.extend({

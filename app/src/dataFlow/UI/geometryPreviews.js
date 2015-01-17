@@ -23,11 +23,13 @@ define([
 
         _.bindAll(this, "remove","updateCurveList");
 
-        this.material = new THREE.LineBasicMaterial({
+        var material = new THREE.LineBasicMaterial({
             color: 0xff00f0
         });
 
-        this.line = this.updateCurveList(curveList);
+        this.line = new THREE.Line(this.draw(),material,THREE.LinePieces);
+        viewer.scene.add(this.line);
+        viewer.render();
     };
     CurveListPreview.prototype.hide = function(){
         // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
@@ -51,15 +53,12 @@ define([
     };
     CurveListPreview.prototype.updateCurveList = function(curveList){
         this.curveList = curveList;
-        this.line = this.draw(this.line);
+        this.line.geometry = this.draw(this.line);
         viewer.render();
         return this.line;
     };
     CurveListPreview.prototype.draw = function(line){
-        var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
-
-        // clear out!
-        geom.vertices = [];
+        var newVertices = [];
 
         _.each(this.curveList,function(curve){
             if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
@@ -79,22 +78,37 @@ define([
                     // adding two points at a time enables us to keep multiple curves in a list defined inside a single THREE.Geometry
                     // without connecting each of the lines. See THREE.LinePieces below. This is a huge performance gain over
                     // adding one point at a time, assuming the lines can't be connected.
-                    geom.vertices[geom.vertices.length] = prevPointInCurve;
-                    geom.vertices[geom.vertices.length] = newpt;
+                    newVertices[newVertices.length] = prevPointInCurve;
+                    newVertices[newVertices.length] = newpt;
                     prevPointInCurve = newpt;
                 }
             }
         });
 
-        geom.verticesNeedUpdate = true;
+        // The vertex buffers managed by THREE.Geometry allow you to MODIFY vertex positions,
+        // but the size of that vertex buffer can't be changed. Changing it is expensive,
+        // similar to creating new geometry from scratch. So the strategy here will be to do just
+        // that. If the buffer shrinks from last time, "extra" vertices will be zeroed out / hidden.
+        // If the buffer grows, we'll scrap the geometry and make a new, larger one.
+        // See discussion:  https://github.com/mrdoob/three.js/issues/342
+        var geometry;
+        if (_.isUndefined(line) || line.geometry.vertices.length < newVertices.length) {
+            geometry = new THREE.Geometry();
+            geometry.vertices = newVertices;
+        } else {
+            geometry = line.geometry;
 
-        var currentLine = line || new THREE.Line(geom, this.material, THREE.LinePieces);
+            // zero out any extra vertices from the prior goround:
+            while (newVertices.length < line.geometry.vertices.length) {
+                newVertices.push(new THREE.Vector3(0,0,0));
+            }
 
-        if (_.isUndefined(line)) {
-            viewer.scene.add(currentLine);
+            geometry.vertices = newVertices;
+            geometry.verticesNeedUpdate = true;
+            geometry.lineDistancesNeedUpdate = true;
         }
 
-        return currentLine;
+        return geometry;
     };
 
     // The "point" preview function actually previews a list of points so that it can work with ThreeJS Geometries More effectively.
