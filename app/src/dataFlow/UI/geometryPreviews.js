@@ -8,19 +8,22 @@ define([
 
     var Preview = {};
 
-    var CurvePreview = Preview.CurvePreview = function CurvePreview(curve){
-        this.initialize.call(this,curve);
+    var CurveListPreview = Preview.CurveListPreview = function CurveListPreview(curveList){
+        this.initialize.call(this,curveList);
     };
 
-    CurvePreview.prototype.initialize = function(curve){
-        if (_.isNull(curve)) return;
-        if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
-            throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
-        }
+    CurveListPreview.prototype.initialize = function(curveList){
+        if (_.isEmpty(curveList)) return;
+        if (!_.isArray(curveList)) throw new Error("CurveListPreview requires an array of GeoCurve Objects to render");
+
+        // The preview function will now need to detect its own null objects
+        //if (_.isEmpty(curveList) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
+        //    throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
+        //}
 
         _.bindAll(this, "remove");
 
-        this.curve = curve;
+        this.curveList = curveList;
 
         this.material = new THREE.LineBasicMaterial({
             color: 0xff00f0
@@ -29,21 +32,40 @@ define([
         this.line = this.draw(this.line);
         viewer.render();
     };
-    CurvePreview.prototype.draw = function(line){
-        var minParameter =  this.curve.getMinParameter();
-        var maxParameter =  this.curve.getMaxParameter();
-        var paramWidth = maxParameter - minParameter;
-
+    CurveListPreview.prototype.hide = function(){
+        // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
+        if (!_.isUndefined(this.line)) {
+            viewer.scene.remove(this.line);
+            viewer.render();
+        }
+    };
+    CurveListPreview.prototype.remove = function(){
+        if (!_.isUndefined(this.line)) {
+            this.hide();
+            delete this.line;
+        }
+    };
+    CurveListPreview.prototype.draw = function(line){
         var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
 
-        // Curves parameterized 0 --> 1.
-        // Step through parameters to get points, draw connecting lines
-        // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-        for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
-            var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
-            var pt = this.curve.getPositionAt(evalAt).toArray();
-            geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
-        }
+        _.each(this.curveList,function(curve){
+            if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
+                // skip!
+            } else {
+                var minParameter =  curve.getMinParameter();
+                var maxParameter =  curve.getMaxParameter();
+                var paramWidth = maxParameter - minParameter;
+
+                // Curves parameterized 0 --> 1.
+                // Step through parameters to get points, draw connecting lines
+                // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
+                for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
+                    var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
+                    var pt = curve.getPositionAt(evalAt).toArray();
+                    geom.vertices[geom.vertices.length] = new THREE.Vector3(pt[0], pt[1], pt[2]);
+                }
+            }
+        });
 
         geom.verticesNeedUpdate = true;
 
@@ -55,14 +77,65 @@ define([
 
         return currentLine;
     };
-    CurvePreview.prototype.remove = function(){
-        if (!_.isUndefined(this.line)) {
-            viewer.scene.remove(this.line);
-            this.line.remove();
-            delete this.line;
-            viewer.render();
-        }
-    };
+
+
+
+
+    //var CurvePreview = Preview.CurvePreview = function CurvePreview(curve){
+    //    this.initialize.call(this,curve);
+    //};
+    //
+    //CurvePreview.prototype.initialize = function(curve){
+    //    if (_.isNull(curve)) return;
+    //    if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
+    //        throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
+    //    }
+    //
+    //    _.bindAll(this, "remove");
+    //
+    //    this.curve = curve;
+    //
+    //    this.material = new THREE.LineBasicMaterial({
+    //        color: 0xff00f0
+    //    });
+    //
+    //    this.line = this.draw(this.line);
+    //    viewer.render();
+    //};
+    //CurvePreview.prototype.draw = function(line){
+    //    var minParameter =  this.curve.getMinParameter();
+    //    var maxParameter =  this.curve.getMaxParameter();
+    //    var paramWidth = maxParameter - minParameter;
+    //
+    //    var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
+    //
+    //    // Curves parameterized 0 --> 1.
+    //    // Step through parameters to get points, draw connecting lines
+    //    // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
+    //    for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
+    //        var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
+    //        var pt = this.curve.getPositionAt(evalAt).toArray();
+    //        geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
+    //    }
+    //
+    //    geom.verticesNeedUpdate = true;
+    //
+    //    var currentLine = line || new THREE.Line(geom, this.material);
+    //
+    //    if (_.isUndefined(line)) {
+    //        viewer.scene.add(currentLine);
+    //    }
+    //
+    //    return currentLine;
+    //};
+    //CurvePreview.prototype.remove = function(){
+    //    if (!_.isUndefined(this.line)) {
+    //        viewer.scene.remove(this.line);
+    //        this.line.remove();
+    //        delete this.line;
+    //        viewer.render();
+    //    }
+    //};
 
     // The "point" preview function actually previews a list of points so that it can work with ThreeJS Geometries More effectively.
     // By doing lists of points at a time, we can just initialize a single geometry to hold all the points instead of a separate one for each

@@ -49,15 +49,18 @@ define([
         },
         drawPreviews: function(){
 
-            this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
+            //this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
 
             window.LOG_TIME_EVENT("BEGIN REDRAW");
             var that=this;
+            var curves = [];
             this.getOutput("C").getTree().recurseTree(function(data){
                 _.each(data, function(curve){
-                    that.previews.push(new Preview.CurvePreview(curve));
+                    curves.push(curve);
                 });
             });
+
+            that.previews.push(new Preview.CurveListPreview(curves));
 
             window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
         }

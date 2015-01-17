@@ -208,7 +208,7 @@ define([
         clearPreviews: function(){
             // destroy prior views
             _.each(this.previews,function(prev){
-                prev.remove();
+                prev.hide();
             });
             this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
         },
