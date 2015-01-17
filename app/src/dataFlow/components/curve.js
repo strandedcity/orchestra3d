@@ -39,9 +39,14 @@ define([
         },
         drawPreviews: function(){
             var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
-            _.each(curves,function(c){
-                this.previews.push(new Preview.CurvePreview(c));
-            },this);
+
+            if (!_.isArray(this.previews) || this.previews.length == 0) {
+                // create the preview geometry
+                this.previews = [new Preview.CurveListPreview(curves)];
+            } else {
+                // update the preview geometry
+                this.previews[0].updateCurveList(curves);
+            }
         }
     });
 

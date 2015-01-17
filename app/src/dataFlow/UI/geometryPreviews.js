@@ -71,7 +71,7 @@ define([
                     prevPointInCurve = curve.getPositionAt(minParameter).toArray();
 
                 // Step through curve parameters
-                for (var i = 1; i <= SETTINGS.CURVE_SECTIONS + 1; i += 1) {
+                for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
                     var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
                     var pt = curve.getPositionAt(evalAt).toArray();
                     var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
@@ -96,65 +96,6 @@ define([
 
         return currentLine;
     };
-
-
-
-
-    //var CurvePreview = Preview.CurvePreview = function CurvePreview(curve){
-    //    this.initialize.call(this,curve);
-    //};
-    //
-    //CurvePreview.prototype.initialize = function(curve){
-    //    if (_.isNull(curve)) return;
-    //    if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
-    //        throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
-    //    }
-    //
-    //    _.bindAll(this, "remove");
-    //
-    //    this.curve = curve;
-    //
-    //    this.material = new THREE.LineBasicMaterial({
-    //        color: 0xff00f0
-    //    });
-    //
-    //    this.line = this.draw(this.line);
-    //    viewer.render();
-    //};
-    //CurvePreview.prototype.draw = function(line){
-    //    var minParameter =  this.curve.getMinParameter();
-    //    var maxParameter =  this.curve.getMaxParameter();
-    //    var paramWidth = maxParameter - minParameter;
-    //
-    //    var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
-    //
-    //    // Curves parameterized 0 --> 1.
-    //    // Step through parameters to get points, draw connecting lines
-    //    // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-    //    for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
-    //        var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
-    //        var pt = this.curve.getPositionAt(evalAt).toArray();
-    //        geom.vertices[i] = new THREE.Vector3(pt[0], pt[1], pt[2]);
-    //    }
-    //
-    //    geom.verticesNeedUpdate = true;
-    //
-    //    var currentLine = line || new THREE.Line(geom, this.material);
-    //
-    //    if (_.isUndefined(line)) {
-    //        viewer.scene.add(currentLine);
-    //    }
-    //
-    //    return currentLine;
-    //};
-    //CurvePreview.prototype.remove = function(){
-    //    if (!_.isUndefined(this.line)) {
-    //        viewer.scene.remove(this.line);
-    //        this.line.remove();
-    //        delete this.line;
-    //        viewer.render();
-    //    }
-    //};
 
     // The "point" preview function actually previews a list of points so that it can work with ThreeJS Geometries More effectively.
     // By doing lists of points at a time, we can just initialize a single geometry to hold all the points instead of a separate one for each
@@ -189,12 +130,24 @@ define([
     };
     PointListPreview.prototype.remove = function(){
         if (!_.isUndefined(this.system)) {
-            viewer.scene.remove(this.system);
-            this.system.remove();
+            this.hide();
             delete this.system;
+        }
+    };
+    PointListPreview.prototype.hide = function(){
+        // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
+        if (!_.isUndefined(this.system)) {
+            viewer.scene.remove(this.system);
             viewer.render();
         }
     };
+    //PointListPreview.prototype.show = function(){
+    //    // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
+    //    if (!_.isUndefined(this.system)) {
+    //        viewer.scene.add(this.system);
+    //        viewer.render();
+    //    }
+    //};
 
     var VectorPreview = Preview.VectorPreview = function VectorPreview(anchor, vector){
         this.initialize.call(this,anchor,vector);
@@ -217,11 +170,18 @@ define([
     };
     VectorPreview.prototype.remove = function(){
         if (!_.isUndefined(this.arrowHelper)) {
-            viewer.scene.remove(this.arrowHelper);
-            this.arrowHelper.remove();
+            this.hide();
             delete this.arrowHelper;
+        }
+    };
+    VectorPreview.prototype.hide = function(){
+        if (!_.isUndefined(this.arrowHelper)) {
+            viewer.scene.remove(this.arrowHelper);
             viewer.render();
         }
+    };
+    VectorPreview.prototype.show = function(){
+        // TODO !
     };
 
     return Preview;
