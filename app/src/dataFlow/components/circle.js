@@ -43,6 +43,7 @@ define([
             this._recalculate();
         },
         clearPreviews: function(){
+            console.trace();
             window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
             DataFlow.Component.prototype.clearPreviews.call(this);
             window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
@@ -60,7 +61,13 @@ define([
                 });
             });
 
-            that.previews.push(new Preview.CurveListPreview(curves));
+            if (!_.isArray(this.previews) || this.previews.length == 0) {
+                // create the preview geometry
+                this.previews = [new Preview.CurveListPreview(curves)];
+            } else {
+                // update the preview geometry
+                this.previews[0].updateCurveList(curves);
+            }
 
             window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
         }

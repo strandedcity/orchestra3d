@@ -133,8 +133,9 @@ define([
             delete this.outputs;
         },
         recalculateIfReady: function(){
-            // clear previews for any change in input. They will either be removed and replaced, or only removed:
-            this.clearPreviews();
+            // Previews are not hidden unless they need to be (ie, unless the whole component has them nulled out.
+            // They'll be updated if necessary, and hidden when null or or user request
+            //this.clearPreviews();
 
             // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
             if (this._calculateSufficiency() === true) {
@@ -143,6 +144,7 @@ define([
                 _.each(this.outputs,function(out){
                     out.setNull(true);
                 });
+                this.clearPreviews();
             }
         },
         hasSufficientInputs: function(){
@@ -205,12 +207,16 @@ define([
         drawPreviews: function(){
             console.warn(this.constructor.name + " objects have a no-op 'drawPreviews' function.")
         },
+        destroyPreviews: function(){
+            // destroy prior views
+            this.clearPreviews();
+            this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
+        },
         clearPreviews: function(){
             // destroy prior views
             _.each(this.previews,function(prev){
                 prev.hide();
             });
-            this.previews.splice(0,this.previews.length); // make sure the previews can be deallocated. remove references.
         },
         toJSON: function(){
             var inputData = [],

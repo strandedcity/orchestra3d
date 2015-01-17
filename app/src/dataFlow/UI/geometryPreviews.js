@@ -3,7 +3,7 @@ define([
     "underscore"
 ],function(viewer, _){
     var SETTINGS = {
-        CURVE_SECTIONS: 20
+        CURVE_SECTIONS: 30
     };
 
     var Preview = {};
@@ -21,21 +21,25 @@ define([
         //    throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
         //}
 
-        _.bindAll(this, "remove");
-
-        this.curveList = curveList;
+        _.bindAll(this, "remove","updateCurveList");
 
         this.material = new THREE.LineBasicMaterial({
             color: 0xff00f0
         });
 
-        this.line = this.draw(this.line);
-        viewer.render();
+        this.line = this.updateCurveList(curveList);
     };
     CurveListPreview.prototype.hide = function(){
         // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
         if (!_.isUndefined(this.line)) {
             viewer.scene.remove(this.line);
+            viewer.render();
+        }
+    };
+    CurveListPreview.prototype.show = function(){
+        // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
+        if (!_.isUndefined(this.line)) {
+            viewer.scene.add(this.line);
             viewer.render();
         }
     };
@@ -45,31 +49,46 @@ define([
             delete this.line;
         }
     };
+    CurveListPreview.prototype.updateCurveList = function(curveList){
+        this.curveList = curveList;
+        this.line = this.draw(this.line);
+        viewer.render();
+        return this.line;
+    };
     CurveListPreview.prototype.draw = function(line){
         var geom = _.isUndefined(line) ? new THREE.Geometry() : line.geometry;
+
+        // clear out!
+        geom.vertices = [];
 
         _.each(this.curveList,function(curve){
             if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
                 // skip!
             } else {
-                var minParameter =  curve.getMinParameter();
-                var maxParameter =  curve.getMaxParameter();
-                var paramWidth = maxParameter - minParameter;
+                var minParameter =  curve.getMinParameter(),
+                    maxParameter =  curve.getMaxParameter(),
+                    paramWidth = maxParameter - minParameter,
+                    prevPointInCurve = curve.getPositionAt(minParameter).toArray();
 
-                // Curves parameterized 0 --> 1.
-                // Step through parameters to get points, draw connecting lines
-                // SHOULD INCLUDE SOMETHING ABOUT PRECISION!
-                for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
+                // Step through curve parameters
+                for (var i = 1; i <= SETTINGS.CURVE_SECTIONS + 1; i += 1) {
                     var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
                     var pt = curve.getPositionAt(evalAt).toArray();
-                    geom.vertices[geom.vertices.length] = new THREE.Vector3(pt[0], pt[1], pt[2]);
+                    var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
+
+                    // adding two points at a time enables us to keep multiple curves in a list defined inside a single THREE.Geometry
+                    // without connecting each of the lines. See THREE.LinePieces below. This is a huge performance gain over
+                    // adding one point at a time, assuming the lines can't be connected.
+                    geom.vertices[geom.vertices.length] = prevPointInCurve;
+                    geom.vertices[geom.vertices.length] = newpt;
+                    prevPointInCurve = newpt;
                 }
             }
         });
 
         geom.verticesNeedUpdate = true;
 
-        var currentLine = line || new THREE.Line(geom, this.material);
+        var currentLine = line || new THREE.Line(geom, this.material, THREE.LinePieces);
 
         if (_.isUndefined(line)) {
             viewer.scene.add(currentLine);
