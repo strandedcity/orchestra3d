@@ -95,10 +95,6 @@ define([
                 output: output
             });
             this.base_init(args);
-
-            // easiest way to merge persistent data with defaults... just trigger once when instantiated.
-            // DO NOT USE for other components!
-            this.recalculate();
         },
         recalculate: function(val){
             // Value is chosen directly in the UI, not calculated from inputs.
