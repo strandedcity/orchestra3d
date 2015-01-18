@@ -10,10 +10,33 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
         var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
         var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
+        var s1356 = Module.cwrap('s1356','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
 
+    function validateControlPointList(controlPoints){
+        var controlPointsPass = true;
+        if (!_.isArray(controlPoints) || controlPoints.length < 2) {
+            controlPointsPass = false;
+        } else {
+            _.each(controlPoints, function(pt){
+
+                if (pt.constructor !== THREE.Vector3){
+                    controlPointsPass = false;
+                }
+            });
+        }
+        if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Vector3 objects");}
+    }
+
+    function flattenPointList(points){
+        var pt, arr = [], pointsCopy = points.slice(0);
+        while (pt = pointsCopy.shift()) {
+            arr.push(pt.x,pt.y,pt.z);
+        }
+        return arr;
+    };
 
     var unitZ = new THREE.Vector3(0,0,1),
         unitScale = new THREE.Vector3(1,1,1);
@@ -37,18 +60,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
     Geo.Curve = function GeoCurve(controlPoints, degree, periodic){
         // validate inputs
-        var controlPointsPass = true;
-        if (!_.isArray(controlPoints) || controlPoints.length < 2) {
-            controlPointsPass = false;
-        } else {
-            _.each(controlPoints, function(pt){
-
-                if (pt.constructor !== THREE.Vector3){
-                    controlPointsPass = false;
-                }
-            });
-        }
-        if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Vector3 objects");}
+        validateControlPointList(controlPoints);
         if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
         if (typeof periodic !== "boolean") {throw new Error("Periodic must be a boolean");}
         if (degree >= controlPoints.length) {throw new Error("Curve degree must be smaller than the number of control points");}
@@ -64,14 +76,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             dimension = 3, // always
             icopy = 2, // set pointer and remember to free arrays
             knotVector, knotVectorPointer,
-            vertices = [], verticesPointer;
-
-        // Points are stored as THREE.JS objects as of 12/21/14. This gives free affine transforms for all
-        // SISL objects with no muss, but this would all probably be faster if the affine transform stuff
-        // were instead ported into C-land.
-        _.each(controlPoints,function(pt){
-            vertices.push(pt.x,pt.y,pt.z);
-        });
+            vertices = flattenPointList(controlPoints), verticesPointer;
 
         // Knot vector must be generated... there are a couple ways we might do this, but the simplest is:
         knotVector = Module.Utils.generateUniformKnotVector(vertexCount,curveOrder);
@@ -154,8 +159,70 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         this._pointer = Module.getValue(ptr, 'i8*');
     };
 
+    Geo.CurveInterpolated = function CurveInterpolated(pointList,degree,periodic){
+        validateControlPointList(pointList);
+        if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
+        if (typeof periodic !== "boolean") {throw new Error("Periodic must be a boolean");}
+
+        // not sure what to do with this functon. It's stupid, but I don't need this parameter and have to fill
+        // it with something. See SISL docs for s1356
+        function dummyArray(count){
+            var dummy = [];
+            for (var i=0; i<count; i++){
+                dummy[i] = 1; // 1= ordinary point for interpolation curve
+            }
+            return dummy;
+        }
+
+        // INPUT arguments
+        var pointsToInterpolate = Module.Utils.copyJSArrayToC(flattenPointList(pointList)),
+            numPts = pointList.length,
+            dim = 3, // 3 dimensions, always
+            pointTypes = Module.Utils.copyJSArrayToC(dummyArray(pointList.length)), // each point is an "ordinary point"
+            initialCondition = 0, // no initial condition
+            endCondition = 0, // no end condition
+            open = periodic ? -1 : 1, // -1 = periodic, 1 = open
+            order = degree + 1,
+            startParam = 0,
+
+        // OUTPUT arguments
+            endparam = Module._malloc(8),
+            curvePtr = Module._malloc(16*7),
+            paramsPtr = Module._malloc(8*numPts),
+            numberOfParams = Module._malloc(8);
+
+        var arg = [
+            pointsToInterpolate,    // double epoint[];
+            numPts,                 // int    inbpnt;
+            dim,                    // int    idim;
+            pointTypes,             // int    nptyp[];
+            initialCondition,       // int    icnsta;
+            endCondition,           // int    icnend;
+            open,                   // int    iopen;
+            order,                  // int    ik;
+            startParam,             // double astpar;
+            endparam,               // double *cendpar;
+            curvePtr,               // SISLCurve  **rc;
+            paramsPtr,              // double **gpar;
+            numberOfParams,         // int    *jnbpar;
+            0                       // int    *jstat;
+        ];
+
+        s1356.apply(this,arg);
+
+        // store the pointer for later use. s1303 takes a pointer to a pointer, so this._pointer needs to be retrieved
+        this._pointer = Module.getValue(curvePtr, 'i8*');
+    };
+
     _.extend(Geo.Curve.prototype,curveMethods);
     _.extend(Geo.CircleCNR.prototype,curveMethods);
+    _.extend(Geo.CurveInterpolated.prototype,curveMethods);
+
+    // BASIC TESTING STRATEGY:
+    // window.CurveInterp = Geo.CurveInterpolated;
+    // var pointList = [new THREE.Vector3(0,0,0),new THREE.Vector3(1,5,0),new THREE.Vector3(5,1,0),new THREE.Vector3(10,0,0)];
+    // var curve = CurveInterp(pointList,3,false);
+    // (expect no errors in the JS Console)
 
     return Geo;
 });
