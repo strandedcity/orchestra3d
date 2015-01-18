@@ -100,9 +100,6 @@ define([
     };
 
     InputView.prototype.connectToOutput = function(output){
-        // TEMPORARILY! This code is confusing, and should be fixed.
-        this.removeAllWires();
-
         var outputView = output.IOView;
 
         // must pre-render to make sure that the matrices for the referenced GL elements are updated

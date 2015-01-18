@@ -146,6 +146,13 @@ define([
             return true;
         },
         connectOutput: function(outputModel){
+            // remove prior connections first
+            var that = this;
+            _.each(_.clone(this._listeningTo),function(outputModel){
+                that.disconnectOutput.call(that,outputModel);
+            });
+
+            // make the new connection
             try {
                 if (this.validateOutput(outputModel) === true) this.stopListening();
                 this.connectAdditionalOutput(outputModel, false);
@@ -155,18 +162,15 @@ define([
         },
         disconnectOutput: function(outputModel){
             this.stopListening(outputModel);
-            //outputModel["connectedInputs"] = _.without(outputModel["connectedInputs"], outputModel);
             this.trigger("disconnectedOutput", outputModel);
             this.trigger("change");
         },
         disconnectAll: function(){
             // For inputs
             var that = this;
-            if (_.isArray(this._listeningTo)) {
-                _.each(_.clone(this._listeningTo),function(outputModel){
-                    that.disconnectOutput.call(that,outputModel);
-                });
-            }
+            _.each(_.clone(this._listeningTo),function(outputModel){
+                that.disconnectOutput.call(that,outputModel);
+            });
             this.trigger('disconnectAll',this); // completely remove the input
         },
         connectAdditionalOutput: function(outputModel, validateModels){
