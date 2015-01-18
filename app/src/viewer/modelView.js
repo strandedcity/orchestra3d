@@ -47,6 +47,12 @@ define(["threejs","OrbitControls"],function(){
     };
 
     ModelSpace.prototype.render = function(){
+        // DO NOT USE REQUESTANIMATIONFRAME WITHOUT CHECKING THIS SCENARIO:
+        // 1: USE ATTRACTOR GRID EXAMPLE
+        // 2: VERIFY SLIDER IS WORKING
+        // 3: EXPAND GRID FROM 20X20 TO 30X30
+        // 4: MAKE SURE THE GRID PREVIEW IS EXPANDED
+
         this.renderer.render( this.scene,  this.camera);
     };
 
