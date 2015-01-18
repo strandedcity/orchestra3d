@@ -1,0 +1,592 @@
+{
+  "authorId": "qZbMFGAga3",
+  "authorName": "Phil",
+  "components": [
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -798.8528616147654,
+        "y": 125.88430825132669,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c6",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c5",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              0,
+              6,
+              12
+            ]
+          }
+        }
+      ],
+      "id": "c4"
+    },
+    {
+      "componentPrettyName": "Point(x,y,z)",
+      "componentName": "PointComponent",
+      "position": {
+        "x": -84.91555809751002,
+        "y": 166.800096372766,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "X",
+          "id": "c70",
+          "connections": [
+            "c98"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "Y",
+          "id": "c71",
+          "connections": [
+            "c98"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "Z",
+          "id": "c72",
+          "connections": [
+            "c5"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "P",
+          "id": "c69",
+          "connections": [],
+          "type": 2
+        }
+      ],
+      "id": "c68"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -184.48674833919455,
+        "y": -401.46938871964704,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c89",
+          "connections": [
+            "c212",
+            "c232",
+            "c250"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c88",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "id": "c87"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -792.5608095278712,
+        "y": 273.80175838639923,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c99",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c98",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              0
+            ]
+          }
+        }
+      ],
+      "id": "c97"
+    },
+    {
+      "componentPrettyName": "Circle",
+      "componentName": "CircleCNRComponent",
+      "position": {
+        "x": 535.2426066580258,
+        "y": -18.30180734268248,
+        "z": 0
+      },
+      "preview": true,
+      "inputs": [
+        {
+          "shortName": "C",
+          "id": "c109",
+          "connections": [
+            "c69"
+          ],
+          "type": 2
+        },
+        {
+          "shortName": "N",
+          "id": "c110",
+          "connections": [],
+          "type": 2
+        },
+        {
+          "shortName": "R",
+          "id": "c111",
+          "connections": [
+            "c88"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "C",
+          "id": "c108",
+          "connections": [],
+          "type": 3
+        }
+      ],
+      "id": "c107"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -1352.909366985081,
+        "y": -457.3927800694438,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c170",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c169",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              12
+            ]
+          }
+        }
+      ],
+      "id": "c168"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -1345.200397475586,
+        "y": -349.46719652735226,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c180",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c179",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              6
+            ]
+          }
+        }
+      ],
+      "id": "c178"
+    },
+    {
+      "componentPrettyName": "Eval Crv",
+      "componentName": "EvaluateCurveComponent",
+      "position": {
+        "x": 1191.0581270305324,
+        "y": -408.56642797735344,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "C",
+          "id": "c192",
+          "connections": [
+            "c221"
+          ],
+          "type": 3
+        },
+        {
+          "shortName": "t",
+          "id": "c193",
+          "connections": [
+            "c206"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "P",
+          "id": "c53",
+          "connections": [],
+          "type": 2
+        },
+        {
+          "shortName": "T",
+          "id": "c54",
+          "connections": [],
+          "type": 2
+        },
+        {
+          "shortName": "A",
+          "id": "c55",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "id": "c188"
+    },
+    {
+      "componentPrettyName": "Series",
+      "componentName": "SeriesComponent",
+      "position": {
+        "x": 544.6821936792883,
+        "y": -705.6200549723178,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c207",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "N",
+          "id": "c208",
+          "connections": [
+            "c212"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "C",
+          "id": "c209",
+          "connections": [
+            "c234"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "S",
+          "id": "c206",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "id": "c205"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": 155.46374839917772,
+        "y": -955.9080433187693,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c235",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c234",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              20
+            ]
+          }
+        }
+      ],
+      "id": "c233"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -805.6330828756128,
+        "y": -277.51230449909684,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c213",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c214",
+          "connections": [
+            "c179"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c215",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c212",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              1
+            ]
+          }
+        }
+      ],
+      "id": "c211"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -815.8466567419756,
+        "y": -461.12567971293294,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c233",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c234",
+          "connections": [
+            "c169"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c235",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c232",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              1
+            ]
+          }
+        }
+      ],
+      "id": "c231"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -808.1376872324693,
+        "y": -644.9707679968443,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c251",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c252",
+          "connections": [
+            "c179"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c253",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c250",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              1
+            ]
+          }
+        }
+      ],
+      "id": "c249"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -602.5802711204269,
+        "y": -952.5611097619676,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c213",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c214",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c215",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c212",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              0.77
+            ]
+          }
+        }
+      ],
+      "id": "c211"
+    },
+    {
+      "componentPrettyName": "Graft",
+      "componentName": "GraftComponent",
+      "position": {
+        "x": 867.2537666860119,
+        "y": -172.1602075749746,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "T",
+          "id": "c222",
+          "connections": [
+            "c108"
+          ],
+          "type": 5
+        }
+      ],
+      "output": [
+        {
+          "shortName": "T",
+          "id": "c221",
+          "connections": [],
+          "type": 5
+        }
+      ],
+      "id": "c220"
+    }
+  ],
+  "description": "",
+  "title": "Lamp, v1*"
+}
