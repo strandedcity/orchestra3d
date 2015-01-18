@@ -173,14 +173,48 @@ define([
             });
             this.trigger('disconnectAll',this); // completely remove the input
         },
+        processIncomingChange: function(){
+            // In a simple world, an input can only be connected to one output, so it would inherit that
+            // output's values directly. However, an input can be attached to multiple outputs, so it needs to
+            // harvest and combine those output's values into a single data tree.
+
+            // Step through each connected output model. For each model, append data to the same branch of the tree
+            var treeCreated = false,
+                that = this;
+            _.each(this._listeningTo,function(outputModel){
+                if (treeCreated === false) {
+                    that.values = outputModel.values.copy();
+                    treeCreated = true;
+                } else {
+                    // ADD this model's data to the end of each path in the tree
+                    outputModel.values.recurseTree(function(data,node){
+                        var path = node.getPath(),
+                            existingData = that.values.dataAtPath(path),
+                            newData = existingData.concat(data);
+                        that.values.setDataAtPath(path,newData);
+                    });
+                }
+            });
+
+            // update null setting and trigger change
+            this._isNull = this.getTree().isEmpty();
+            this.trigger("change");
+        },
         connectAdditionalOutput: function(outputModel, validateModels){
             if (validateModels !== false) this.validateOutput(outputModel);
 
             var that=this;
+
+            // Is this input already connected to outputModel ? If so, disconnect it first, then reconnect
+            // This guarantees that the inputs stay in the right order, I think.
+            _.each(this._listeningTo,function(o){
+                if (outputModel === o) {
+                    that.disconnectOutput.call(that,o);
+                }
+            });
+
             this.listenTo(outputModel, "change",function(){
-                that.values = outputModel.values;
-                that._isNull = outputModel._isNull;
-                that.trigger("change");
+                that.processIncomingChange.call(that);
             });
 
             // "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
