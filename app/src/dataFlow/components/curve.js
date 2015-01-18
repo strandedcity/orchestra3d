@@ -27,8 +27,6 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.getOutput("C").clearValues();
-
             /* D = degree, P = periodic, V = points (AS LIST) */
             var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(degree,periodic,pointList){
                 return new Geometry.Curve(pointList,degree,periodic)
@@ -40,12 +38,17 @@ define([
         drawPreviews: function(){
             var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
 
-            if (!_.isArray(this.previews) || this.previews.length == 0) {
-                // create the preview geometry
-                this.previews = [new Preview.CurveListPreview(curves)];
-            } else {
+            var preview;
+            if (_.isArray(this.previews) && this.previews.length > 0) {
+                preview = this.previews[0];
+
                 // update the preview geometry
-                this.previews[0].updateCurveList(curves);
+                preview.updateCurveList(curves);
+                preview.show();
+            }
+            else {
+                preview = new Preview.CurveListPreview(curves);
+                this.previews = [preview];
             }
         }
     });

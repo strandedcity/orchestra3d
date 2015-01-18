@@ -16,10 +16,7 @@ define([
         if (_.isEmpty(curveList)) return;
         if (!_.isArray(curveList)) throw new Error("CurveListPreview requires an array of GeoCurve Objects to render");
 
-        // The preview function will now need to detect its own null objects
-        //if (_.isEmpty(curveList) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
-        //    throw new Error("CurvePreview requires GeoCurve objects to be passed in at initialize time");
-        //}
+        this.curveList = curveList;
 
         _.bindAll(this, "remove","updateCurveList");
 
@@ -136,10 +133,6 @@ define([
         );
 
         viewer.scene.add(this.system);
-
-        _.defer(function(){
-            viewer.render();
-        });
         viewer.render();
     };
     PointListPreview.prototype.remove = function(){
@@ -178,9 +171,9 @@ define([
         this.arrowHelper = new THREE.ArrowHelper( dir, anchor, len, color );
         viewer.scene.add( this.arrowHelper );
 
-        _.defer(function(){
+        //_.defer(function(){
             viewer.render();
-        });
+        //});
     };
     VectorPreview.prototype.remove = function(){
         if (!_.isUndefined(this.arrowHelper)) {
