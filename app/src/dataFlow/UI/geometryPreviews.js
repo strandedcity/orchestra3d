@@ -115,6 +115,11 @@ define([
     };
 
     PointListPreview.prototype.initialize = function(points){
+        // This is expedient, but I don't want to optimize too early. This may not be a problem
+        // for simple geometry like points. (Removing the whole geometry and re-creating it)
+        this.drawPoints(points);
+    };
+    PointListPreview.prototype.drawPoints = function(points){
         var particleGeometry = new THREE.Geometry();
 
         _.each(points,function(pt){
@@ -133,8 +138,15 @@ define([
         );
 
         viewer.scene.add(this.system);
-        viewer.render();
+        _.defer(function(){
+            viewer.render();
+        });
     };
+    PointListPreview.prototype.updatePoints = function(points){
+        viewer.scene.remove(this.system);
+        this.drawPoints(points);
+    };
+
     PointListPreview.prototype.remove = function(){
         if (!_.isUndefined(this.system)) {
             this.hide();

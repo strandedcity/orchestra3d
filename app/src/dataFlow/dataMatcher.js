@@ -171,7 +171,9 @@ define([
                 if (_.isObject(outputs)) {
                     _.each(result,function(resultItem){
                         _.each(outputKeys,function(key){
-                            outputs[key].setDataAtPath(destPath,resultItem[key]);
+                            var d = outputs[key].dataAtPath(destPath);
+                            d.push(resultItem[key]);
+                            outputs[key].setDataAtPath(destPath,d);
                         });
                     });
                 }

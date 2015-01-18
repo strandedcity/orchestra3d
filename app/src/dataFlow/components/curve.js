@@ -112,9 +112,14 @@ define([
 
             // Using flattenedTree() here causes something odd to happen... Not worth bugfixing right now.
             this.getOutput("P").getTree().recurseTree(function(data){
-                points.push(data);
+                points = points.concat(data);
             });
-            this.previews.push(new Preview.PointListPreview(points));
+
+            if (_.isArray(this.previews) && !_.isUndefined(this.previews[0])) {
+                this.previews[0].updatePoints(points);
+            } else {
+                this.previews = [new Preview.PointListPreview(points)];
+            }
         }
     });
 
