@@ -66,12 +66,19 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             var components = [];
             var that = this;
             _.each(json, function (cpt) {
+                // Prior JSON files will use CIDs as IDs to identify components.
+                // Any components we end up adding in this session should absolutely not conflict with those,
+                // but the unique counter starts over per session. Solution: increment the session's
+                // counter once per item that gets added to the project.
+                // see https://github.com/dobtco/formbuilder/issues/123
+                _.uniqueId();
                 var component = DataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
                 components.push(component);
                 that.addComponentToProject.call(that,component);
 
                 // if the inputs are supposed to be connected to something, keep track of them for a moment
                 _.each(cpt.inputs, function (iptJSON) {
+                    _.uniqueId();
                     if (iptJSON.connections.length > 0) {
                         IOIdsForConnections[iptJSON.id] = component[iptJSON.shortName];
                         _.each(iptJSON.connections, function (connectedIptId) {
@@ -85,6 +92,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 // keep track of all outputs:
                 //IOIdsForConnections[cpt.output[0].id] = component.output;
                 _.each(component.outputs,function(out){
+                    _.uniqueId();
                     IOIdsForConnections[out.id] = out;
                 });
             });
