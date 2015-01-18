@@ -69,7 +69,9 @@ define([
                 });
             },
             sliderUpdateValue: function(value){
-                component.getOutput("N").assignValues([value],[0]);
+                // this component uses IOs differently than other components so that the value
+                // can persist successfully, be fed into the slider view, trigger recalculations, etc.
+                component.recalculate(value);
                 that.displayVals();
             },
             displayVals: function(){

@@ -69,7 +69,7 @@ define([
                 this.previews[0].show();
             }
 
-            window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
+            //window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
         }
     });
 

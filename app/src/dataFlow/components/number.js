@@ -95,13 +95,17 @@ define([
                 output: output
             });
             this.base_init(args);
+
+            // easiest way to merge persistent data with defaults... just trigger once when instantiated.
+            // DO NOT USE for other components!
+            this.recalculate();
         },
-        recalculate: function(){
+        recalculate: function(val){
             // Value is chosen directly in the UI, not calculated from inputs.
             // However, when max/min and integer values change, the single output value must be checked to make sure that
             // it does, in fact, satisfy specified conditions.
             // Since the slider can select only a single value, only the first value in each list is considered.
-            var currVal = this.getOutput("N").getTree().dataAtPath([0],false);
+            var currVal = val || this.getOutput("N").getFirstValueOrDefault();
             var min = this.getInput("S").getFirstValueOrDefault(),
                 max = this.getInput("E").getFirstValueOrDefault(),
                 integers = this.getInput("I").getFirstValueOrDefault();
@@ -113,6 +117,7 @@ define([
             if (currVal < min) currVal = min;
 
             this.getOutput("N").getTree().setDataAtPath([0],[currVal]);
+            this.getOutput("N").assignPersistedData(this.getOutput("N").getTree().copy());
 
             this._recalculate();
         }

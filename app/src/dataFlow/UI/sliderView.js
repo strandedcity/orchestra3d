@@ -37,7 +37,7 @@ define([
         // Register slide event callback. Use 'slideStop' to prevent updating entire model on every drag.
         // That bogs down even in desktop grasshopper, so it seems like a tall order. But this can be changed...
         // See "events" on the github page at the top of this file.
-        input.on('slide ',function(){
+        input.on('slide slideStop',function(){
             window.LOG_TIME_EVENT("SLIDER PULSE");
             valueCallback(input.slider('getValue'));
         });

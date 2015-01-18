@@ -31,7 +31,7 @@ define(["threejs","OrbitControls"],function(){
 
     ModelSpace.prototype.setupScene = function(){
         var axisHelper = new THREE.AxisHelper( 2 );
-        this.scene.add( axisHelper )
+        this.scene.add( axisHelper );
     };
 
     ModelSpace.prototype.clearScene = function(){
