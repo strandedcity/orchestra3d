@@ -16,7 +16,8 @@ echo "Building javascript..."
         '_curveParametricStart',
         '_s1240',
         '_s1227',
-        '_s1303'
+        '_s1303',
+        '_s1356'
     ]" \
     -s TOTAL_MEMORY=536870912 \
     -O3 \
