@@ -2,8 +2,9 @@ define([
     'dataFlow/dataFlow_loader',
     "dataFlow/UI/workspaceView",
     "underscore",
+    "dataFlow/enums",
     "threejs"
-],function(DataFlow, workspace, _){
+],function(DataFlow, workspace, _, ENUMS){
 
     /* Base class IOView */
     function IOView(ioModel,glObject,cssObject){
@@ -73,8 +74,14 @@ define([
         });
 
         // Inputs handle drop events directly. Triggered in the workspaceView!
-        this.listenTo(this.cssObject, "drop", function(droppedCSSObj){
-            this.model.connectOutput(droppedCSSObj.IOView.model);
+        this.listenTo(this.cssObject, "drop", function(droppedCSSObj,modifiers){
+            // Is the user holding the shift key? If so, connect output ADDITIONALLY.
+            // Otherwise, replace connections.
+            if (modifiers[ENUMS.KEYS.SHIFT] === true) {
+                this.model.connectAdditionalOutput(droppedCSSObj.IOView.model, true);
+            } else {
+                this.model.connectOutput(droppedCSSObj.IOView.model);
+            }
         });
 
         // The backbone way: listen to data changes to make view changes

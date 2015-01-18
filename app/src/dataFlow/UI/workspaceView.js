@@ -41,11 +41,11 @@ define([
             // to be a valid drop target, the input/output setting must match PLUS at least one other scope.
             return  _.without(_.intersection(this.getDroppableScopes(),scopeNames),"input","output").length > 0;
         },
-        dropObject: function(connection){
+        dropObject: function(connection,modifiers){
             // handles "drop" events. When one object is dropped on another, connectObject will be called on the INPUT object only.
             // "input" objects listen to pulse events (recalculations) on "output" objects. So only the
             // "input" side actually does anything with this
-            this.trigger("drop",connection);
+            this.trigger("drop",connection,modifiers);
         }
     });
 
@@ -100,7 +100,34 @@ define([
 
         this.setupContextMenu();
         this.setupDraggableEventHandlers();
+
+        this.attachMetakeyDetectors();
     };
+
+    Workspace.prototype.attachMetakeyDetectors = _.once(function(){
+        this.KEYS_DOWN = {};
+
+        this.KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
+
+        var that = this;
+
+        // I need a way to determine current metakey status globally for questions like
+        // "Is the user holding shift during this drag?"
+        // This could be even a scope out, but for now, it's only needed in the workspace
+        window.onkeydown = function (e) {
+            if (!e) e = window.event;
+            if (e.keyCode === ENUMS.KEYS.SHIFT) {
+                that.KEYS_DOWN[ENUMS.KEYS.SHIFT] = true;
+            }
+        };
+
+        window.onkeyup = function(e){
+            if (!e) e = window.event;
+            if (e.keyCode === ENUMS.KEYS.SHIFT) {
+                that.KEYS_DOWN[ENUMS.KEYS.SHIFT] = false;
+            }
+        };
+    });
 
     Workspace.prototype.render = function(){
         this.renderer.render(this.scene,this.camera);
@@ -175,12 +202,15 @@ define([
             }
 
             if (!_.isNull(this.hoverObject)) {
+                // Are there any modifiers during the drop?
+                var modifiers = this.KEYS_DOWN;
+
                 // can't assume that user is hovering an output over an input. You can drag either direction, but the connection is only made
                 // in one direction (inputs listen to outputs, outputs have no refs to inputs)
                 if (this.hoverObject.getDroppableScopes().indexOf("output") !== -1) {
-                    this.hoverObject.dropObject(this.dragObject);
+                    this.hoverObject.dropObject(this.dragObject, modifiers);
                 } else {
-                    this.dragObject.dropObject(this.hoverObject);
+                    this.dragObject.dropObject(this.hoverObject,modifiers);
                 }
             }
 

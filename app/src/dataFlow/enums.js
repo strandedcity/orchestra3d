@@ -13,6 +13,9 @@ define([],function(){
             SURFACE: 4,
             WILD: 5,
             NULL: 6
+        },
+        KEYS: {
+            SHIFT: 16
         }
     };
 });
