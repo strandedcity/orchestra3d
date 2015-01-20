@@ -163,7 +163,7 @@ define([
             that.searcher = new ComponentSearcher($input);
             $(that.searcher).on("selectedComponent",function(e,component){
                 component.position = workspacePosition;
-                that.trigger('createNewComponent',component);
+                that.trigger("createNewComponent",component);
                 that.hideChooser();
             });
         });

@@ -54,7 +54,7 @@ define([
             this.values.addChildAtPath(values,forPath || [0],true);
             this._isNull = this.values.isEmpty();
 
-            this.trigger('change');
+            this.trigger("change");
         },
         assignPersistedData: function(tree){
             // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
@@ -75,12 +75,12 @@ define([
             this.values = dataTree;
             this._isNull = this.values.isEmpty();
 
-            this.trigger('change');
+            this.trigger("change");
         },
         setNull: function(val){
             var trigger = val !== this._isNull;
             this._isNull = val;
-            if (trigger) this.trigger('change');
+            if (trigger) this.trigger("change");
         },
         isNull: function(){
             return this._isNull;
@@ -171,7 +171,7 @@ define([
             _.each(_.clone(this._listeningTo),function(outputModel){
                 that.disconnectOutput.call(that,outputModel);
             });
-            this.trigger('disconnectAll',this); // completely remove the input
+            this.trigger("disconnectAll",this); // completely remove the input
         },
         processIncomingChange: function(){
             // In a simple world, an input can only be connected to one output, so it would inherit that
@@ -241,7 +241,7 @@ define([
         },
         disconnectAll: function(){
             // For outputs
-            this.trigger('disconnectAll',this); // completely remove the input
+            this.trigger("disconnectAll",this); // completely remove the input
         }
     });
 

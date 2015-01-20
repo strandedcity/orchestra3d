@@ -123,7 +123,7 @@ define([
             _.each(this.outputs,function(out){
                 out.destroy();
             });
-            this.trigger('removed',this);
+            this.trigger("removed",this);
             _.each(this.inputs,function(ipt){
                 ipt.destroy();
             });
