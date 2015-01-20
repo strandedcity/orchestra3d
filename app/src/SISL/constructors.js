@@ -4,7 +4,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
 
     try {
         var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
-        var freeCurve = Module.cwrap('freeCurve','number',['number']);
+        var freeCurve = Module.cwrap('freeSISLCurve','number',['number']);
         var curveParametricEnd = Module.cwrap('curveParametricEnd','number',['number']);
         var curveParametricStart = Module.cwrap('curveParametricStart','number',['number']);
         var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
@@ -31,12 +31,12 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     }
 
     function flattenPointList(points){
-        var pt, arr = [], pointsCopy = points.slice(0);
-        while (pt = pointsCopy.shift()) {
-            arr.push(pt.x,pt.y,pt.z);
+        var arr=[];
+        for (var i=0; i< points.length; i++){
+            arr.push(points[i].x,points[i].y,points[i].z);
         }
         return arr;
-    };
+    }
 
     var unitZ = new THREE.Vector3(0,0,1),
         unitScale = new THREE.Vector3(1,1,1);
@@ -101,9 +101,15 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             return this._pointer;
         },
         getMaxParameter: function(){
+            if (typeof this.maxParam === "number") {
+                return this.maxParam;
+            }
             return curveParametricEnd(this._pointer) - 1;
         },
         getMinParameter: function(){
+            if (typeof this.minParam === "number") {
+                return this.minParam;
+            }
             return curveParametricStart(this._pointer) + 1;
         },
         getPositionAt: function (param) {
@@ -124,6 +130,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             return derivs;
         },
         destroy: function(){
+            //console.warn('freeCurve needs fixing');
             freeCurve(this._pointer);
         }
     };
@@ -178,18 +185,19 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var pointsToInterpolate = Module.Utils.copyJSArrayToC(flattenPointList(pointList)),
             numPts = pointList.length,
             dim = 3, // 3 dimensions, always
-            pointTypes = Module.Utils.copyJSArrayToC(dummyArray(pointList.length)), // each point is an "ordinary point"
+            pointTypes = Module.Utils.copyJSArrayToC(dummyArray(pointList.length),'i8'), // each point is an "ordinary point"
             initialCondition = 0, // no initial condition
             endCondition = 0, // no end condition
-            open = periodic ? -1 : 1, // -1 = periodic, 1 = open
+            open = 0, //periodic === true ? -1 : 1, // -1 = periodic, 1 = open
             order = degree + 1,
             startParam = 0,
 
         // OUTPUT arguments
-            endparam = Module._malloc(8),
+            endparam = Module._malloc(16),
             curvePtr = Module._malloc(16*7),
-            paramsPtr = Module._malloc(8*numPts),
-            numberOfParams = Module._malloc(8);
+            paramsPtr = Module._malloc(16*numPts),
+            numberOfParams = Module._malloc(80);
+        console.warn('interpcurves are DRAMATICALLY overallocated, but I dont know how.');
 
         var arg = [
             pointsToInterpolate,    // double epoint[];
@@ -209,6 +217,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         ];
 
         s1356.apply(this,arg);
+        this.minParam = startParam;
+        this.maxParam = Module.getValue(endparam, 'double');
 
         // store the pointer for later use. s1303 takes a pointer to a pointer, so this._pointer needs to be retrieved
         this._pointer = Module.getValue(curvePtr, 'i8*');

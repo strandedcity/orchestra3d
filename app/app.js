@@ -112,7 +112,7 @@ require(["appconfig"],function(){
                 //this.NURBSCurveTest();
                 //this.loadJSONProject('example_gridOfPoints.json?');
                 //this.loadJSONProject('curveWithVectorsTest.json?');
-                //this.loadJSONProject('example_lamp.json?');
+                this.loadJSONProject('example_lamp.json?');
                 //this.loadParseProject("JnbJpY8YjG");
 
                 viewer.render();

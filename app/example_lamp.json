@@ -3,18 +3,64 @@
   "authorName": "Phil",
   "components": [
     {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -917.8437300556818,
+        "y": 93.09728340437168,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c6",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c7",
+          "connections": [
+            "c23"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c8",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c5",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              5.2
+            ]
+          }
+        }
+      ],
+      "id": "c4"
+    },
+    {
       "componentPrettyName": "Number",
       "componentName": "NumberComponent",
       "position": {
-        "x": -798.8528616147654,
-        "y": 125.88430825132669,
+        "x": -1421.5046122448114,
+        "y": 97.87130733066952,
         "z": 0
       },
       "preview": false,
       "inputs": [
         {
           "shortName": "N",
-          "id": "c6",
+          "id": "c24",
           "connections": [],
           "type": 0
         }
@@ -22,7 +68,281 @@
       "output": [
         {
           "shortName": "N",
-          "id": "c5",
+          "id": "c23",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              12
+            ]
+          }
+        }
+      ],
+      "id": "c22"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -910.2202498660589,
+        "y": -128.46126807854185,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c34",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c35",
+          "connections": [
+            "c23"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c36",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c33",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              7.31
+            ]
+          }
+        }
+      ],
+      "id": "c32"
+    },
+    {
+      "componentPrettyName": "Slider",
+      "componentName": "SliderComponent",
+      "position": {
+        "x": -910.6631083906713,
+        "y": -348.5182310441383,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "S",
+          "id": "c52",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "E",
+          "id": "c53",
+          "connections": [
+            "c23"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "I",
+          "id": "c54",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c51",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              1
+            ]
+          }
+        }
+      ],
+      "id": "c50"
+    },
+    {
+      "componentPrettyName": "Circle",
+      "componentName": "CircleCNRComponent",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "C",
+          "id": "c70",
+          "connections": [
+            "c96"
+          ],
+          "type": 2
+        },
+        {
+          "shortName": "N",
+          "id": "c71",
+          "connections": [],
+          "type": 2
+        },
+        {
+          "shortName": "R",
+          "id": "c72",
+          "connections": [
+            "c86"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "C",
+          "id": "c69",
+          "connections": [],
+          "type": 3
+        }
+      ],
+      "id": "c68"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -452.34669837322696,
+        "y": -114.58778664560882,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c87",
+          "connections": [
+            "c5",
+            "c33",
+            "c51"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c86",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "id": "c85"
+    },
+    {
+      "componentPrettyName": "Point(x,y,z)",
+      "componentName": "PointComponent",
+      "position": {
+        "x": -550.2182014480957,
+        "y": 553.8029660011737,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "X",
+          "id": "c97",
+          "connections": [
+            "c113"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "Y",
+          "id": "c98",
+          "connections": [
+            "c113"
+          ],
+          "type": 0
+        },
+        {
+          "shortName": "Z",
+          "id": "c99",
+          "connections": [
+            "c123"
+          ],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "P",
+          "id": "c96",
+          "connections": [],
+          "type": 2
+        }
+      ],
+      "id": "c95"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -998.9966809507894,
+        "y": 682.7087413629482,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c114",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c113",
+          "connections": [],
+          "type": 0,
+          "persistedData": {
+            "0": [
+              0
+            ]
+          }
+        }
+      ],
+      "id": "c112"
+    },
+    {
+      "componentPrettyName": "Number",
+      "componentName": "NumberComponent",
+      "position": {
+        "x": -1018.0935595995913,
+        "y": 515.6110532012505,
+        "z": 0
+      },
+      "preview": false,
+      "inputs": [
+        {
+          "shortName": "N",
+          "id": "c124",
+          "connections": [],
+          "type": 0
+        }
+      ],
+      "output": [
+        {
+          "shortName": "N",
+          "id": "c123",
           "connections": [],
           "type": 0,
           "persistedData": {
@@ -34,246 +354,31 @@
           }
         }
       ],
-      "id": "c4"
+      "id": "c122"
     },
     {
-      "componentPrettyName": "Point(x,y,z)",
-      "componentName": "PointComponent",
+      "componentPrettyName": "Eval Crv",
+      "componentName": "EvaluateCurveComponent",
       "position": {
-        "x": -84.91555809751002,
-        "y": 166.800096372766,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "X",
-          "id": "c70",
-          "connections": [
-            "c98"
-          ],
-          "type": 0
-        },
-        {
-          "shortName": "Y",
-          "id": "c71",
-          "connections": [
-            "c98"
-          ],
-          "type": 0
-        },
-        {
-          "shortName": "Z",
-          "id": "c72",
-          "connections": [
-            "c5"
-          ],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "P",
-          "id": "c69",
-          "connections": [],
-          "type": 2
-        }
-      ],
-      "id": "c68"
-    },
-    {
-      "componentPrettyName": "Number",
-      "componentName": "NumberComponent",
-      "position": {
-        "x": -184.48674833919455,
-        "y": -401.46938871964704,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "N",
-          "id": "c89",
-          "connections": [
-            "c212",
-            "c232",
-            "c250"
-          ],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c88",
-          "connections": [],
-          "type": 0
-        }
-      ],
-      "id": "c87"
-    },
-    {
-      "componentPrettyName": "Number",
-      "componentName": "NumberComponent",
-      "position": {
-        "x": -792.5608095278712,
-        "y": 273.80175838639923,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "N",
-          "id": "c99",
-          "connections": [],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c98",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              0
-            ]
-          }
-        }
-      ],
-      "id": "c97"
-    },
-    {
-      "componentPrettyName": "Circle",
-      "componentName": "CircleCNRComponent",
-      "position": {
-        "x": 535.2426066580258,
-        "y": -18.30180734268248,
+        "x": 602.7330358149154,
+        "y": -17.13192130376136,
         "z": 0
       },
       "preview": true,
       "inputs": [
         {
           "shortName": "C",
-          "id": "c109",
+          "id": "c137",
           "connections": [
-            "c69"
-          ],
-          "type": 2
-        },
-        {
-          "shortName": "N",
-          "id": "c110",
-          "connections": [],
-          "type": 2
-        },
-        {
-          "shortName": "R",
-          "id": "c111",
-          "connections": [
-            "c88"
-          ],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "C",
-          "id": "c108",
-          "connections": [],
-          "type": 3
-        }
-      ],
-      "id": "c107"
-    },
-    {
-      "componentPrettyName": "Number",
-      "componentName": "NumberComponent",
-      "position": {
-        "x": -1352.909366985081,
-        "y": -457.3927800694438,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "N",
-          "id": "c170",
-          "connections": [],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c169",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              12
-            ]
-          }
-        }
-      ],
-      "id": "c168"
-    },
-    {
-      "componentPrettyName": "Number",
-      "componentName": "NumberComponent",
-      "position": {
-        "x": -1345.200397475586,
-        "y": -349.46719652735226,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "N",
-          "id": "c180",
-          "connections": [],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c179",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              6
-            ]
-          }
-        }
-      ],
-      "id": "c178"
-    },
-    {
-      "componentPrettyName": "Eval Crv",
-      "componentName": "EvaluateCurveComponent",
-      "position": {
-        "x": 1191.0581270305324,
-        "y": -408.56642797735344,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "C",
-          "id": "c192",
-          "connections": [
-            "c221"
+            "c233"
           ],
           "type": 3
         },
         {
           "shortName": "t",
-          "id": "c193",
+          "id": "c138",
           "connections": [
-            "c206"
+            "c196"
           ],
           "type": 0
         }
@@ -281,173 +386,91 @@
       "output": [
         {
           "shortName": "P",
-          "id": "c53",
+          "id": "c115",
           "connections": [],
           "type": 2
         },
         {
           "shortName": "T",
-          "id": "c54",
+          "id": "c116",
           "connections": [],
           "type": 2
         },
         {
           "shortName": "A",
-          "id": "c55",
+          "id": "c117",
           "connections": [],
           "type": 0
         }
       ],
-      "id": "c188"
+      "id": "c133"
     },
     {
       "componentPrettyName": "Series",
       "componentName": "SeriesComponent",
       "position": {
-        "x": 544.6821936792883,
-        "y": -705.6200549723178,
+        "x": 397.4511859114206,
+        "y": -420.1351382268848,
         "z": 0
       },
       "preview": false,
       "inputs": [
         {
           "shortName": "S",
-          "id": "c207",
+          "id": "c197",
           "connections": [],
           "type": 0
         },
         {
           "shortName": "N",
-          "id": "c208",
+          "id": "c198",
           "connections": [
-            "c212"
+            "c214"
           ],
           "type": 0
         },
         {
           "shortName": "C",
-          "id": "c209",
-          "connections": [
-            "c234"
-          ],
+          "id": "c199",
+          "connections": [],
           "type": 0
         }
       ],
       "output": [
         {
           "shortName": "S",
-          "id": "c206",
+          "id": "c196",
           "connections": [],
           "type": 0
         }
       ],
-      "id": "c205"
-    },
-    {
-      "componentPrettyName": "Number",
-      "componentName": "NumberComponent",
-      "position": {
-        "x": 155.46374839917772,
-        "y": -955.9080433187693,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "N",
-          "id": "c235",
-          "connections": [],
-          "type": 0
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c234",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              20
-            ]
-          }
-        }
-      ],
-      "id": "c233"
+      "id": "c195"
     },
     {
       "componentPrettyName": "Slider",
       "componentName": "SliderComponent",
       "position": {
-        "x": -805.6330828756128,
-        "y": -277.51230449909684,
+        "x": -79.9707803073922,
+        "y": -439.2320168739368,
         "z": 0
       },
       "preview": false,
       "inputs": [
         {
           "shortName": "S",
-          "id": "c213",
-          "connections": [],
-          "type": 0
-        },
-        {
-          "shortName": "E",
-          "id": "c214",
-          "connections": [
-            "c179"
-          ],
-          "type": 0
-        },
-        {
-          "shortName": "I",
           "id": "c215",
           "connections": [],
-          "type": 1
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c212",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              1
-            ]
-          }
-        }
-      ],
-      "id": "c211"
-    },
-    {
-      "componentPrettyName": "Slider",
-      "componentName": "SliderComponent",
-      "position": {
-        "x": -815.8466567419756,
-        "y": -461.12567971293294,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "S",
-          "id": "c233",
-          "connections": [],
           "type": 0
         },
         {
           "shortName": "E",
-          "id": "c234",
-          "connections": [
-            "c169"
-          ],
+          "id": "c216",
+          "connections": [],
           "type": 0
         },
         {
           "shortName": "I",
-          "id": "c235",
+          "id": "c217",
           "connections": [],
           "type": 1
         }
@@ -455,123 +478,33 @@
       "output": [
         {
           "shortName": "N",
-          "id": "c232",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              1
-            ]
-          }
-        }
-      ],
-      "id": "c231"
-    },
-    {
-      "componentPrettyName": "Slider",
-      "componentName": "SliderComponent",
-      "position": {
-        "x": -808.1376872324693,
-        "y": -644.9707679968443,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "S",
-          "id": "c251",
-          "connections": [],
-          "type": 0
-        },
-        {
-          "shortName": "E",
-          "id": "c252",
-          "connections": [
-            "c179"
-          ],
-          "type": 0
-        },
-        {
-          "shortName": "I",
-          "id": "c253",
-          "connections": [],
-          "type": 1
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c250",
-          "connections": [],
-          "type": 0,
-          "persistedData": {
-            "0": [
-              1
-            ]
-          }
-        }
-      ],
-      "id": "c249"
-    },
-    {
-      "componentPrettyName": "Slider",
-      "componentName": "SliderComponent",
-      "position": {
-        "x": -602.5802711204269,
-        "y": -952.5611097619676,
-        "z": 0
-      },
-      "preview": false,
-      "inputs": [
-        {
-          "shortName": "S",
-          "id": "c213",
-          "connections": [],
-          "type": 0
-        },
-        {
-          "shortName": "E",
           "id": "c214",
           "connections": [],
-          "type": 0
-        },
-        {
-          "shortName": "I",
-          "id": "c215",
-          "connections": [],
-          "type": 1
-        }
-      ],
-      "output": [
-        {
-          "shortName": "N",
-          "id": "c212",
-          "connections": [],
           "type": 0,
           "persistedData": {
             "0": [
-              0.77
+              0.82
             ]
           }
         }
       ],
-      "id": "c211"
+      "id": "c213"
     },
     {
       "componentPrettyName": "Graft",
       "componentName": "GraftComponent",
       "position": {
-        "x": 867.2537666860119,
-        "y": -172.1602075749746,
+        "x": 89.51401770028912,
+        "y": 164.70677033904025,
         "z": 0
       },
       "preview": false,
       "inputs": [
         {
           "shortName": "T",
-          "id": "c222",
+          "id": "c234",
           "connections": [
-            "c108"
+            "c69"
           ],
           "type": 5
         }
@@ -579,14 +512,58 @@
       "output": [
         {
           "shortName": "T",
-          "id": "c221",
+          "id": "c233",
           "connections": [],
           "type": 5
         }
       ],
-      "id": "c220"
+      "id": "c232"
+    },
+    {
+      "componentPrettyName": "Interpolate",
+      "componentName": "CurveInterpolatedComponent",
+      "position": {
+        "x": 1166.9353380381683,
+        "y": -56.786113126929024,
+        "z": -2.2737367544323206e-13
+      },
+      "preview": true,
+      "inputs": [
+        {
+          "shortName": "V",
+          "id": "c256",
+          "connections": [],
+          "type": 2
+        },
+        {
+          "shortName": "D",
+          "id": "c257",
+          "connections": [],
+          "type": 0
+        },
+        {
+          "shortName": "P",
+          "id": "c258",
+          "connections": [],
+          "type": 1
+        }
+      ],
+      "output": [
+        {
+          "shortName": "C",
+          "id": "c255",
+          "connections": [],
+          "type": 3
+        }
+      ],
+      "id": "c254"
     }
   ],
+  "createdAt": "2015-01-18T20:55:15.793Z",
   "description": "",
-  "title": "Lamp, v1*"
+  "objectId": "NGnzNu10w6",
+  "projectId": "",
+  "title": "Lamp, v3",
+  "updatedAt": "2015-01-20T01:14:10.322Z",
+  "id": "NGnzNu10w6"
 }

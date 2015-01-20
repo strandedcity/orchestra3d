@@ -19,6 +19,12 @@ double curveParametricStart(SISLCurve *crv)
     return crv->et[0];
 }
 
+void freeSISLCurve(SISLCurve *crv);
+void freeSISLCurve(SISLCurve *crv)
+{
+    if (crv) freeCurve(crv);
+}
+
 // Deprecated 12/2014 with removal of SISLPoint as a struct used directly in JS
 //double * pointCoords(SISLPoint *pt);
 //double * pointCoords(SISLPoint *pt)

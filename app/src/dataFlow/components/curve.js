@@ -18,11 +18,12 @@ define([
                 {shortName: "P", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                output: output,
+            var args = _.extend({
                 componentPrettyName: "NURBS Crv",
                 preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
             });
             this.base_init(args);
         },
@@ -66,11 +67,12 @@ define([
                 {shortName: "t", required: false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER} // parameter to evaluate
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: outputs,
+            var args = _.extend({
                 componentPrettyName: "Eval Crv",
                 preview: false
+            },opts || {},{
+                inputs: inputs,
+                outputs: outputs
             });
             this.base_init(args);
         },
@@ -123,6 +125,60 @@ define([
         }
     });
 
+    components.CurveInterpolatedComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST},
+                {shortName: "D", required: false, default: 3, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "P", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Interpolate",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            console.log('recalculating interpcrv');
+            //this.getOutput("C").getTree().recurseTree(function(data){
+            //    _.each(data,function(interpcrv){
+            //        interpcrv.destroy();
+            //    });
+            //});
+
+            /* D = degree, P = periodic, V = points (AS LIST) */
+            var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(degree,periodic,pointList){
+                return new Geometry.CurveInterpolated(pointList,degree,periodic);
+            });
+
+            this.getOutput("C").replaceData(result.tree);
+            this._recalculate();
+        },
+        drawPreviews: function(){
+            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
+
+            var preview;
+            if (_.isArray(this.previews) && this.previews.length > 0) {
+                preview = this.previews[0];
+
+                // update the preview geometry
+                preview.updateCurveList(curves);
+                preview.show();
+            }
+            else {
+                preview = new Preview.CurveListPreview(curves);
+                this.previews = [preview];
+            }
+        }
+    });
 
 
     return components;

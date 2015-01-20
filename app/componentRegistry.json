@@ -50,6 +50,11 @@
     "shortDescription": "Generates a new Curve object based on a list of control points"
   },
   {
+    "functionName": "CurveInterpolatedComponent",
+    "name": "Interpolated Curve",
+    "shortDescription": "Generates a new Curve object that will pass through each point in a supplied list of points. Parametricization is automatic."
+  },
+  {
     "functionName": "NumberComponent",
     "name": "Number",
     "shortDescription": "Holds a list of numbers. For short lists, you can enter the numbers directly into the component"

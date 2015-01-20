@@ -19,11 +19,12 @@ define([
                 {shortName: "R", required: true, type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                output: output,
+            var args = _.extend({
                 componentPrettyName: "Circle",
                 preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
             });
             this.base_init(args);
         },

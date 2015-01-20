@@ -4,11 +4,11 @@ define(["./compiled"],function(){
     var Module = window.Module || {};
     Module.Utils = {};
 
-    Module.Utils.copyJSArrayToC = function(array){
+    Module.Utils.copyJSArrayToC = function(array,type){
         var buffer = Module._malloc(4*4*array.length);
 
         for (var i=0; i<array.length; i++){
-            Module.setValue(buffer + i*byteSize, array[i], 'double');
+            Module.setValue(buffer + i*byteSize, array[i], type || 'double');
         }
 
         return buffer;
