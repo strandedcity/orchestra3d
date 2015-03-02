@@ -139,8 +139,7 @@ define([
         workspace.render();
 
         // With dom elements created, bind events:
-        this.listenTo(this.component,"sufficiencyChange",this.changeSufficiency);
-        this.changeSufficiency(this.component.hasSufficientInputs());
+        this.listenTo(this.component,"change:sufficient",this.changeSufficiency);
         this.listenTo(this.component,"change:componentPrettyName",this.displayVals);
         this.listenTo(this.component,"removed",this.remove);
     };
@@ -154,7 +153,9 @@ define([
         this.component.getOutput().getTree().log();
     };
 
-    ComponentView.prototype.changeSufficiency = function(state){
+    ComponentView.prototype.changeSufficiency = function(){
+        var state = this.component.get("sufficient");
+
         var classToAdd;
         if (state === true) classToAdd = "sufficient";
         if (state === false) classToAdd = "insufficient";

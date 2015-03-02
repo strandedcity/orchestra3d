@@ -132,6 +132,35 @@ define([
             delete this.inputs;
             delete this.outputs;
         },
+        _handleInputChange: function(){
+        ////////// PRE-RECALCULATION -- CHECK STATUS
+            // is this component currently null?
+            var wasNull = this.get('isNull');
+
+            // consider current input statuses: do we have enough input to do the calculation?
+            var isNullNow = !_.every(this.inputs,function(input){
+                return input.required === false || !input.isNull();
+            });
+
+        ////////// RECALCULATION PHASE
+
+            // if (yes, yes) -> do nothing, still null
+            // if (no, yes) -> set outputs to null, trigger "change:nullStatus" on each
+            // if (yes, no) -> run recalculation phase, trigger "change:nullStatus" on each
+            // (something like "recalculateIfReady")
+
+            if (wasNull === true && isNullNow === true) return;
+            else if (wasNull === false && isNullNow === true) {
+
+                this.set({isNull: true});
+            }
+
+        /////////// POST recalculation
+
+            // (conditionally) run preview phase
+
+            // execute post-recalculation stuff: trigger "change" on outputs
+        },
         recalculateIfReady: function(){
             // Previews are not hidden unless they need to be (ie, unless the whole component has them nulled out.
             // They'll be updated if necessary, and hidden when null or or user request
@@ -147,9 +176,6 @@ define([
                 this.clearPreviews();
             }
         },
-        hasSufficientInputs: function(){
-            return this._sufficient;
-        },
         _calculateSufficiency: function(){
             var sufficient = true;
 
@@ -164,16 +190,13 @@ define([
 
             // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
             // However, in this case, the output value must be actually set before the component can be called sufficient
-            if (this._hasRequiredInputs === false && _.isNull(this.getOutput().getTree())) {
+            if (this.get('hasRequiredInputs') === false && _.isNull(this.getOutput().getTree())) {
                 sufficient = false;
             }
 
             // If an input is null, the output is null too, and no calculation should occur.
             //if (!sufficient) this.output.setNull(true);
-            if (this._sufficient !== sufficient) {
-                this._sufficient = sufficient;
-                this.trigger("sufficiencyChange",sufficient);
-            }
+            this.set({'sufficient': sufficient});
 
             return sufficient;
         },
@@ -199,10 +222,6 @@ define([
         fetchOutputs: function(){
             /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */
             return this.getOutput().getTree().flattenedTree().dataAtPath([0]);
-        },
-        isNull: function(){
-            // return null based on the status of the FIRST output. Not sure if this is smart or not ?
-            return this.getOutput().isNull();
         },
         drawPreviews: function(){
             console.warn(this.constructor.name + " objects have a no-op 'drawPreviews' function.")
