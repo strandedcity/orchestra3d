@@ -85,3 +85,45 @@ input.componentLike:focus {
 .wf-active  {
     visibility: visible;
 }
+
+@media only screen and (max-width: 800px)  {
+    .fullscreen {
+        display: none;
+    }
+    body {
+        background: url(background-compressed.svgz);
+        background-size: auto 120%;
+        background-repeat: no-repeat;
+    }
+    .centered {
+        position: relative !important;
+        display: block !important;
+        max-width: 88%;
+        padding-left: 6%;
+        padding-right: 6%;
+        left: 0;
+        margin: auto;
+        top:20%;
+        margin-top: 50px;
+    }
+    .featureList {
+        opacity: 1;
+    }
+    .featureList:last-of-type {
+        margin-bottom: 300px;
+    }
+    .centered.video {
+        padding: 0px !important;
+        width: 100%;
+    }
+    .componentLike {
+        max-width: 100%;
+    }
+    #sendbtn {
+        margin-top: 20px;
+    }
+    iframe {
+        width: 100% !important;
+        height: 220px !important;
+    }
+}
