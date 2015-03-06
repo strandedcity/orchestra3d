@@ -81,7 +81,8 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
                 User.fetchCurrentUser(function(currentUser){
                     if (_.isNull(currentUser)) {
                         // show login menu
-                        that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_out').html()));
+                        // that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_out').html()));
+                        window.location = "login.html";
                     } else {
                         // show logged-in view
                         that.setUser(currentUser);
