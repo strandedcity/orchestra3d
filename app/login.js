@@ -33,7 +33,7 @@ require(["appconfig"],function() {
                     var el = $('#errorMessage');
                     el.text(err.message);
                     el.fadeTo('fast',1);
-
+                    
                 }
 
                 $('#loginbutton').on('click',function(e){
