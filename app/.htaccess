@@ -10,6 +10,5 @@
 </filesMatch>
 
 RewriteEngine On
-RewriteBase /SISL/app/
 RewriteCond %{HTTP_COOKIE} !^.*orchestra3duser.*$ [NC]
 RewriteRule ^index.html login.html [NC,L]

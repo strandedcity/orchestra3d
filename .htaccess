@@ -2,7 +2,6 @@ AddType image/svg+xml svg svgz
 AddEncoding gzip svgz
 
 RewriteEngine  on
-RewriteBase /SISL/
 RewriteRule    ^$  splash/index.html [PT]
 RewriteRule    ^splashpage.css$  splash/splashpage.css [PT]
 RewriteRule    ^skrollr.min.js$  splash/skrollr.min.js [PT]
