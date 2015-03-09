@@ -6,3 +6,7 @@ RewriteRule    ^$  splash/index.html [PT]
 RewriteRule    ^splashpage.css$  splash/splashpage.css [PT]
 RewriteRule    ^skrollr.min.js$  splash/skrollr.min.js [PT]
 RewriteRule    ^background-compressed.svgz$  splash/background-compressed.svgz [PT]
+
+ErrorDocument 404 /errorPages/404.html
+ErrorDocument 403 /errorPages/403.html
+ErrorDocument 500 /errorPages/500.html
