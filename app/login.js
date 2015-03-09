@@ -19,7 +19,14 @@ require(["appconfig"],function() {
                     Parse.User.logIn(username.toLocaleLowerCase(),pass, {
                         success: function(user) {
                             // Do stuff after successful login.
-                            window.location = "index.html";
+                            var expirationDate = new Date;
+                            expirationDate.setMonth(expirationDate.getMonth()+6);
+                            document.cookie = "orchestra3duser="+user.id+"; expires="+expirationDate.toGMTString()+"; path=/";
+                            if (window.location.href.indexOf("index.html") != -1) {
+                                location.reload();
+                            } else {
+                                window.location = "index.html";
+                            }
                         },
                         error: function(user, error) {
                             // The login failed. Check error to see why.
