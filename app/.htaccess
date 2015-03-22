@@ -1,5 +1,5 @@
 
-<filesMatch "index\.html$">
+<filesMatch "(index\.html|app\.js)$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
