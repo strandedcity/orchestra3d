@@ -111,12 +111,13 @@ define([
                 inputTree.recurseTree(function(data,node){
                     dataListForTree.push(node);
                 });
-                if (dataListForTree.length === 0){
-                    // DataTree doesn't expose individual nodes, so we have to access it thus:
-                    var tree = new DataTree([input.getDefaultValue()]),
-                        node = tree.getChildAtPath([0]);
-                    dataListForTree.push(node);
-                }
+                // This code should not be necessary now that default values are returned by the same getTree() api as other values
+//                if (dataListForTree.length === 0){
+//                    // DataTree doesn't expose individual nodes, so we have to access it thus:
+//                    var tree = new DataTree([input.getDefaultValue()]),
+//                        node = tree.getChildAtPath([0]);
+//                    dataListForTree.push(node);
+//                }
                 return dataListForTree;
             }
 

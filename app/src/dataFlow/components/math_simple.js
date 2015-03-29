@@ -26,7 +26,6 @@ define([
                 var resultObject = DataMatcher(this.inputs,opts.simpleMathFunction);
 
                 this.getOutput("N").replaceData(resultObject.tree);
-                this._recalculate();
             };
 
             this.base_init(args);

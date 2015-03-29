@@ -7,6 +7,13 @@ define([
 
 
     var io = Backbone.Model.extend({
+        defaults: function(){
+            return {
+                persistedData: new DataTree(),
+                invisible: false,
+                isNull: true
+            }
+        },
         initialize: function(opts){
             // Output objects are able to extract bits of information from a raw result pointer, via a passed-in function
             // This could be as simple as returning the array of pointers directly, or it could mean querying those objects
@@ -21,7 +28,7 @@ define([
             this.default = _.isUndefined(args.default) ? null : args.default; // store default value if spec'd
             this.shortName = args.shortName;
             this.values = new DataTree([]);
-            this._isNull = true;
+            if (!_.isUndefined(args.invisible)) this.set({"invisible": args.invisible});
 
             var parameterType = ENUMS.INTERPRET_AS.ITEM;
             if (!_.isUndefined(args.interpretAs)) {
@@ -39,33 +46,10 @@ define([
                 tree.fromJSON(args.persistedData);
                 this.assignPersistedData(tree);
             }
-        },
-        assignValues: function(values, forPath){
-            /* This function stores user-entered data directly. When saved, the output will store these values in JSON format */
-            if (!_.isArray(values)) {
-                this._isNull = true;
-                throw new Error("'Values' must be an array");
+
+            if (typeof this._initialize === "function") {
+                this._initialize();
             }
-            _.each(values,function(v){
-                if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
-            });
-
-            // store data
-            this.values.addChildAtPath(values,forPath || [0],true);
-            this._isNull = this.values.isEmpty();
-
-            this.trigger("change");
-        },
-        assignPersistedData: function(tree){
-            // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
-            // of the tree to be serialized later
-            var that = this;
-            this.set('persistedData',tree);
-            tree.recurseTree(function(data,node){
-                that.values.setDataAtPath(node.getPath(),data); // set manually to avoid triggering excessive downstream recalculations
-            });
-            this._isNull = this.values.isEmpty(); // we want to trigger a change event regardless of change of null status
-            this.trigger("change");
         },
         replaceData: function(dataTree){
             if (dataTree.constructor.name !== "DataTree") {
@@ -73,29 +57,57 @@ define([
             }
             this.clearValues();
             this.values = dataTree;
-            this._isNull = this.values.isEmpty();
-
-            this.trigger("change");
         },
-        setNull: function(val){
-            var trigger = val !== this._isNull;
-            this._isNull = val;
-            if (trigger) this.trigger("change");
-        },
-        isNull: function(){
-            return this._isNull;
+        assignPersistedData: function(tree){
+            throw new Error("Cannot call assignPersistedData() on base io class");
         },
         getTree: function(){
-            //return this._isNull ? null : this.values;
-            return this.values;
+            /* Returns data on this node in correct precedence:
+            1) Tree inherited from any connected outputs
+            2) User-entered data ie, "persistedData"
+            3) Default value
+            4) No data
+             */
+
+            if (this.hasConnectedOutputs()) {
+                // are there connected outputs? use those.
+                return this.applyTreeTransform(this.values);
+            } else if (!this.get('persistedData').isEmpty()) {
+                // no connected outputs, but there IS user-entered data. Use that.
+                return this.applyTreeTransform(this.get('persistedData'));
+            } else if (!_.isNull(this.default)) {
+                // no connected outputs OR user-entered data, but there IS a default. use that.
+                var t = new DataTree();
+                t.setDataAtPath([0],[this.default]);
+                return t;
+            } else {
+                // no data sources available, but something is polling for data
+                return new DataTree();
+            }
+        },
+        applyTreeTransform: function(tree){
+            // TODO: Apply transformations, such as graft or flatten
+            return tree.copy();
+        },
+        triggerChange: function(pulseObject){
+            this.trigger("pulse",pulseObject);
+
+            var that = this;
+            _.delay(function(){
+                propagateChange.call(that);
+            },1500);
+
+            function propagateChange(){
+                this.trigger("changeValues",pulseObject);
+            }
         },
         getDefaultValue: function(){
+            console.warn("getDefaultValue() is deprecated. Use getTree() instead, but assume that the default value will appear inside a data tree.");
             return this.default;
         },
         getFirstValueOrDefault: function(){
-            // many times, we'll want the first value if it's been connected, or the default if it hasn't
-            var firstDataPath = this.getTree().dataAtPath([0]);
-            if (_.isEmpty(firstDataPath)) return this.getDefaultValue();
+            // getTree() now takes care of the "or default" part of this logic -- the tree returned by getTree() will
+            // reveal default values if no data sources with greater precedence are available
             return this.getTree().dataAtPath([0])[0];
         },
         clearValues: function(){
@@ -115,7 +127,6 @@ define([
             // for each connected input, trigger disconnection
 
             this.disconnectAll();
-            this.setNull(true);
             this.stopListening();
         },
         toJSON: function(){
@@ -128,7 +139,7 @@ define([
                 type: this.type
             };
 
-            if (!_.isUndefined(this.get('persistedData'))) {
+            if (!_.isUndefined(this.get('persistedData')) && !this.get('persistedData').isEmpty()) {
                 obj.persistedData = this.get('persistedData').toJSON();
             }
 
@@ -136,7 +147,20 @@ define([
         }
     });
 
-    // CONNECTIONS are stored only on inputs, so there are a few custom methods here:
+
+
+
+
+
+
+
+
+
+
+
+
+    // INPUTS are unique because they store CONNECTIONS to outputs, can store user-defined data, and know how to
+    // figure out if they are "full" ie, if they can provide data to connected outputs or not.
     var input = io.extend({
         validateOutput: function(outputModel){
             // for inputs only, supports the data-flow attachment mechanism
@@ -147,31 +171,32 @@ define([
         },
         connectOutput: function(outputModel){
             // remove prior connections first
-            var that = this;
-            _.each(_.clone(this._listeningTo),function(outputModel){
-                that.disconnectOutput.call(that,outputModel);
-            });
+            this.disconnectAll(true);
 
             // make the new connection
             try {
                 if (this.validateOutput(outputModel) === true) this.stopListening();
                 this.connectAdditionalOutput(outputModel, false);
             } catch (e){
+                this.trigger("change"); // if the new connection fails, we still need to trigger a "change" event since all connections were silently dropped above.
                 console.warn('Caught an error during connection: ', e.message, e.stack);
             }
         },
-        disconnectOutput: function(outputModel){
+        disconnectOutput: function(outputModel, silent){
             this.stopListening(outputModel);
             this.trigger("disconnectedOutput", outputModel);
-            this.trigger("change");
+            if (silent !== true) this.trigger("change");
         },
-        disconnectAll: function(){
+        disconnectAll: function(silent){
             // For inputs
             var that = this;
             _.each(_.clone(this._listeningTo),function(outputModel){
-                that.disconnectOutput.call(that,outputModel);
+                that.disconnectOutput.call(that,outputModel, true);
             });
-            this.trigger("disconnectAll",this); // completely remove the input
+            if (silent !== true) {
+                this.trigger("change"); // once after all outputs disconnected
+                this.trigger("disconnectAll",this); // completely remove the input
+            }
         },
         processIncomingChange: function(){
             // In a simple world, an input can only be connected to one output, so it would inherit that
@@ -196,9 +221,7 @@ define([
                 }
             });
 
-            // update null setting and trigger change
-            this._isNull = this.getTree().isEmpty();
-            this.trigger("change");
+            this.trigger("changeValues");
         },
         connectAdditionalOutput: function(outputModel, validateModels){
             if (validateModels !== false) this.validateOutput(outputModel);
@@ -213,16 +236,60 @@ define([
                 }
             });
 
-            this.listenTo(outputModel, "change",function(){
+            this.listenTo(outputModel, "changeValues",function(){
                 that.processIncomingChange.call(that);
+            });
+
+            this.listenTo(outputModel, "pulse", function(pulse){
+                that.trigger("pulse",pulse);
             });
 
             // "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
             this.listenTo(outputModel,"disconnectAll",function(outputModel){
                 that.disconnectOutput.call(that,outputModel);
             });
-            outputModel.trigger("change"); // check for completed flow on hookup
+
+            this.set({isNull: false},{silent: true}); // unset the "null" override
+            outputModel.trigger("changeValues"); // check for completed flow on hookup
             this.trigger("connectedOutput", outputModel);
+        },
+        assignPersistedData: function(tree){
+//            var pulseId = _.uniqueId();
+//            this.trigger("pulse",{pulseId: pulseId});
+
+            propagateChange.call(this);
+
+            function propagateChange(){
+                // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
+                // of the tree to be serialized later
+                this.set('persistedData',tree);
+                this.set({isNull: false},{silent: true}); // unset the "null" override
+
+                // Change events on THIS input should trigger when new persisted data is assigned AND
+                // there are no connected outputs that are providing data with higher precedence.
+                // Otherwise, no change-trigger necessary, since the data this input provides will not have changed.
+//                if (!this.hasConnectedOutputs()) {
+//                    this.trigger("change");
+//                }
+
+                var pulseId = _.uniqueId(),
+                    pulseObject = {pulseId: pulseId};
+                this.triggerChange(pulseObject);
+            }
+        },
+        hasConnectedOutputs: function(){
+            if (_.keys(this._listeningTo).length === 0) return false;
+
+            // it only counts as a connection if we're getting non-null data
+            var foundNonEmptyConnection = false;
+            _.each(_.clone(this._listeningTo),function(outputModel){
+                // There are two ways that a connected output would not be counted:
+                if (outputModel.getTree().isEmpty() === false && outputModel.isNull() === false) {
+                    foundNonEmptyConnection = true;
+                }
+            });
+
+            return foundNonEmptyConnection;
         },
         destroy: function(){
             // custom INPUT destroy stuff
@@ -231,17 +298,76 @@ define([
         }
     });
 
+
+
+
+
+
+
+
+
+
+
+
+    // OUTPUTS are unique because they know if they are null or not. They can't store user-defined data, so their
+    // null status comes directly from the presence or absence of data
     var output = io.extend({
+        _initialize: function(){
+            this.set({isNull: true});
+        },
         destroy: function(){
             // custom OUTPUT destroy stuff
             // Slightly involved, since the connections TO THIS OUTPUT are actually stored on INPUT OBJECTS, not on "this"
 
             this.clearValues();
+            this.setNull(true);
             this._destroy();
         },
         disconnectAll: function(){
             // For outputs
             this.trigger("disconnectAll",this); // completely remove the input
+        },
+        assignValues: function(values, forPath){
+            // THIS FUNCTION IS FOR TESTING ONLY! IT ALLOWS THE CREATION OF 'MOCK' OUTPUT OBJECTS.
+            // USE OUTSIDE OF THIS SCENARIO INDICATES INCORRECT CODE, PROBABLY FROM TRYING TO SET
+            // 'USER-DATA' WITH THE WRONG METHOD. SET USER DATA ON INPUTS ONLY, USING 'ASSIGNPERSISTEDDATA'
+
+            if (window.jasmine === "undefined") throw new Error("Use of assignValues() on an OUTPUT outside a JavaScript Test Indicates a mistake. Use assignPersistedData on an INPUT instead.");
+
+            _.each(values,function(v){
+                if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
+            });
+
+            // store data
+            this.values.addChildAtPath(values,forPath || [0],true);
+
+            this.trigger("change");
+        },
+        assignPersistedData: function(tree){
+            // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
+            // of the tree to be serialized later
+            this.set('persistedData',tree);
+            this.set({isNull: false},{silent: true}); // unset the "null" override
+
+            // When persistedData is assigned to an OUTPUT, it means the component exists only so users can enter data
+            // (eg, a slider). So entering persistedData in this context ALWAYS means a change: no precedence rules apply
+            this.trigger("change");
+        },
+
+        // "null" status is unique to OUTPUTS. An INPUT connected to a NULL OUTPUT is not necessarily null --
+        // it could have a default value or 'persisted data' that allows it to provide values while disconnected.
+        setNull: function(val){
+            // suppress null changes when the io is ALREADY NULL, no matter what.
+            // If being set to NOT NULL, a change will be triggered already by the data that caused the change in null status
+            var silent = this.isNull() === true;
+            this.set({isNull: val},{silent: silent});
+        },
+        isNull: function(){
+            return this.get('isNull') === true || this.getTree().isEmpty();
+        },
+        hasConnectedOutputs: function(){
+            // the data on OUTPUTS is set by components -- there's only one data source, not several as is the case for inputs
+            return true;
         }
     });
 

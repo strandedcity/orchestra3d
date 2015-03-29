@@ -56,17 +56,21 @@ define([
             }
 
             this._sufficient = false;
+            //_.bindAll(this,"_handleInputChange");
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
             this.outputs = _.isUndefined(opts.outputs) ? [opts.output] : opts.outputs;
             this.inputs = this.initializeInputs(opts.inputs);
             this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
-            this._calculateSufficiency(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
+            this._handleInputChange(); // some components don't require inputs, so we need to make sure this._sufficient gets updated appropriately on init
 
             this.set('componentPrettyName', opts.componentPrettyName);
             this.set('preview',opts.preview || false);
             this.previews = [];
+
+            // so each component counts changes based on single user inputs, and knows when to actually recalculate
+            this.pulse = {pulseId: 0, pulseCount: 0, matchingChangeCount: 0};
 
             // Update previews. This is sort of "view stuff" but it's close to being "data stuff." Located here for now.
             this.on("change:preview",function(){
@@ -79,24 +83,13 @@ define([
         initializeInputs: function(inputs){
             // when no inputs are required, sufficiency must be calculated differently
             // ie, if values can be assigned directly, sufficiency = (inputs satisfied | output assigned)
-            var hasRequired = false;
 
             var that = this;
             _.each(inputs,function(inputModel){
                 that[inputModel.shortName] = inputModel;
-                that.listenTo(inputModel,"change",that.recalculateIfReady);
-                if (inputModel.required === true) {hasRequired = true;}
+                that.listenTo(inputModel,"change", that._handleInputChange);
+                that.listenTo(inputModel,"pulse",that._propagatePulse)
             });
-
-            this._hasRequiredInputs = hasRequired;
-
-            // for components that let users enter data directly, we need to listen directly to the output for changes in value
-            // TODO: DOES THIS CAUSE CALCULATIONS TWICE?
-            if (hasRequired === false) {
-                _.each(this.outputs, function(output){
-                    that.listenTo(output,"change",that._calculateSufficiency);
-                });
-            }
 
             return inputs;
         },
@@ -109,7 +102,7 @@ define([
 
             this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
 
-            this._calculateSufficiency();
+//            this._calculateSufficiency(); // shouldn't be necessary -- the connection will trigger a 'change' on the input if applicable, which the component will be listening for
         },
         getOutput: function(shortName){
             // when there's only one output or you don't specify which you want, this function returns the only output.
@@ -132,92 +125,125 @@ define([
             delete this.inputs;
             delete this.outputs;
         },
-        _handleInputChange: function(){
-        ////////// PRE-RECALCULATION -- CHECK STATUS
-            // is this component currently null?
-            var wasNull = this.get('isNull');
+        _propagatePulse: function(p){
+            var receivedPulseId = parseInt(p.pulseId);
+            if (receivedPulseId > this.pulse.pulseId) {
+                // reset pulse counter -- we'll just skip the whole last round
+                this.pulse.pulseId = receivedPulseId;
+                this.pulse.pulseCount = 1;
+                this.pulse.matchingChangeCount = 0;
+            } else {
+                this.pulse.pulseCount += 1;
+            }
 
-            // consider current input statuses: do we have enough input to do the calculation?
-            var isNullNow = !_.every(this.inputs,function(input){
-                return input.required === false || !input.isNull();
+            _.each(this.outputs,function(out){
+                out.trigger("pulse",p);
             });
 
-        ////////// RECALCULATION PHASE
-
-            // if (yes, yes) -> do nothing, still null
-            // if (no, yes) -> set outputs to null, trigger "change:nullStatus" on each
-            // if (yes, no) -> run recalculation phase, trigger "change:nullStatus" on each
-            // (something like "recalculateIfReady")
-
-            if (wasNull === true && isNullNow === true) return;
-            else if (wasNull === false && isNullNow === true) {
-
-                this.set({isNull: true});
-            }
-
-        /////////// POST recalculation
-
-            // (conditionally) run preview phase
-
-            // execute post-recalculation stuff: trigger "change" on outputs
+            //console.log(this.get('componentPrettyName'),this.pulse);
         },
-        recalculateIfReady: function(){
-            // Previews are not hidden unless they need to be (ie, unless the whole component has them nulled out.
-            // They'll be updated if necessary, and hidden when null or or user request
-            //this.clearPreviews();
+        _handleInputChange: function(){
+            if (window.frozen === true) return;
+            this.pulse.matchingChangeCount += 1;
+            if (this.pulse.matchingChangeCount < this.pulse.pulseCount) return;
 
-            // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
-            if (this._calculateSufficiency() === true) {
+            ////////// PRE-RECALCULATION -- CHECK STATUS
+            //
+            // consider current input statuses: do we have enough input to do the calculation?
+            var isNullNow = !_.every(this.inputs,function(input){
+                return input.getTree().isEmpty() !== true;
+            });
+
+if (this.get('componentPrettyName') === "Circle" && !isNullNow) {
+console.log('Circle handling input change');
+}
+
+            ////////// RECALCULATION PHASE
+            //
+            this.set({'sufficient': !isNullNow});
+            if (!isNullNow) {
                 this.recalculate();
-            } else {
-                _.each(this.outputs,function(out){
-                    out.setNull(true);
-                });
-                this.clearPreviews();
             }
+
+            /////////// POST recalculation
+            //
+            // Run preview phase, remove previews if null
+            if (this.get('preview') === true) {
+                if (isNullNow) {
+                    this.clearPreviews();
+                } else {
+                    this.drawPreviews();
+                }
+            }
+
+            // execute post-recalculation stuff: propagate null status, trigger "change" on outputs
+            var that = this;
+            _.each(this.outputs,function(out){
+                out.setNull(isNullNow);
+                for (var i=0; i<that.pulse.pulseCount; i++) {
+                    // trigger one change per pulse expected by downstream components
+//                    out.trigger("change");
+                    out.triggerChange();
+                }
+            });
         },
-        _calculateSufficiency: function(){
-            var sufficient = true;
-
-            // next, verify that none of the inputs are nulled-out:
-            if (this._hasRequiredInputs === true){
-                _.each(this.inputs,function(input){
-                    if ((input.getTree().isEmpty() === true || input.isNull()) && input.required === true) {
-                        sufficient = false;
-                    }
-                });
-            }
-
-            // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
-            // However, in this case, the output value must be actually set before the component can be called sufficient
-            if (this.get('hasRequiredInputs') === false && _.isNull(this.getOutput().getTree())) {
-                sufficient = false;
-            }
-
-            // If an input is null, the output is null too, and no calculation should occur.
-            //if (!sufficient) this.output.setNull(true);
-            this.set({'sufficient': sufficient});
-
-            return sufficient;
-        },
+//        recalculateIfReady: function(){
+//            // Previews are not hidden unless they need to be (ie, unless the whole component has them nulled out.
+//            // They'll be updated if necessary, and hidden when null or or user request
+//            //this.clearPreviews();
+//
+//            // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
+//            if (this._calculateSufficiency() === true) {
+//                this.recalculate();
+//            } else {
+//                _.each(this.outputs,function(out){
+//                    out.setNull(true);
+//                });
+//                this.clearPreviews();
+//            }
+//        },
+//        _calculateSufficiency: function(){
+//            var sufficient = true;
+//
+//            // next, verify that none of the inputs are nulled-out:
+//            if (this._hasRequiredInputs === true){
+//                _.each(this.inputs,function(input){
+//                    if ((input.getTree().isEmpty() === true || input.isNull()) && input.required === true) {
+//                        sufficient = false;
+//                    }
+//                });
+//            }
+//
+//            // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
+//            // However, in this case, the output value must be actually set before the component can be called sufficient
+//            if (this.get('hasRequiredInputs') === false && _.isNull(this.getOutput().getTree())) {
+//                sufficient = false;
+//            }
+//
+//            // If an input is null, the output is null too, and no calculation should occur.
+//            //if (!sufficient) this.output.setNull(true);
+//            this.set({'sufficient': sufficient});
+//
+//            return sufficient;
+//        },
         recalculate: function(){
             console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
-            this._recalculate();
         },
         _recalculate: function(){
             // run whatever calculations are necessary, if all inputs are available
-            if (this.get('preview') === true) {
-                this.drawPreviews();
-            }
-
-            // if there's no data on the first output, consider the calculation a loss. This COULD cause some issue with some components, but
-            // is probably fine. Not sure if there's a better way to test this, even, without knowing specifically what that component is supposed
-            // to be doing
-            var firstOutputEmpty = this.getOutput().getTree().isEmpty();
-            _.each(this.outputs,function(out){
-                out.setNull(firstOutputEmpty);
-                //out.trigger('change');
-            });
+            console.log(this.get('componentPrettyName')+ ' calls the deprecated method _recalculate()');
+//            if (this.get('preview') === true) {
+//                this.drawPreviews();
+//            }
+//
+//            // if there's no data on the first output, consider the calculation a loss. This COULD cause some issue with some components, but
+//            // is probably fine. Not sure if there's a better way to test this, even, without knowing specifically what that component is supposed
+//            // to be doing
+//            var firstOutputEmpty = this.getOutput().getTree().isEmpty();
+//            _.each(this.outputs,function(out){
+//                out.setNull(firstOutputEmpty);
+//                //out.trigger('change');
+//            });
         },
         fetchOutputs: function(){
             /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */

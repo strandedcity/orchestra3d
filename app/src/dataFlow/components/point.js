@@ -31,14 +31,11 @@ define([
                 ], opts, "inputs")
             },
             recalculate: function(){
-                this.clearPreviews();
-
                 var resultObject = DataMatcher([this["X"],this["Y"],this["Z"]],function(x,y,z){
                     return new THREE.Vector3(x,y,z);
                 });
 
                 this.getOutput("P").replaceData(resultObject.tree);
-                this._recalculate();
             },
             drawPreviews: function(){
                 var output = this.getOutput("P").getTree();
@@ -105,7 +102,6 @@ define([
                 });
 
                 this.getOutput("V").replaceData(result.tree);
-                this._recalculate();
             }
         });
 
@@ -136,7 +132,6 @@ define([
                 });
 
                 this.getOutput("V").replaceData(result.tree);
-                this._recalculate();
             }
         });
 
@@ -169,7 +164,6 @@ define([
                 });
 
                 this.getOutput("D").replaceData(result.tree);
-                this._recalculate();
             }
         });
 
@@ -196,7 +190,7 @@ define([
                 this.base_init(args);
             },
             recalculate: function(){
-                this._recalculate();
+                // no-op since this component's purpose is display only
             },
             drawPreviews: function(){
                 this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
