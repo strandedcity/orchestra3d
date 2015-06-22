@@ -25,7 +25,6 @@ define([
         },
         recalculate: function(){
             this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
-            this._recalculate();
         }
     });
 
@@ -69,7 +68,6 @@ define([
             });
 
             this.getOutput("S").replaceData(final);
-            this._recalculate();
         }
     });
 
@@ -77,14 +75,15 @@ define([
         initialize: function(opts){
             //var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
             var output = this.createIObjectsFromJSON([
-                {shortName: "N", default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER}
+                {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "output");
 
             /* S = start of series, N = step size, C = # of values in series */
             var inputs = this.createIObjectsFromJSON([
                 {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
                 {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN},
+                {shortName: "N", required:false, default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER, invisible: true}
             ], opts, "inputs");
 
             var args = _.extend({
@@ -96,12 +95,16 @@ define([
             });
             this.base_init(args);
         },
-        recalculate: function(val){
-            // Value is chosen directly in the UI, not calculated from inputs.
-            // However, when max/min and integer values change, the single output value must be checked to make sure that
-            // it does, in fact, satisfy specified conditions.
-            // Since the slider can select only a single value, only the first value in each list is considered.
-            var currVal = val || this.getOutput("N").getFirstValueOrDefault();
+        storeUserData: function(val){
+            var tree = new DataTree();
+            tree.setDataAtPath([0],[val]);
+            this.getInput("N").assignPersistedData(tree);
+        },
+        recalculate: function(){
+            // Value is chosen directly in the UI, not calculated from inputs. Value is assigned directly to
+            // "persistedData" on INPUT "N", then "recalculate" ensures that this value is actually inside the acceptable range
+            // before assigning to the OUTPUT "N".
+            var currVal = this.getInput("N").getFirstValueOrDefault();
             var min = this.getInput("S").getFirstValueOrDefault(),
                 max = this.getInput("E").getFirstValueOrDefault(),
                 integers = this.getInput("I").getFirstValueOrDefault();
@@ -112,10 +115,7 @@ define([
             if (currVal > max) currVal = max;
             if (currVal < min) currVal = min;
 
-            this.getOutput("N").getTree().setDataAtPath([0],[currVal]);
-            this.getOutput("N").assignPersistedData(this.getOutput("N").getTree().copy());
-
-            this._recalculate();
+            this.getOutput("N").values.setDataAtPath([0],[currVal]);// assignValues([currVal],[0]);
         }
     });
 

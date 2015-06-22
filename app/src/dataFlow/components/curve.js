@@ -34,7 +34,6 @@ define([
             });
 
             this.getOutput("C").replaceData(result.tree);
-            this._recalculate();
         },
         drawPreviews: function(){
             var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
@@ -106,8 +105,6 @@ define([
                     A: this.getOutput("A").getTree()
                 }
             );
-
-            this._recalculate();
         },
         drawPreviews: function(){
             var points = [];
@@ -160,7 +157,6 @@ define([
             });
 
             this.getOutput("C").replaceData(result.tree);
-            this._recalculate();
         },
         drawPreviews: function(){
             var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);

@@ -3,8 +3,9 @@ define([
     "dataFlow/UI/workspaceView",
     "dataFlow/UI/inputOutputView",
     "underscore",
-    "backbone"
-],function(DataFlow, workspace, ioView, _, Backbone){
+    "backbone",
+    "dataFlow/dataTree"
+],function(DataFlow, workspace, ioView, _, Backbone, DataTree){
     var INPUT_HEIGHT = 60;
 
     /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */
@@ -33,8 +34,8 @@ define([
             // Show Slider UI
             doubleclick: function(x,y){
                 // change boolean value on double click
-                var currVal = that.component.getInput("B").getTree().dataAtPath([0])[0];
-                that.component.getInput("B").assignValues([!currVal]);
+                var currValTree = that.component.getInput("B").getTree();
+                currValTree.setDataAtPath([0],!currValTree.dataAtPath([0])[0]);
             },
             displayVals: function(){
                 if (_.isEmpty(this.component.getOutput("B").getTree().dataAtPath([0]))) {
@@ -71,7 +72,7 @@ define([
             sliderUpdateValue: function(value){
                 // this component uses IOs differently than other components so that the value
                 // can persist successfully, be fed into the slider view, trigger recalculations, etc.
-                component.recalculate(value);
+                component.storeUserData(value);
                 that.displayVals();
             },
             displayVals: function(){
@@ -93,9 +94,9 @@ define([
         _.extend(this,ComponentView.prototype,{
             click: function(x,y){
                 // Show the table-number-enterer UI. It cleans up after itself.
-                var data = component.getOutput("N").getTree(),
+                var data = component.getInput("N").get('persistedData') || new DataTree(),
                     callback = function(tree){
-                        component.getOutput("N").assignPersistedData(tree);
+                        component.getInput("N").assignPersistedData(tree);
                     };
                 require(["dataFlow/UI/tableValueEnterer"],function(TableView){
                     // no reference necessary. The slider will clean itself up.
@@ -219,12 +220,13 @@ define([
     };
 
     ComponentView.prototype.processIOViews = function(IOModelArray,IOViewsArray,inputsBoolean){
-        var verticalStart = INPUT_HEIGHT * (_.keys(IOModelArray).length - 1) / 2,
+        var invisibleInputCount = _.filter(IOModelArray, function(input){ return input.get('invisible') === true; }).length,
+            verticalStart = INPUT_HEIGHT * (_.keys(IOModelArray).length - 1 - invisibleInputCount) / 2,
             cssObj = this.cssObject,
             ioViewConstructor = inputsBoolean ? ioView.InputView : ioView.OutputView;
 
         _.each(IOModelArray, function(ioModel,idx){
-            if (ioModel.type !== DataFlow.OUTPUT_TYPES.NULL) {
+            if (ioModel.type !== DataFlow.OUTPUT_TYPES.NULL && ioModel.get('invisible') !== true) {
                 //this.createOutputWithNameAndParent(ioModel.shortName,ioModel.type,this.cssObject,verticalStart - idx * INPUT_HEIGHT);
 
                 var name = ioModel.shortName,

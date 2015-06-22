@@ -2,69 +2,87 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
     return ["PointComponent(x,y,z)",function(){
         var outputX, outputY, outputZ, pointComponent;
 
-        beforeEach(function(){
+        beforeEach(function(done){
             // "outputs" are actually inputs to the "point" component. They are outputs
             // in the sense that they are assumed to be emitted from a prior component.
             // Output objects are tested separately in DataFlow --> Core --> Output Objects
-            outputX = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            outputY = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            outputZ = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
+            outputX = new dataFlow.components.number.NumberComponent();
+            outputY = new dataFlow.components.number.NumberComponent();
+            outputZ = new dataFlow.components.number.NumberComponent();
 
-            outputX.assignValues([1,2]);
-            outputY.assignValues([2,4]);
-            outputZ.assignValues([4,8]);
+            outputX.getInput("N").assignPersistedData([1,2]);
+            outputY.getInput("N").assignPersistedData([2,4]);
+            outputZ.getInput("N").assignPersistedData([4,8]);
 
             pointComponent = new dataFlow.components.point.PointComponent();
+            setTimeout(function(){
+                done();
+            },50);
         });
 
         // Each test is separate, but we'll need to assign inputs for several of them (not all)
         var assignInputs = function(){
-            pointComponent.assignInput("X",outputX);
-            pointComponent.assignInput("Y",outputY);
-            pointComponent.assignInput("Z",outputZ);
+            pointComponent.assignInput("X", outputX.getOutput("N"));
+            pointComponent.assignInput("Y", outputY.getOutput("N"));
+            pointComponent.assignInput("Z", outputZ.getOutput("N"));
         };
 
         it("Has a constructor named 'PointComponent'",function(){
             expect(pointComponent.componentName).toEqual("PointComponent");
         });
-        it("Should assign numerical inputs to the dataFlow Point object",function(){
+        it("Should assign numerical inputs to the dataFlow Point object",function(done){
             assignInputs();
-            expect(pointComponent["X"].getTree().dataAtPath([0])).toEqual(outputX.getTree().dataAtPath([0]));
-            expect(pointComponent["Y"].getTree().dataAtPath([0])).toEqual(outputY.getTree().dataAtPath([0]));
-            expect(pointComponent["Z"].getTree().dataAtPath([0])).toEqual(outputZ.getTree().dataAtPath([0]));
+            // tests the setup
+            expect(outputX.getOutput("N").getTree().dataAtPath([0])).toEqual([1,2]);
+
+            setTimeout(function(){
+                expect(pointComponent["X"].getTree().dataAtPath([0])).toEqual(outputX.getOutput("N").getTree().dataAtPath([0]));
+                expect(pointComponent["Y"].getTree().dataAtPath([0])).toEqual(outputY.getOutput("N").getTree().dataAtPath([0]));
+                expect(pointComponent["Z"].getTree().dataAtPath([0])).toEqual(outputZ.getOutput("N").getTree().dataAtPath([0]));
+                done();
+            },50);
         });
-        it("Should call _recalculate() in the superclass when recalculate() is called",function(){
+        it("Should call recalculate() ONCE when all inputs are connected",function(done){
+            spyOn(pointComponent, 'recalculate');
             assignInputs();
-            spyOn(pointComponent, '_recalculate');
-            pointComponent.recalculate();
-            expect(pointComponent._recalculate).toHaveBeenCalled();
+            setTimeout(function(){
+                expect(pointComponent.recalculate.calls.count()).toEqual(1);
+                done();
+            },50);
         });
-        it("Should trigger recalculation when an input value changes",function(){
+        it("Should trigger recalculation when an input value changes",function(done){
             assignInputs();
 
-            // Just to make sure the decks are clear first.
-            pointComponent.recalculate();
+            setTimeout(function(){
+                // assigning values to an input should update all the output values automatically
+                // IF there are sufficient inputs for the calculation to occur
+                spyOn(pointComponent,'simulatedRecalculate'); // spying on 'recalculate' won't work because of prototype inheritance
+                expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(0);
+                outputX.getInput("N").assignPersistedData([8,8]);
 
-            // assigning values to an input should update all the output values automatically
-            // IF there are sufficient inputs for the calculation to occur
-            spyOn(pointComponent,'_recalculate'); // spying on 'recalculate' won't work because of prototype inheritance
-            outputX.assignValues([8,8]);
-            expect(pointComponent._recalculate).toHaveBeenCalled();
-            expect(pointComponent.getOutput("N").getTree().dataAtPath([0])[0].toArray()).toEqual([8,2,4]);
-            expect(pointComponent.getOutput("N").getTree().dataAtPath([0])[1].toArray()).toEqual([8,4,8]);
+                setTimeout(function(){
+                    expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(1);
+                    expect(pointComponent.getOutput("P").getTree().dataAtPath([0])[0].toArray()).toEqual([8,2,4]);
+                    expect(pointComponent.getOutput("P").getTree().dataAtPath([0])[1].toArray()).toEqual([8,4,8]);
+                    done();
+                },50);
+            },50);
+
         });
         it("Should NOT recalculate when insufficient inputs are defined", function(){
             assignInputs();
-            pointComponent.recalculate();
+            spyOn(pointComponent,'simulatedRecalculate');
 
             // null-out the Y-input:
             outputY.setNull(true);
 
             // assigning values to an input should update all the output values automatically
             // IF there are sufficient inputs for the calculation to occur
-            spyOn(pointComponent,'_recalculate');
-            outputX.assignValues([8,8]);
-            expect(pointComponent._recalculate).not.toHaveBeenCalled();
+            setTimeout(function(){
+
+                outputX.assignValues([8,8]);
+                expect(pointComponent.simulatedRecalculate).not.toHaveBeenCalled();
+            },50);
         });
         it("Should have null output when any input is set to null", function(){
             assignInputs();

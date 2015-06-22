@@ -112,8 +112,12 @@ require(["appconfig"],function(){
                 //this.NURBSCurveTest();
                 //this.loadJSONProject('example_gridOfPoints.json?');
                 //this.loadJSONProject('curveWithVectorsTest.json?');
-                this.loadJSONProject('example_lamp.json?');
+//                this.loadJSONProject('example_lamp.json?');
                 //this.loadParseProject("JnbJpY8YjG");
+                this.loadParseProject("lU5ZVtZCzl"); // "Just a Circle"
+//                this.loadParseProject("xehmUDz4Lk"); // "Just a Point"
+
+
 
                 viewer.render();
             };
@@ -163,6 +167,8 @@ require(["appconfig"],function(){
             };
 
             App.prototype.loadParseProject = function(projectId){
+                console.warn('window.frozen = true');
+                window.frozen = true;
                 this.clearWorkspace();
                 var that = this;
                 require(["dataFlow/projectLoader"],function(Loader){
@@ -170,6 +176,35 @@ require(["appconfig"],function(){
                     Loader.loadProjectFromParse(projectId,function(proj){
                         that.loadWorkspace(proj);
                         console.log('\n\nLOADED PROJECT FROM PARSE');
+
+                        console.warn('window.frozen = false');
+                        window.frozen = false;
+
+                        // Trigger "change" events on components with inputs without connections, one per component
+                        // These are the beginnings of the "graph"
+                        _.each(proj.get('components'),function(cpt){
+                            var disconnectedCount = 0;
+                            _.each(cpt.inputs,function(ipt){
+                                if (  _.keys(ipt._listeningTo).length === 0 && !ipt.getTree().isEmpty()) {
+                                    disconnectedCount++;
+//                                    console.log('triggering change on '+ipt.shortName+cpt.get('componentPrettyName'));
+//                                    ipt.trigger("change");
+                                } else if (ipt.get('invisible') === true) {
+                                    disconnectedCount++;
+                                }
+
+                                // trigger change event on the first input
+                                if (disconnectedCount === cpt.inputs.length) {
+                                    console.log('triggering change handler on component: '+cpt.get('componentPrettyName'));
+//                                    cpt._handleInputChange();
+
+                                    var pulseId = parseInt(_.uniqueId()),
+                                    pulseObject = {pulseId: pulseId};
+                                    console.log('master trigger: ',pulseObject);
+                                    cpt.inputs[0].triggerChange(pulseObject,true);
+                                }
+                            });
+                        });
                         //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
                     });
                 });

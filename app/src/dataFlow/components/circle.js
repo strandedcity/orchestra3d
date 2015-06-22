@@ -41,7 +41,6 @@ define([
             this.getOutput("C").replaceData(result.tree);
 
             window.LOG_TIME_EVENT("END RECALCULATE");
-            this._recalculate();
         },
         clearPreviews: function(){
             window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");

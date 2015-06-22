@@ -159,7 +159,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             axis = Module.Utils.copyJSArrayToC([normal.x,normal.y,normal.z]),
             dim = 3,
             ptr = Module._malloc(16*7); /* This may be wrong, but I believe it's the size of the SISLCurve Struct */
-
+//        console.log('params: ',center,normal,radius);
+//console.trace();
         s1303(startpt, precision, angle, centrept, axis, dim, ptr, 0);
 
         // store the pointer for later use. s1303 takes a pointer to a pointer, so this._pointer needs to be retrieved
