@@ -1,2 +1,6 @@
 doc/html
 .idea*
+node_modules/*
+secrets/*
+logs/*
+

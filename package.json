@@ -1,0 +1,29 @@
+{
+  "name": "Orchestra3d",
+  "description": "Grasshopper-Like Parametric CAD for the Browser",
+  "version": "0.0.1",
+  "keywords": [
+    "CAD",
+    "Computer Aided Design",
+    "Rhino",
+    "Grasshopper",
+    "Parametric",
+    "OpenCASCADE",
+    "OCCT"
+  ],
+  "contributors": [
+    {
+      "name": "Phil Seaton",
+      "email": "phil@phil-seaton.com",
+      "web": "http://phil-seaton.com"
+    }
+  ],
+  "dependencies": {
+    "express": "4.14.0",
+    "parse-server-sendgrid-adapter": "^1.0.0",
+    "parse-server": "^2.2.23",
+    "parse-dashboard": "^1.0.11"
+  },
+  "main": "orchestra3d.js",
+  "homepage": "http://orchestra3d.io"
+}
