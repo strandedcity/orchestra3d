@@ -242,7 +242,7 @@ define([
 //        },
         simulatedRecalculate: function(){
             // MUST REMAIN A NO-OP
-            if (_.isUndefined(window.jasmine)) throw new Error("simulatedRecalculate is just for spying in jasmine.");
+            if (!_.isUndefined(window.jasmine)) throw new Error("simulatedRecalculate is just for spying in jasmine.");
         },
         recalculate: function(){
             console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
