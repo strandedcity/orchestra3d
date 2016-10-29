@@ -3,4 +3,5 @@ doc/html
 node_modules/*
 secrets/*
 logs/*
+.vscode/*
 
