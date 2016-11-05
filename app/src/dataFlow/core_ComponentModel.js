@@ -108,7 +108,6 @@ define([
                 if (pulse.get('state') === "GRAPH_DISCOVERY") {
                     this.trigger('pulse',pulse);
                 } else if (pulse.get('state') === "RECALCULATION") {
-                    console.log('recalc ',this.get('componentPrettyName'));
                     this._handleInputChange(pulse);
                 }
             }
@@ -162,7 +161,6 @@ define([
             //
             this.set({'sufficient': !isNullNow});
             if (!isNullNow) {
-                console.log(this.get('componentPrettyName')+ " is recalculating.");
                 this.recalculate();
                 this.simulatedRecalculate();
             }

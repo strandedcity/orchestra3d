@@ -13,6 +13,8 @@ define([
     };
 
     CurveListPreview.prototype.initialize = function(curveList){
+        console.warn("TODO: USE BUFFER GEOMETRY FOR DYNAMIC LINE DRAWING. SEE http://stackoverflow.com/questions/31399856/drawing-a-line-with-three-js-dynamically/31411794#31411794");
+
         if (_.isEmpty(curveList)) return;
         if (!_.isArray(curveList)) throw new Error("CurveListPreview requires an array of GeoCurve Objects to render");
 
@@ -20,11 +22,11 @@ define([
 
         _.bindAll(this, "remove","updateCurveList");
 
-        var material = new THREE.LineBasicMaterial({
+        this.material = new THREE.LineBasicMaterial({
             color: 0xff00f0
         });
 
-        this.line = new THREE.Line(this.draw(),material,THREE.LinePieces);
+        this.line = new THREE.Line(this.draw(),this.material,THREE.LinePieces);
         viewer.scene.add(this.line);
         viewer.render();
     };
@@ -50,13 +52,16 @@ define([
     };
     CurveListPreview.prototype.updateCurveList = function(curveList){
         this.curveList = curveList;
-        this.line.geometry = this.draw(this.line);
+        this.remove();
+        this.line = new THREE.Line(this.draw(),this.material,THREE.LinePieces);
+        // this.line.geometry = this.draw(this.line);
         viewer.render();
         return this.line;
     };
     CurveListPreview.prototype.draw = function(line){
-        var newVertices = [];
-
+        var newVertices = [],
+            segmentCounter=0;
+            
         _.each(this.curveList,function(curve){
             if (_.isEmpty(curve) || _.isUndefined(curve._pointer) || curve._pointer === 0) {
                 // skip!
@@ -64,11 +69,12 @@ define([
                 var minParameter =  curve.getMinParameter(),
                     maxParameter =  curve.getMaxParameter(),
                     paramWidth = maxParameter - minParameter,
-                    prevPointInCurve = curve.getPositionAt(minParameter).toArray();
+                    prevPointInCurve = (new THREE.Vector3()).fromArray(curve.getPositionAt(minParameter).toArray());
 
                 // Step through curve parameters
-                for (var i = 0; i <= SETTINGS.CURVE_SECTIONS; i += 1) {
-                    var evalAt = i*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
+                segmentCounter = 0;
+                while (segmentCounter <= SETTINGS.CURVE_SECTIONS) {
+                    var evalAt = segmentCounter*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
                     var pt = curve.getPositionAt(evalAt).toArray();
                     var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
 
@@ -78,6 +84,7 @@ define([
                     newVertices[newVertices.length] = prevPointInCurve;
                     newVertices[newVertices.length] = newpt;
                     prevPointInCurve = newpt;
+                    segmentCounter++;
                 }
             }
         });
@@ -128,7 +135,7 @@ define([
             particleGeometry.vertices.push(particle);  // repeat for every point
         });
 
-        var pointSprite = THREE.ImageUtils.loadTexture( "/SISL/app/img/pointSprite.png" );
+        var pointSprite = THREE.ImageUtils.loadTexture( "./img/pointSprite.png" );
 
         //var material = new THREE.PointCloudMaterial( { map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false } );
         var material = new THREE.PointCloudMaterial( { size: 0.5, map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent : true } );

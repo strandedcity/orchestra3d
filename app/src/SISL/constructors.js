@@ -23,6 +23,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             _.each(controlPoints, function(pt){
 
                 if (pt.constructor !== THREE.Vector3){
+                    console.log('failed control point test: ',pt);
                     controlPointsPass = false;
                 }
             });

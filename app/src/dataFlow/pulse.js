@@ -78,7 +78,7 @@ define([
                     // We've now logged the number of paths that terminate and originate at this component.
                     // Are those counts equal? If yes, we're done pulsing through the whole tree
                     if (this.get('pathsClosed') === this.get('pathsOpened')) {
-                        console.log("Graph Fully Traversed. Last component: ",component.get('componentPrettyName'));
+                        //console.log("Graph Fully Traversed. Last component: ",component.get('componentPrettyName'));
                         this.set('state',"RECALCULATION");
                         this.get('startPoint').trigger('pulse',this);
                     }

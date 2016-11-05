@@ -40,7 +40,11 @@ define([
             drawPreviews: function(){
                 var output = this.getOutput("P").getTree();
                 var points = output.flattenedTree().dataAtPath([0]);
-                this.previews.push(new Preview.PointListPreview(points));
+                if (this.previews[0]) {
+                    this.previews[0].updatePoints(points);
+                } else {
+                    this.previews[0] = new Preview.PointListPreview(points);
+                }
             },
             fetchPointCoordinates: function(){
                 /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */

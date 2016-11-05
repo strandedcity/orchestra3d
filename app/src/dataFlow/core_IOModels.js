@@ -194,7 +194,6 @@ define([
             // harvest and combine those output's values into a single data tree.
 
             // Step through each connected output model. For each model, append data to the same branch of the tree
-            console.log('process incoming change: '+this.shortName);
             var treeCreated = false,
                 that = this;
             _.each(this._listeningTo,function(outputModel){
