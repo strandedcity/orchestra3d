@@ -7,7 +7,8 @@ require(["appconfig"],function(){
             "dataFlow/UI/workspaceView",
             "navbar", // File, Model, Settings, Login, etc.... the top bar
             "dataFlow/UI/componentView",
-            "dataFlow/project"
+            "dataFlow/project",
+            "dataFlow/pulse"
         ],
         function(
             $,
@@ -17,7 +18,8 @@ require(["appconfig"],function(){
             workspace,
             Nav,
             ComponentView,
-            OrchestraProject
+            OrchestraProject,
+            Pulse
         ){
             var prevTimeStamp = 0, events = [];
             window.LOG_TIME_EVENT = function(eventName, end){
@@ -195,13 +197,8 @@ require(["appconfig"],function(){
 
                                 // trigger change event on the first input
                                 if (disconnectedCount === cpt.inputs.length) {
-                                    console.log('triggering change handler on component: '+cpt.get('componentPrettyName'));
-//                                    cpt._handleInputChange();
-
-                                    var pulseId = parseInt(_.uniqueId()),
-                                    pulseObject = {pulseId: pulseId};
-                                    console.log('master trigger: ',pulseObject);
-                                    cpt.inputs[0].triggerChange(pulseObject,true);
+                                    console.log('master trigger now');
+                                    var p = new Pulse({startPoint:cpt.inputs[0]});
                                 }
                             });
                         });

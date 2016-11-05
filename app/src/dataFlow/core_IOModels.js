@@ -2,8 +2,9 @@ define([
     "underscore",
     "backbone",
     "dataFlow/dataTree",
-    "dataFlow/enums"
-],function(_,Backbone,DataTree, ENUMS){
+    "dataFlow/enums",
+    "dataFlow/pulse"
+],function(_,Backbone,DataTree, ENUMS, Pulse){
 
 
     var io = Backbone.Model.extend({
@@ -89,31 +90,6 @@ define([
             // TODO: Apply transformations, such as graft or flatten
             return tree.copy();
         },
-        triggerChange: function(pulseObject,sendPulse){
-            // triggerChange should only send the "pulse" when the change is triggered directly by the user, ie,
-            // when we want this to be the beginning of a recalculation "waterfall". Otherwise, triggering a new pulse
-            // will throw off downstream counts of pulses, and nothing executes.
-            var PULSE_DELAY = 30; // how long to wait after sending a "pulse" to start executing recalculations
-
-            var p = pulseObject || this.newPulseObject();
-            if (sendPulse === true) {
-                this.trigger("pulse",p);
-            }
-
-            var that = this;
-            _.delay(function(){
-                propagateChange.call(that);
-            },sendPulse === true ? PULSE_DELAY : 0);
-
-            function propagateChange(){
-                this.trigger("changeValues",p);
-            }
-        },
-        newPulseObject: function(){
-            return {
-                pulseId: parseInt(_.uniqueId())
-            }
-        },
         getDefaultValue: function(){
             console.warn("getDefaultValue() is deprecated. Use getTree() instead, but assume that the default value will appear inside a data tree.");
             return this.default;
@@ -175,6 +151,7 @@ define([
     // INPUTS are unique because they store CONNECTIONS to outputs, can store user-defined data, and know how to
     // figure out if they are "full" ie, if they can provide data to connected outputs or not.
     var input = io.extend({
+        modelType: "Input",
         validateOutput: function(outputModel){
             // for inputs only, supports the data-flow attachment mechanism
             var wild = ENUMS.OUTPUT_TYPES.WILD;
@@ -217,6 +194,7 @@ define([
             // harvest and combine those output's values into a single data tree.
 
             // Step through each connected output model. For each model, append data to the same branch of the tree
+            console.log('process incoming change: '+this.shortName);
             var treeCreated = false,
                 that = this;
             _.each(this._listeningTo,function(outputModel){
@@ -234,7 +212,7 @@ define([
                 }
             });
 
-            this.trigger("changeValues",pulse);
+            this.trigger("pulse",pulse);
         },
         connectAdditionalOutput: function(outputModel, validateModels){
             if (validateModels !== false) this.validateOutput(outputModel);
@@ -249,12 +227,8 @@ define([
                 }
             });
 
-            this.listenTo(outputModel, "changeValues",function(pulse){
-                that.processIncomingChange.call(that,pulse);
-            });
-
             this.listenTo(outputModel, "pulse", function(pulse){
-                that.trigger("pulse",pulse);
+                that.processIncomingChange.call(that,pulse);
             });
 
             // "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
@@ -265,7 +239,8 @@ define([
             this.set({isNull: false},{silent: true}); // unset the "null" override
             //outputModel.triggerChange(); // check for completed flow on hookup
 
-            outputModel.triggerChange(this.newPulseObject(),true);// There's a newly connected output. Make sure the change trickles through all "downstream" components
+            // duplicates trigger('pulse',pulse) above... pretty sure this would result in multiple recalcs
+            //outputModel.triggerChange(this.newPulseObject(),true);// There's a newly connected output. Make sure the change trickles through all "downstream" components
             this.trigger("connectedOutput", outputModel);
         },
         assignPersistedData: function(tree){
@@ -290,7 +265,7 @@ define([
 //                    this.trigger("change");
 //                }
 
-                this.triggerChange(this.newPulseObject(),true);
+                this.trigger('pulse', new Pulse({startPoint: this}));
             //}
         },
         hasConnectedOutputs: function(){
@@ -331,6 +306,7 @@ define([
         _initialize: function(){
             this.set({isNull: true});
         },
+        modelType: "Output",
         destroy: function(){
             // custom OUTPUT destroy stuff
             // Slightly involved, since the connections TO THIS OUTPUT are actually stored on INPUT OBJECTS, not on "this"
@@ -358,7 +334,7 @@ define([
             // store data
             this.values.addChildAtPath(values,forPath || [0],true);
 
-            this.triggerChange(this.newPulseObject());
+            this.trigger("pulse",new Pulse({startPoint: this}));
         },
         assignPersistedData: function(dataTree){
 
@@ -369,7 +345,7 @@ define([
 
             // When persistedData is assigned to an OUTPUT, it means the component exists only so users can enter data
             // (eg, a slider). So entering persistedData in this context ALWAYS means a change: no precedence rules apply
-            this.triggerChange(this.newPulseObject());
+            this.trigger("pulse",new Pulse({startPoint: this}));
         },
 
         // "null" status is unique to OUTPUTS. An INPUT connected to a NULL OUTPUT is not necessarily null --

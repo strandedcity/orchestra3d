@@ -25,6 +25,7 @@ define([
          *
          * */
 
+        modelType: "Component",
         initialize: function(){
             this.base_init.apply(this, arguments);
         },
@@ -59,7 +60,7 @@ define([
             //_.bindAll(this,"_handleInputChange");
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
-            this.outputs = _.isUndefined(opts.outputs) ? [opts.output] : opts.outputs;
+            this.outputs = this.initializeOutputs(_.isUndefined(opts.outputs) ? [opts.output] : opts.outputs);
             this.inputs = this.initializeInputs(opts.inputs);
             this.position = opts.position || {x: 0, y:0}; // May seem like "view stuff", but the components need to store their screen location as part of the data, given drag and drop
 
@@ -80,6 +81,14 @@ define([
                 }
             });
         },
+        initializeOutputs: function(outputs){
+            var that = this;
+            _.each(outputs,function(out){
+                that.on('pulse',function(p){out.trigger('pulse',p)});
+            });
+
+            return outputs;
+        },
         initializeInputs: function(inputs){
             // when no inputs are required, sufficiency must be calculated differently
             // ie, if values can be assigned directly, sufficiency = (inputs satisfied | output assigned)
@@ -87,11 +96,22 @@ define([
             var that = this;
             _.each(inputs,function(inputModel){
                 that[inputModel.shortName] = inputModel;
-                that.listenTo(inputModel,"changeValues", that._handleInputChange);
                 that.listenTo(inputModel,"pulse",that._propagatePulse)
             });
 
             return inputs;
+        },
+        _propagatePulse: function(pulse){
+            // console.log('pulse received: ',this.get('componentPrettyName'));
+            var propagateNow = pulse.updatePathCounts(this);
+            if (propagateNow) {
+                if (pulse.get('state') === "GRAPH_DISCOVERY") {
+                    this.trigger('pulse',pulse);
+                } else if (pulse.get('state') === "RECALCULATION") {
+                    console.log('recalc ',this.get('componentPrettyName'));
+                    this._handleInputChange(pulse);
+                }
+            }
         },
         assignInput: function(inputName, output){
             // TODO: 'input' in the function signature actually refers to the OUTPUT that's supposed to be connected to inputName
@@ -125,44 +145,11 @@ define([
             delete this.inputs;
             delete this.outputs;
         },
-        _propagatePulse: function(p){
-            var receivedPulseId = p.pulseId;
-            if (receivedPulseId > this.pulse.pulseId) {
-                // reset pulse counter -- we'll just skip the whole last round
-                this.pulse.pulseId = receivedPulseId;
-                this.pulse.pulseCount = 1;
-                this.pulse.matchingChangeCount = 0;
-            } else if (receivedPulseId === this.pulse.pulseId) {
-                //if (receivedPulseId.pulseId === 49 && this.get('componentPrettyName') === "Point(x,y,z)") {
-                //    console.log('incrementing pulse 49 for pointxyz')
-                //    debugger;
-                //}
-                this.pulse.pulseCount += 1;
+        _handleInputChange: function(pulse){
+            if (window.frozen === true) {
+                console.warn("WINDOW FROZEN. CALCULATION SKIPPED.");
+                return;
             }
-
-            _.each(this.outputs,function(out){
-                out.trigger("pulse",p);
-            });
-
-            //console.log(this.get('componentPrettyName'),this.pulse);
-        },
-        _handleInputChange: function(pulseObject){
-            if (window.frozen === true) return;
-
-            // "Pulses" are used to determine which components need to recalculate, and how many pulses
-            // should be received before the recalculation occurs. If the pulse id is a match, that means
-            // the current input change event matches the "precalculation pulse". Otherwise, it means
-            // there are simultaneous pulses and change events, which could happen when a user changes values
-            // quickly, ie through a timer or a slider. In the case that the pulse ids don't match
-            if (this.pulse.pulseId === pulseObject.pulseId) this.pulse.matchingChangeCount += 1;
-            else if (pulseObject.pulseId < this.pulse.pulseId) return;
-            else {
-                console.warn("Received change event with a pulse id AHEAD OF that which should have been registered inside _propagatePulse. This shouldn't happen, investigate!");
-                console.log('this pulse: ',pulseObject.pulseId, ' / expected current pulse: ', this.pulse.pulseId);
-            }
-
-            // We're waiting for _handleInputChange to be triggered pulse.pulseCount times. If less, keep waiting.
-            if (this.pulse.matchingChangeCount < this.pulse.pulseCount) return;
 
             ////////// PRE-RECALCULtATION -- CHECK STATUS
             //
@@ -195,10 +182,7 @@ define([
             var that = this;
             _.each(this.outputs,function(out){
                 out.setNull(isNullNow);
-                for (var i=0; i<that.pulse.pulseCount; i++) {
-                    // trigger one change per pulse expected by downstream components
-                    out.triggerChange(pulseObject);
-                }
+                out.trigger('pulse',pulse);
             });
         },
 //        recalculateIfReady: function(){

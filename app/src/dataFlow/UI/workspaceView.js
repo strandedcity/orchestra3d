@@ -340,7 +340,9 @@ define([
         }
 
         function doSingleClick(e){
-            console.log('click');
+            console.log('click',view.component.outputs[0].values.log());
+            console.log(view.component.outputs[0]);
+            console.log('# connected outputs for output 1? ',_.isUndefined(view.component.outputs[0]._events) ? 0 : view.component.outputs[0]._events["pulse"].length);
             if (typeof view.click === "function" && !_.isUndefined(e)) view.click(e.clientX, e.clientY);
         }
         function doDoubleClick(e){
