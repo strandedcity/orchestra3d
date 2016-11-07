@@ -1,7 +1,8 @@
 define([
     "underscore",
-    "dataFlow/core"
-],function(_,DataFlow){
+    "dataFlow/core",
+    "dataFlow/dataMatcher"
+],function(_,DataFlow,DataMatcher){
 
     var components = {};
 
@@ -55,7 +56,7 @@ define([
             //var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
             //var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
             var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD},
+                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true},
                 {required: false, shortName: "S", default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
             ], opts, "inputs");
@@ -68,32 +69,13 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            // Construct a new tree with shifted data
-            this.getOutput("L").clearValues();
-
-            var that = this,
-                out = that.getOutput("L").getTree(),
-                nullOutputs = true,
-                inputData = this.getInput("L").getTree(),
-                shiftDir = this.getInput("S").getTree(),
-                wrap = this.getInput("W").getTree();
-
-            inputData.recurseTree(function(dataList,node){
-                var newList = dataList.slice(0),
-                    p = node.getPath();
-
-                var count = shiftDir.isEmpty() || _.isEmpty(shiftDir.dataAtPath(p,true)[0]) ? that["S"].getDefaultValue() : shiftDir.dataAtPath(p,true)[0];
-                var wrapThis = wrap.isEmpty() || _.isEmpty(wrap.dataAtPath(p,true)[0]) ? that["W"].getDefaultValue() : wrap.dataAtPath(p,true)[0];
-                var append = newList.splice(0,count); // cut off some chunk of array
-                if (wrapThis === true) {
-                    newList.push.apply(newList,append);
-                }
-                if (newList.length > 0) nullOutputs = false; // set null to false!
-                out.setDataAtPath(p,newList);
+            var result = DataMatcher([this.getInput("L"),this.getInput("S"),this.getInput("W")],function(listIn,shiftBy,wrap){
+                var listOut = listIn.slice(shiftBy);
+                if (wrap) listOut = listOut.concat(listIn.slice(0, shiftBy));
+                return listOut;
             });
 
-            this.getOutput("L").setNull(nullOutputs);
-            this._recalculate();
+            this.getOutput("L").replaceData(result.tree);
         }
     });
 

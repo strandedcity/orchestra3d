@@ -52,6 +52,10 @@ define([
             });
         };
 
+        this.doubleclick = function(){
+            console.log(this.model.values.toJSON());
+        }
+
         workspace.setupDraggableView(this);  // make the view draggable!
         this.setupStretchyWire();
     }

@@ -41,6 +41,15 @@ define([
 
         // This function accepts an arbitrary list of DataTree objects, and finds the "master" tree amongst them
         function identifyMasterInput(inputs){
+            // first off: an input can be named master
+            var specifiedMaster;
+            _.each(inputs,function(i){
+                if (i.isMaster === true)  {
+                    specifiedMaster = i;
+                }
+            });
+            if (specifiedMaster) return specifiedMaster;
+
             // Longer path lengths win
             // "list" parameters have lower priority than "item" parameters
             // "tree" parameters are never master unless all params are trees
@@ -88,7 +97,8 @@ define([
 
         function createCorrespondingOutputTree(inputs,masterInput,calculation,outputs){
             var outputTree = new DataTree(),
-                outputKeys = _.isObject(outputs) ? _.keys(outputs) : undefined;
+                outputKeys = _.isObject(outputs) ? _.keys(outputs) : undefined,
+                masterInputInterpretsAsList = false;
 
             // Grasshopper matches lists the same way it matches list *items*, so yes, it's possible that a master
             // input path may match an output path exactly, but the contained data may not align.
@@ -103,6 +113,9 @@ define([
                     inputTree = input.getTree().copy();
 
                 if (input.interpretAs === ENUMS.INTERPRET_AS.LIST) {
+                    if (input.isMaster) {
+                        masterInputInterpretsAsList = true;
+                    }
                     input.getTree().recurseTree(function(data,node){
                         inputTree.setDataAtPath(node.getPath(),[data]);
                     });
@@ -111,13 +124,6 @@ define([
                 inputTree.recurseTree(function(data,node){
                     dataListForTree.push(node);
                 });
-                // This code should not be necessary now that default values are returned by the same getTree() api as other values
-//                if (dataListForTree.length === 0){
-//                    // DataTree doesn't expose individual nodes, so we have to access it thus:
-//                    var tree = new DataTree([input.getDefaultValue()]),
-//                        node = tree.getChildAtPath([0]);
-//                    dataListForTree.push(node);
-//                }
                 return dataListForTree;
             }
 
@@ -178,6 +184,14 @@ define([
                         });
                     });
                 }
+            }
+
+            // see comment above. We just need to dig the lists out of their arrays again.
+            if(masterInputInterpretsAsList) {
+                outputTree.copy().recurseTree(function(data,node){
+                    console.warn("FUNCTION SIGNATURE BACKWARDS! FIX THAT!");
+                    outputTree.setDataAtPath(node.getPath(),data[0]);
+                });
             }
 
             return outputTree;

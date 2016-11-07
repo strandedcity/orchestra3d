@@ -344,9 +344,10 @@ define([
         }
         function doDoubleClick(e){
             e.stopPropagation(); // prevents double-clicking a component from registering as a doubleclick on the workspace
-            console.log('dblclick component');
             if (typeof view.doubleclick === "function") {
                 view.doubleclick();
+            } else {
+                console.log("No doubleclick handler for view: ",view);
             }
         }
         function doDrag(e){

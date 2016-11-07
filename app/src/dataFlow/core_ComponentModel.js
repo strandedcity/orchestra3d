@@ -144,10 +144,12 @@ define([
             delete this.inputs;
             delete this.outputs;
         },
+        _windowFrozenWarnOnce: _.throttle(function(){
+            console.warn("WINDOW FROZEN. CALCULATION SKIPPED.");
+        },500),
         _handleInputChange: function(pulse){
             if (window.frozen === true) {
-                console.warn("WINDOW FROZEN. CALCULATION SKIPPED.");
-                return;
+                return this._windowFrozenWarnOnce();
             }
 
             ////////// PRE-RECALCULtATION -- CHECK STATUS

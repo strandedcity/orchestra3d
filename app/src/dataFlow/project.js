@@ -82,9 +82,11 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                     if (iptJSON.connections.length > 0) {
                         IOIdsForConnections[iptJSON.id] = component[iptJSON.shortName];
                         _.each(iptJSON.connections, function (connectedIptId) {
-                            var route = {};
-                            route[iptJSON.id] = connectedIptId;
-                            connectionRoutes.push(route);
+                            (function(connectedInputId){
+                                var route = {};
+                                route[iptJSON.id] = connectedInputId;
+                                connectionRoutes.push(route);
+                            })(connectedIptId);
                         });
                     }
                 });
@@ -103,9 +105,9 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                     outputId = route[inputId],
                     inputObject = IOIdsForConnections[inputId],
                     outputObject = IOIdsForConnections[outputId];
-                if (!_.isUndefined(inputObject.connectAdditionalOutput))
+                if (!_.isUndefined(inputObject.connectAdditionalOutput) && !_.isUndefined(outputObject))
                     inputObject.connectAdditionalOutput(outputObject);
-                else (console.warn("COULD NOT MAKE CONNECTION!!", route,inputObject,outputObject));
+                else console.warn("COULD NOT MAKE CONNECTION!! INVESTIGATE THIS!");
             });
 
             this.set('components',components);

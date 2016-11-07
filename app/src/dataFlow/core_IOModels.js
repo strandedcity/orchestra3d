@@ -40,6 +40,7 @@ define([
                 }
             }
             this.interpretAs = parameterType;
+            this.isMaster = args.isMaster;
 
             // restore user-saved values to the component
             if (!_.isUndefined(args.persistedData)) {
@@ -155,6 +156,7 @@ define([
         validateOutput: function(outputModel){
             // for inputs only, supports the data-flow attachment mechanism
             var wild = ENUMS.OUTPUT_TYPES.WILD;
+            
             if (this.type !== outputModel.type && this.type !== wild && outputModel.type !== wild) { throw new Error("Incongruent output connected to an input"); }
 
             return true;
@@ -188,13 +190,14 @@ define([
                 this.trigger("disconnectAll",this); // completely remove the input
             }
         },
-        processIncomingChange: function(pulse){
+        processIncomingChange: function(p){
             // In a simple world, an input can only be connected to one output, so it would inherit that
             // output's values directly. However, an input can be attached to multiple outputs, so it needs to
             // harvest and combine those output's values into a single data tree.
 
             // Step through each connected output model. For each model, append data to the same branch of the tree
             var treeCreated = false,
+                pulse = p || new Pulse({startPoint:this}),
                 that = this;
             _.each(this._listeningTo,function(outputModel){
                 if (treeCreated === false) {
@@ -219,7 +222,7 @@ define([
             var that=this;
 
             // Is this input already connected to outputModel ? If so, disconnect it first, then reconnect
-            // This guarantees that the inputs stay in the right order, I think.
+            // This guarantees that the inputs stay in the right order.
             _.each(this._listeningTo,function(o){
                 if (outputModel === o) {
                     that.disconnectOutput.call(that,o);
@@ -241,6 +244,10 @@ define([
             // duplicates trigger('pulse',pulse) above... pretty sure this would result in multiple recalcs
             //outputModel.triggerChange(this.newPulseObject(),true);// There's a newly connected output. Make sure the change trickles through all "downstream" components
             this.trigger("connectedOutput", outputModel);
+
+            console.warn('ideally, the pulse should start on the input not hte newly attached output');
+            this.processIncomingChange();
+            //outputModel.trigger('pulse',new Pulse({startPoint: outputModel})); // Not the best
         },
         assignPersistedData: function(tree){
             //propagateChange.call();
