@@ -117,7 +117,7 @@ define([
                         masterInputInterpretsAsList = true;
                     }
                     input.getTree().recurseTree(function(data,node){
-                        inputTree.setDataAtPath(node.getPath(),[data]);
+                        inputTree.setDataAtPath([data],node.getPath());
                     });
                 }
 
@@ -172,7 +172,7 @@ define([
                     result = null;
                     console.log('Runtime error during calculation process. Inputs:\n',rowData,'\nCalculation Error:\n', e.stack);
                 }
-                outputTree.setDataAtPath(destPath,result);
+                outputTree.setDataAtPath(result,destPath);
 
                 // If outputs are supplied they can be filled in now:
                 if (_.isObject(outputs)) {
@@ -180,7 +180,7 @@ define([
                         _.each(outputKeys,function(key){
                             var d = outputs[key].dataAtPath(destPath);
                             d.push(resultItem[key]);
-                            outputs[key].setDataAtPath(destPath,d);
+                            outputs[key].setDataAtPath(d,destPath);
                         });
                     });
                 }
@@ -189,8 +189,7 @@ define([
             // see comment above. We just need to dig the lists out of their arrays again.
             if(masterInputInterpretsAsList) {
                 outputTree.copy().recurseTree(function(data,node){
-                    console.warn("FUNCTION SIGNATURE BACKWARDS! FIX THAT!");
-                    outputTree.setDataAtPath(node.getPath(),data[0]);
+                    outputTree.setDataAtPath(data[0],node.getPath());
                 });
             }
 

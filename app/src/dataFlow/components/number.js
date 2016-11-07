@@ -64,7 +64,7 @@ define([
             // TODO: Figure out how Series components deal with lists. This is a hack.
             var final = new DataTree();
             resultObject.tree.recurseTree(function(data,node){
-                final.setDataAtPath(node.getPath(),data[0]);
+                final.setDataAtPath(data[0],node.getPath());
             });
 
             this.getOutput("S").replaceData(final);
@@ -97,7 +97,7 @@ define([
         },
         storeUserData: function(val){
             var tree = new DataTree();
-            tree.setDataAtPath([0],[val]);
+            tree.setDataAtPath([val],[0]);
             this.getInput("N").assignPersistedData(tree);
         },
         recalculate: function(){
@@ -115,7 +115,7 @@ define([
             if (currVal > max) currVal = max;
             if (currVal < min) currVal = min;
 
-            this.getOutput("N").values.setDataAtPath([0],[currVal]);// assignValues([currVal],[0]);
+            this.getOutput("N").values.setDataAtPath([currVal],[0]);// assignValues([currVal],[0]);
         }
     });
 

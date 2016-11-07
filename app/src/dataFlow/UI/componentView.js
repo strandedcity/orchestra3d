@@ -35,7 +35,7 @@ define([
             doubleclick: function(x,y){
                 // change boolean value on double click
                 var currValTree = that.component.getInput("B").getTree();
-                currValTree.setDataAtPath([0],!currValTree.dataAtPath([0])[0]);
+                currValTree.setDataAtPath(!currValTree.dataAtPath([0])[0],[0]);
             },
             displayVals: function(){
                 if (_.isEmpty(this.component.getOutput("B").getTree().dataAtPath([0]))) {

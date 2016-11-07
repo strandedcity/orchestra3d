@@ -79,7 +79,7 @@ define([
 
         if (tree.isEmpty()) {
             $table.append($(this.headerHtmlFromPath(lastDataPath)));
-            tree.setDataAtPath(lastDataPath,lastDataArray);
+            tree.setDataAtPath(lastDataArray,lastDataPath);
         }
 /////////////
 // TODO: FIX THIS CODE ITS A MESS!

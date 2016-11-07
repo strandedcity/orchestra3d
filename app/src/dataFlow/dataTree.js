@@ -44,7 +44,7 @@ define([
             var parsedPath = _.map(pathString.split(";"),function(pathAddress){
                 return Number(pathAddress);
             });
-            tree.setDataAtPath(parsedPath,data);
+            tree.setDataAtPath(data,parsedPath);
         })
     };
 
@@ -101,7 +101,7 @@ define([
         return copy;
     };
 
-    DataTree.prototype.setDataAtPath = function(path, data){
+    DataTree.prototype.setDataAtPath = function(data, path){
         return this.addChildAtPath(data,path,true);
     };
 

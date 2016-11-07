@@ -80,7 +80,7 @@ define([
             } else if (!_.isNull(this.default)) {
                 // no connected outputs OR user-entered data, but there IS a default. use that.
                 var t = new DataTree();
-                t.setDataAtPath([0],[this.default]);
+                t.setDataAtPath([this.default],[0]);
                 return t;
             } else {
                 // no data sources available, but something is polling for data
@@ -156,7 +156,7 @@ define([
         validateOutput: function(outputModel){
             // for inputs only, supports the data-flow attachment mechanism
             var wild = ENUMS.OUTPUT_TYPES.WILD;
-            
+
             if (this.type !== outputModel.type && this.type !== wild && outputModel.type !== wild) { throw new Error("Incongruent output connected to an input"); }
 
             return true;
@@ -209,7 +209,7 @@ define([
                         var path = node.getPath(),
                             existingData = that.values.dataAtPath(path),
                             newData = existingData.concat(data);
-                        that.values.setDataAtPath(path,newData);
+                        that.values.setDataAtPath(newData,path);
                     });
                 }
             });
@@ -258,7 +258,7 @@ define([
                 var dataTree = tree;
                 if (_.isArray(tree)) {
                     dataTree = new DataTree();
-                    dataTree.setDataAtPath([0],tree);
+                    dataTree.setDataAtPath(tree,[0]);
                 }
 
                 this.set('persistedData',dataTree);
