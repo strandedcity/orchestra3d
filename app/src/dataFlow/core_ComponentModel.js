@@ -109,6 +109,7 @@ define([
                     this.trigger('pulse',pulse);
                 }
             } else if (pulse.get('state') === "RECALCULATION")  {
+                console.trace();
                 this._handleInputChange();
                 var propagate = pulse.updatePathCounts(this);
                 if (propagate) this.trigger('pulse',pulse);
