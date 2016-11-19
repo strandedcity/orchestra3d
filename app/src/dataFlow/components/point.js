@@ -31,7 +31,6 @@ define([
                 ], opts, "inputs")
             },
             recalculate: function(){
-                console.log("POINT RECALC");
                 var resultObject = DataMatcher([this["X"],this["Y"],this["Z"]],function(x,y,z){
                     return new THREE.Vector3(x,y,z);
                 });

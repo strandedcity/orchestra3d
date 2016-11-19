@@ -82,19 +82,21 @@ define([
                     // We've now logged the number of paths that terminate and originate at this component.
                     // Are those counts equal? If yes, we're done pulsing through the whole tree
                     if (this.get('pathsClosed') === this.get('pathsOpened')) {
-                        //console.log("Graph Fully Traversed. Last component: ",component.get('componentPrettyName'));
+                        console.log("Graph Fully Traversed. Last component: ",component.get('componentPrettyName'),this);
                         this.set('state',"RECALCULATION");
                         this.get('startPoint').trigger('pulse',this);
                     } else {
 
                     }
                 } else if (this.get('state') == "RECALCULATION") {
+                    console.log("Decrementing path counts in RECALCULATION phase.",cptPulseCounts,component.cid);
                     cptPulseCounts[component.cid] = cptPulseCounts[component.cid] - 1;
                     if (cptPulseCounts[component.cid] === 0) {
                         pulseShouldPropagate = true; // ie, the component should trigger recalculation then pass the pulse to its outputs
                     }
+
                 }
-                //console.log('Path Counts AFTER update / Open: '+this.get('pathsOpened') + " Closed: "+this.get('pathsClosed'));
+                console.log('Path Counts AFTER update / Open: '+this.get('pathsOpened') + " Closed: "+this.get('pathsClosed'));
                 return pulseShouldPropagate;
             },
             setOpenPathCountBasedOnComponentOutputs: function(component){

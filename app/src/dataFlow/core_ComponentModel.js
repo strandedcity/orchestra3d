@@ -99,7 +99,7 @@ define([
             return inputs;
         },
         _propagatePulse: function(pulse){
-             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'));
+             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'),pulse.toJSON());
 
             if (pulse.get('state') === "GRAPH_DISCOVERY") {
                 // DO NOT update path counts prior to running calculations if we're in calculation mode
@@ -109,8 +109,8 @@ define([
                 }
             } else if (pulse.get('state') === "RECALCULATION")  {
                 this._handleInputChange();
-                pulse.updatePathCounts(this);
-                this.trigger('pulse',pulse);
+                var propagate = pulse.updatePathCounts(this);
+                if (propagate) this.trigger('pulse',pulse);
             }
 
             //var propagateNow = pulse.updatePathCounts(this);;

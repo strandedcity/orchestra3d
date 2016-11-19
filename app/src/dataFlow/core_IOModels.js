@@ -201,25 +201,34 @@ console.log('processIncomingChange on '+this.shortName);
             var treeCreated = false,
                 pulse = p || new Pulse({startPoint:this}),
                 that = this;
-            _.each(this._listeningTo,function(outputModel){
-                if (treeCreated === false) {
-                    console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
-                    outputModel.values.log();
-                    that.values = outputModel.values.copy();
-                    treeCreated = true;
-                } else {
-                    console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
-                    // ADD this model's data to the end of each path in the tree
-                    outputModel.values.recurseTree(function(data,node){
-                        var path = node.getPath(),
-                            existingData = that.values.dataAtPath(path),
-                            newData = existingData.concat(data);
-                        that.values.setDataAtPath(newData,path);
-                    });
-                }
-            });
+
+            if (pulse.get('state') === "RECALCULATION") {
+                // Only actually copy the tree data during the recalculation phase.
+                // Doing it during Graph Discovery will cause multiple copy operations
+                // for one data tree, a huge waste of an expensive operation!
+                _.each(this._listeningTo,function(outputModel){
+                    if (treeCreated === false) {
+                        console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
+                        outputModel.values.log();
+                        that.values = outputModel.values.copy();
+                        treeCreated = true;
+                    } else {
+                        console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
+                        // ADD this model's data to the end of each path in the tree
+                        outputModel.values.recurseTree(function(data,node){
+                            var path = node.getPath(),
+                                existingData = that.values.dataAtPath(path),
+                                newData = existingData.concat(data);
+                            that.values.setDataAtPath(newData,path);
+                        });
+                    }
+                });
+            } else {
+                console.log("(no changes made for GRAPH_DISCOVERY)");
+            }
+
             console.log('processIncomingChange DONE:'+this.shortName);
-console.log(this.values);
+            this.values.log();
             this.trigger("pulse",pulse);
         },
         connectAdditionalOutput: function(outputModel, validateModels){
