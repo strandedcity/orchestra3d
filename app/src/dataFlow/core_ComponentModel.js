@@ -198,9 +198,11 @@ define([
             }
 
             // execute post-recalculation stuff: propagate null status, trigger "change" on outputs
-            var that = this;
+            this.setNull(isNullNow);
+        },
+        setNull: function(newNullValue){
             _.each(this.outputs,function(out){
-                out.setNull(isNullNow);
+                out.setNull(newNullValue);
             });
         },
 //        recalculateIfReady: function(){
