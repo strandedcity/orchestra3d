@@ -79,7 +79,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             spyOn(pointComponent,'simulatedRecalculate');
 
             // null-out the Y-input:
-            outputY.setNull(true);
+            outputY.clear(true);
 
             // assigning values to an input should update all the output values automatically
             // IF there are sufficient inputs for the calculation to occur
@@ -89,13 +89,16 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
                 expect(pointComponent.simulatedRecalculate).not.toHaveBeenCalled();
             },50);
         });
-        it("Should have null output when any input is set to null", function(){
+        it("Should have null output when any input is set to null", function(done){
             assignInputs();
             pointComponent.recalculate();
 
             // null-out the Y-input:
-            outputY.setNull(true);
-            expect(pointComponent.isNull()).toBe(true);
+            outputY.clear(true);
+            setTimeout(function(){
+                expect(pointComponent.isNull()).toBe(true);
+                done();
+            },50);
         });
         it("Returns an array of xyz values when fetchPointCoordinates() is called",function(){
             assignInputs();
@@ -107,9 +110,9 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             // Test should be same as above, but without explicit calling of "recalculate".
             // We're testing here to make sure the component knows to recalculate. Above, we're testing
             // that it recalculates correctly.
-            spyOn(pointComponent, '_recalculate');
+            spyOn(pointComponent, 'simulatedRecalculate');
             assignInputs();
-            expect(pointComponent._recalculate).toHaveBeenCalled();
+            expect(pointComponent.simulatedRecalculate).toHaveBeenCalled();
             var pointCoordinates = pointComponent.fetchPointCoordinates();
             expect(pointCoordinates).toEqual([[1,2,4],[2,4,8]]);
         });
@@ -122,9 +125,10 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             });
             expect(outputs.length).toEqual(2);
         });
-        it("Listens ONLY to a new input when that input is re-assigned",function(){
+        it("Listens ONLY to a new input when that input is re-assigned",function(done){
             assignInputs();
-            spyOn(pointComponent, '_recalculate');
+            console.log("------------------\nBEGIN SPYING");
+            spyOn(pointComponent, 'simulatedRecalculate');
 
             // create new input
             var outputZReplacement = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
@@ -132,14 +136,14 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             pointComponent.assignInput("Z",outputZReplacement);
 
             // Verify component has recalculated based on new input
-            expect(pointComponent._recalculate.calls.count()).toEqual(1);
+            expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(1);
             expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
 
             // verify we're NOT listening to the old input
             // Documentation for spy usage at:
             // http://jasmine.github.io/2.0/introduction.html#section-23
             outputZ.assignValues([2,2]);
-            expect(pointComponent._recalculate.calls.count()).toEqual(1);
+            expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(1);
             expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
         });
         it("Has a null output value until all inputs are assigned",function(){

@@ -12,7 +12,7 @@ define([
             return {
                 persistedData: new DataTree(),
                 invisible: false,
-                isNull: true
+                //isNull: true
             }
         },
         initialize: function(opts){
@@ -112,6 +112,7 @@ define([
                 });
                 node.data = []; // clear out all values
             });
+            this.values = new DataTree();
         },
         _destroy: function(){
             // for each connected input, trigger disconnection
@@ -253,7 +254,7 @@ console.log('processIncomingChange on '+this.shortName);
                 that.disconnectOutput.call(that,outputModel);
             });
 
-            this.set({isNull: false},{silent: true}); // unset the "null" override
+            //this.set({isNull: false},{silent: true}); // unset the "null" override
             this.trigger("connectedOutput", outputModel);
 console.log('trigger pulse on '+this.shortName);
             this.processIncomingChange();
@@ -272,7 +273,7 @@ console.log('trigger pulse on '+this.shortName);
                 }
 
                 this.set('persistedData',dataTree);
-                this.set({isNull: false},{silent: true}); // unset the "null" override
+                //this.set({isNull: false},{silent: true}); // unset the "null" override
 
                 // Change events on THIS input should trigger when new persisted data is assigned AND
                 // there are no connected outputs that are providing data with higher precedence.
@@ -285,18 +286,20 @@ console.log('trigger pulse on '+this.shortName);
             //}
         },
         hasConnectedOutputs: function(){
-            if (_.keys(this._listeningTo).length === 0) return false;
-
-            // it only counts as a connection if we're getting non-null data
-            var foundNonEmptyConnection = false;
-            _.each(_.clone(this._listeningTo),function(outputModel){
-                // There are two ways that a connected output would not be counted:
-                if (outputModel.getTree().isEmpty() === false && outputModel.isNull() === false) {
-                    foundNonEmptyConnection = true;
-                }
-            });
-
-            return foundNonEmptyConnection;
+            return !(_.keys(this._listeningTo).length === 0);
+            //
+            //if (_.keys(this._listeningTo).length === 0) return false;
+            //
+            //// it only counts as a connection if we're getting non-null data
+            //var foundNonEmptyConnection = false;
+            //_.each(_.clone(this._listeningTo),function(outputModel){
+            //    // There are two ways that a connected output would not be counted:
+            //    if (outputModel.getTree().isEmpty() === false && outputModel.isNull() === false) {
+            //        foundNonEmptyConnection = true;
+            //    }
+            //});
+            //
+            //return foundNonEmptyConnection;
         },
         destroy: function(){
             // custom INPUT destroy stuff
@@ -320,7 +323,7 @@ console.log('trigger pulse on '+this.shortName);
     // null status comes directly from the presence or absence of data
     var output = io.extend({
         _initialize: function(){
-            this.set({isNull: true});
+            //this.set({isNull: true});
         },
         modelType: "Output",
         destroy: function(){
@@ -328,7 +331,7 @@ console.log('trigger pulse on '+this.shortName);
             // Slightly involved, since the connections TO THIS OUTPUT are actually stored on INPUT OBJECTS, not on "this"
 
             this.clearValues();
-            this.setNull(true);
+            //this.setNull(true);
             this._destroy();
         },
         disconnectAll: function(){
@@ -357,7 +360,7 @@ console.log('trigger pulse on '+this.shortName);
             // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy
             // of the tree to be serialized later
             this.set('persistedData',dataTree);
-            this.set({isNull: false},{silent: true}); // unset the "null" override
+            //this.set({isNull: false},{silent: true}); // unset the "null" override
 
             // When persistedData is assigned to an OUTPUT, it means the component exists only so users can enter data
             // (eg, a slider). So entering persistedData in this context ALWAYS means a change: no precedence rules apply
@@ -366,15 +369,17 @@ console.log('trigger pulse on '+this.shortName);
 
         // "null" status is unique to OUTPUTS. An INPUT connected to a NULL OUTPUT is not necessarily null --
         // it could have a default value or 'persisted data' that allows it to provide values while disconnected.
-        setNull: function(val){
-            // suppress null changes when the io is ALREADY NULL, no matter what.
-            // If being set to NOT NULL, a change will be triggered already by the data that caused the change in null status
-            var silent = this.isNull() === true;
-            this.set({isNull: val},{silent: silent});
-        },
-        isNull: function(){
-            return this.get('isNull') === true || this.getTree().isEmpty();
-        },
+        //setNull: function(val){
+        //    // suppress null changes when the io is ALREADY NULL, no matter what.
+        //    // If being set to NOT NULL, a change will be triggered already by the data that caused the change in null status
+        //    var silent = this.isNull() === true;
+        //    this.set({isNull: val},{silent: silent});
+        //},
+
+        //isNull: function(){
+        //    return this.getTree().isEmpty();
+        //    //return this.get('isNull') === true || this.getTree().isEmpty();
+        //},
         hasConnectedOutputs: function(){
             // the data on OUTPUTS is set by components -- there's only one data source, not several as is the case for inputs
             return true;

@@ -1,8 +1,9 @@
 define([
     "underscore",
     "backbone",
-    "dataFlow/core_IOModels"
-],function(_,Backbone, IOModels){
+    "dataFlow/core_IOModels",
+    "dataFlow/pulse"
+],function(_,Backbone, IOModels, Pulse){
 
 
     var component = Backbone.Model.extend({
@@ -99,7 +100,7 @@ define([
             return inputs;
         },
         _propagatePulse: function(pulse){
-             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'),pulse.toJSON());
+             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'),pulse.cid);
 
             if (pulse.get('state') === "GRAPH_DISCOVERY") {
                 // DO NOT update path counts prior to running calculations if we're in calculation mode
@@ -198,11 +199,21 @@ define([
             }
 
             // execute post-recalculation stuff: propagate null status, trigger "change" on outputs
-            this.setNull(isNullNow);
+            if (isNullNow) this.clear(false);
         },
-        setNull: function(newNullValue){
+        clear: function(shouldPulse){
             _.each(this.outputs,function(out){
-                out.setNull(newNullValue);
+                out.clearValues();
+            });
+
+            if (shouldPulse === true) {
+                var p = new Pulse({startPoint: this, pathsOpened: 1}); // as if triggered on an input
+                this.trigger('pulse',p);
+            }
+        },
+        isNull: function(){
+            return _.every(this.outputs,function(out){
+                return out.getTree().isEmpty();
             });
         },
 //        recalculateIfReady: function(){
