@@ -52,6 +52,9 @@ define([
                     componentPulseCounts: {} // will store component IDs and the number of times this pulse has hit them, (1) above
                 }
             },
+            shouldPropagate: function(component){
+                return !_.contains(_.keys(this.get('componentPulseCounts')),component.cid);
+            },
             updatePathCounts: function(component){
                 // Called each time a pulse is received by a component. The component will pass itself to this function,
                 // which will increment pathsClosed and conditionally set pathsOpened. The ID of the component, and the number
@@ -61,10 +64,11 @@ define([
                 // component reaches zero, that component recalculates
                 var pulseShouldPropagate = false,
                     cptPulseCounts = this.get('componentPulseCounts');
+                //console.log('Path Counts BEFORE update/ Open: '+this.get('pathsOpened') + " Closed: "+this.get('pathsClosed'));
                 if (this.get('state') == "GRAPH_DISCOVERY") {
                     // Receipt of a pulse indicates that one path is closed. Ie, a "wire" terminates at this component.
                     this.set('pathsClosed',this.get('pathsClosed') + 1);
-                    pulseShouldPropagate = !_.contains(_.keys(cptPulseCounts),component.cid);
+                    pulseShouldPropagate = this.shouldPropagate(component);
                     if (pulseShouldPropagate) {
                         this.setOpenPathCountBasedOnComponentOutputs(component);
 
@@ -81,6 +85,8 @@ define([
                         //console.log("Graph Fully Traversed. Last component: ",component.get('componentPrettyName'));
                         this.set('state',"RECALCULATION");
                         this.get('startPoint').trigger('pulse',this);
+                    } else {
+
                     }
                 } else if (this.get('state') == "RECALCULATION") {
                     cptPulseCounts[component.cid] = cptPulseCounts[component.cid] - 1;
@@ -88,15 +94,14 @@ define([
                         pulseShouldPropagate = true; // ie, the component should trigger recalculation then pass the pulse to its outputs
                     }
                 }
-
+                //console.log('Path Counts AFTER update / Open: '+this.get('pathsOpened') + " Closed: "+this.get('pathsClosed'));
                 return pulseShouldPropagate;
             },
             setOpenPathCountBasedOnComponentOutputs: function(component){
                 // For each output connection from this component, there's one additional path for the pulse to follow:
                 var connectedOutputCount = 0;
                 _.each(component.outputs,function(output){
-                    if (typeof output._events == "object") {
-                        // Don't check type of 'pulse' array. If it's not present, that's a bug I want to see in the error console
+                    if (typeof output._events == "object" && _.isArray(output._events["pulse"])) {
                         connectedOutputCount += output._events["pulse"].length
                     } else {
                         // console.log('zero pulse connections for ',component);
@@ -111,6 +116,7 @@ define([
                 _.bindAll(this,
                     "cancel",
                     "updatePathCounts",
+                    "shouldPropagate",
                     "setOpenPathCountBasedOnComponentOutputs"
                 );
 

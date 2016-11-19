@@ -13,9 +13,12 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             outputX.getInput("N").assignPersistedData([1,2]);
             outputY.getInput("N").assignPersistedData([2,4]);
             outputZ.getInput("N").assignPersistedData([4,8]);
+            console.log("VALUES Output from NUMBER:");
+            outputX.getOutput("N").values.log();
 
             pointComponent = new dataFlow.components.point.PointComponent();
             setTimeout(function(){
+                console.log("-------------");
                 done();
             },50);
         });
@@ -44,7 +47,9 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
         });
         it("Should call recalculate() ONCE when all inputs are connected",function(done){
             spyOn(pointComponent, 'recalculate');
-            assignInputs();
+            pointComponent.assignInput("X", outputX.getOutput("N"));
+            pointComponent.assignInput("Y", outputY.getOutput("N"));
+            pointComponent.assignInput("Z", outputZ.getOutput("N"));
             setTimeout(function(){
                 expect(pointComponent.recalculate.calls.count()).toEqual(1);
                 done();

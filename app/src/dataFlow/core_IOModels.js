@@ -167,17 +167,19 @@ define([
 
             // make the new connection
             try {
-                if (this.validateOutput(outputModel) === true) this.stopListening();
+                // I believe this is covered by disconnectAll() above, and may cause bugs!
+                //if (this.validateOutput(outputModel) === true) this.stopListening();
                 this.connectAdditionalOutput(outputModel, false);
             } catch (e){
-                this.triggerChange(this.newPulseObject()); // if the new connection fails, we still need to trigger a "change" event since all connections were silently dropped above.
+                this.trigger('pulse',new Pulse({startPoint:this}));
                 console.warn('Caught an error during connection: ', e.message, e.stack);
             }
         },
         disconnectOutput: function(outputModel, silent){
             this.stopListening(outputModel);
             this.trigger("disconnectedOutput", outputModel);
-            if (silent !== true) this.triggerChange(this.newPulseObject());
+            if (silent !== true) 
+                this.trigger('pulse',new Pulse({startPoint:this}));
         },
         disconnectAll: function(silent){
             // For inputs
@@ -186,7 +188,7 @@ define([
                 that.disconnectOutput.call(that,outputModel, true);
             });
             if (silent !== true) {
-                this.triggerChange(); // once after all outputs disconnected
+                this.trigger('pulse',new Pulse({startPoint:this})); // once after all outputs disconnected
                 this.trigger("disconnectAll",this); // completely remove the input
             }
         },
@@ -194,16 +196,19 @@ define([
             // In a simple world, an input can only be connected to one output, so it would inherit that
             // output's values directly. However, an input can be attached to multiple outputs, so it needs to
             // harvest and combine those output's values into a single data tree.
-
+console.log('processIncomingChange on '+this.shortName);
             // Step through each connected output model. For each model, append data to the same branch of the tree
             var treeCreated = false,
                 pulse = p || new Pulse({startPoint:this}),
                 that = this;
             _.each(this._listeningTo,function(outputModel){
                 if (treeCreated === false) {
+                    console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
+                    outputModel.values.log();
                     that.values = outputModel.values.copy();
                     treeCreated = true;
                 } else {
+                    console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
                     // ADD this model's data to the end of each path in the tree
                     outputModel.values.recurseTree(function(data,node){
                         var path = node.getPath(),
@@ -213,7 +218,8 @@ define([
                     });
                 }
             });
-
+            console.log('processIncomingChange DONE:'+this.shortName);
+console.log(this.values);
             this.trigger("pulse",pulse);
         },
         connectAdditionalOutput: function(outputModel, validateModels){
@@ -239,15 +245,10 @@ define([
             });
 
             this.set({isNull: false},{silent: true}); // unset the "null" override
-            //outputModel.triggerChange(); // check for completed flow on hookup
-
-            // duplicates trigger('pulse',pulse) above... pretty sure this would result in multiple recalcs
-            //outputModel.triggerChange(this.newPulseObject(),true);// There's a newly connected output. Make sure the change trickles through all "downstream" components
             this.trigger("connectedOutput", outputModel);
-
-            console.warn('ideally, the pulse should start on the input not hte newly attached output');
+console.log('trigger pulse on '+this.shortName);
             this.processIncomingChange();
-            //outputModel.trigger('pulse',new Pulse({startPoint: outputModel})); // Not the best
+            //this.trigger('pulse',new Pulse({startPoint: this})); // Not the best
         },
         assignPersistedData: function(tree){
             //propagateChange.call();

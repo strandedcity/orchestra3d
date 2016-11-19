@@ -57,7 +57,7 @@ define([
             }
 
             this._sufficient = false;
-            //_.bindAll(this,"_handleInputChange");
+            _.bindAll(this,"_handleInputChange","_propagatePulse");
 
             // Inputs and outputs are arrays of Ant.Inputs and Ant.Outputs
             this.outputs = this.initializeOutputs(_.isUndefined(opts.outputs) ? [opts.output] : opts.outputs);
@@ -69,9 +69,6 @@ define([
             this.set('componentPrettyName', opts.componentPrettyName);
             this.set('preview',opts.preview || false);
             this.previews = [];
-
-            // so each component counts changes based on single user inputs, and knows when to actually recalculate
-            this.pulse = {pulseId: 0, pulseCount: 0, matchingChangeCount: 0};
 
             // Update previews. This is sort of "view stuff" but it's close to being "data stuff." Located here for now.
             this.on("change:preview",function(){
@@ -102,15 +99,31 @@ define([
             return inputs;
         },
         _propagatePulse: function(pulse){
-            // console.log('pulse received: ',this.get('componentPrettyName'));
-            var propagateNow = pulse.updatePathCounts(this);
-            if (propagateNow) {
-                if (pulse.get('state') === "GRAPH_DISCOVERY") {
+             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'));
+
+            if (pulse.get('state') === "GRAPH_DISCOVERY") {
+                // DO NOT update path counts prior to running calculations if we're in calculation mode
+                if (pulse.updatePathCounts(this)) {
+                    // propagate now
                     this.trigger('pulse',pulse);
-                } else if (pulse.get('state') === "RECALCULATION") {
-                    this._handleInputChange(pulse);
                 }
+            } else if (pulse.get('state') === "RECALCULATION")  {
+                this._handleInputChange();
+                pulse.updatePathCounts(this);
+                this.trigger('pulse',pulse);
             }
+
+            //var propagateNow = pulse.updatePathCounts(this);;
+            //console.warn("GOT IT. THIS LINE NEEDS TO BE BELOW HANDLEINPUTCHANGE!!! OTHERWISE, the pulse will switch from discvery to recalculation before inputs are connected!!");
+            //if (propagateNow) {
+            //    if (pulse.get('state') === "GRAPH_DISCOVERY") {
+            //        console.log('graph discovery...');
+            //        this.trigger('pulse',pulse);
+            //    } else if (pulse.get('state') === "RECALCULATION") {
+            //        this._handleInputChange(pulse);
+            //    }
+            //}
+
         },
         assignInput: function(inputName, output){
             // TODO: 'input' in the function signature actually refers to the OUTPUT that's supposed to be connected to inputName
@@ -118,7 +131,7 @@ define([
             if (_.isUndefined(inputName) || _.isUndefined(output)) {throw new Error("Unspecified Input");}
             if (!_.has(this,inputName)) {throw new Error("Tried to specify an input that does not exist");}
             if (this[inputName].type !== output.type) {throw new Error("Tried to specify an input of the wrong type");}
-
+            console.log('assigning input '+inputName);
             this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
 
 //            this._calculateSufficiency(); // shouldn't be necessary -- the connection will trigger a 'change' on the input if applicable, which the component will be listening for
@@ -146,8 +159,8 @@ define([
         },
         _windowFrozenWarnOnce: _.throttle(function(){
             console.warn("WINDOW FROZEN. CALCULATION SKIPPED.");
-        },500),
-        _handleInputChange: function(pulse){
+        },5000),
+        _handleInputChange: function(){
             if (window.frozen === true) {
                 return this._windowFrozenWarnOnce();
             }
@@ -156,7 +169,10 @@ define([
             //
             // consider current input statuses: do we have enough input to do the calculation?
             var isNullNow = !_.every(this.inputs,function(input){
-                return input.getTree().isEmpty() !== true;
+                var empty =  input.getTree().isEmpty();
+                console.log(input.shortName + " is empty? "+ empty);
+                if (empty) console.log(input.values);
+                return empty !== true;
             });
 
             ////////// RECALCULATION PHASE
@@ -165,6 +181,9 @@ define([
             if (!isNullNow) {
                 this.recalculate();
                 this.simulatedRecalculate();
+            } else {
+
+                console.log("NULL");
             }
 
             /////////// POST recalculation
@@ -182,7 +201,6 @@ define([
             var that = this;
             _.each(this.outputs,function(out){
                 out.setNull(isNullNow);
-                out.trigger('pulse',pulse);
             });
         },
 //        recalculateIfReady: function(){
@@ -226,7 +244,7 @@ define([
 //        },
         simulatedRecalculate: function(){
             // MUST REMAIN A NO-OP
-            if (!_.isUndefined(window.jasmine)) throw new Error("simulatedRecalculate is just for spying in jasmine.");
+            // if (!_.isUndefined(window.jasmine)) throw new Error("simulatedRecalculate is just for spying in jasmine.");
         },
         recalculate: function(){
             console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
