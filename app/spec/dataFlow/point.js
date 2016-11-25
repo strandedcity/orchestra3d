@@ -125,7 +125,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             });
             expect(outputs.length).toEqual(2);
         });
-        it("Listens ONLY to a new input when that input is re-assigned",function(done){
+        it("Listens ONLY to a new input when that input is re-assigned",function(){
             assignInputs();
             console.log("------------------\nBEGIN SPYING");
             spyOn(pointComponent, 'simulatedRecalculate');
@@ -142,7 +142,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             // verify we're NOT listening to the old input
             // Documentation for spy usage at:
             // http://jasmine.github.io/2.0/introduction.html#section-23
-            outputZ.assignValues([2,2]);
+            outputZ.getInput("N").assignPersistedData([2,2]);
             expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(1);
             expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
         });
