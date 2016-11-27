@@ -204,6 +204,8 @@ console.log('processIncomingChange on '+this.shortName);
                 that = this;
 
             if (pulse.get('state') === "RECALCULATION") {
+                console.log("RECALCULATION pulse received on " + this.shortName + " from " + pulse.cid  );
+                console.trace();
                 // Only actually copy the tree data during the recalculation phase.
                 // Doing it during Graph Discovery will cause multiple copy operations
                 // for one data tree, a huge waste of an expensive operation!
@@ -233,6 +235,7 @@ console.log('processIncomingChange on '+this.shortName);
             this.trigger("pulse",pulse);
         },
         connectAdditionalOutput: function(outputModel, validateModels){
+            console.log('CONNECT ADDITIONAL OUTPUT------------');
             if (validateModels !== false) this.validateOutput(outputModel);
 
             var that=this;
@@ -249,10 +252,10 @@ console.log('processIncomingChange on '+this.shortName);
                 that.processIncomingChange.call(that,pulse);
             });
 
-            // "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
-            this.listenTo(outputModel,"disconnectAll",function(outputModel){
-                that.disconnectOutput.call(that,outputModel);
-            });
+            //// "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
+            //this.listenTo(outputModel,"disconnectAll",function(outputModel){
+            //    that.disconnectOutput.call(that,outputModel);
+            //});
 
             //this.set({isNull: false},{silent: true}); // unset the "null" override
             this.trigger("connectedOutput", outputModel);

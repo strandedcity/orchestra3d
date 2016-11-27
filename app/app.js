@@ -194,13 +194,15 @@ require(["appconfig"],function(){
                                 } else if (ipt.get('invisible') === true) {
                                     disconnectedCount++;
                                 }
-
-                                // trigger change event on the first input
-                                if (disconnectedCount === cpt.inputs.length) {
-                                    console.log('master trigger now');
-                                    var p = new Pulse({startPoint:cpt.inputs[0]});
-                                }
                             });
+
+                            // if all inputs to a component are disconnected, trigger a pulse
+                            // to make sure the component recalculates now that all conections are in place
+                            if (disconnectedCount === cpt.inputs.length) {
+                                console.log('master trigger now');
+                                var start = cpt.inputs[0];
+                                start.trigger('pulse',new Pulse({startPoint:start}));
+                            }
                         });
                         //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
                     });
