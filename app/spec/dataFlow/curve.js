@@ -3,25 +3,20 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
         var nx,ny,nz,degree,point,periodic,curve;
 
         beforeEach(function(){
-            // "outputs" are actually inputs to the "point" component. They are outputs
-            // in the sense that they are assumed to be emitted from a prior component.
-            // Output objects are tested separately in DataFlow --> Core --> Output Objects
-            nx = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            ny = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            nz = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            var d = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-
-            nx.assignValues([0,0,0,0,0,0]);
-            ny.assignValues([1,2,3,4,5,6]);
-            nz.assignValues([2,4,6,8,10,12]);
+            nx = new dataFlow.components.number.NumberComponent();
+            ny = new dataFlow.components.number.NumberComponent();
+            nz = new dataFlow.components.number.NumberComponent();
+            degree = new dataFlow.components.number.NumberComponent();
+            nx.getInput("N").assignPersistedData([0,0,0,0,0,0]);
+            ny.getInput("N").assignPersistedData([1,2,3,4,5,6]);
+            nz.getInput("N").assignPersistedData([2,4,6,8,10,12]);
+            degree.getInput("N").assignPersistedData([3]);
 
             point = new dataFlow.components.point.PointComponent();
-            point.assignInput("X",nx);
-            point.assignInput("Y",ny);
-            point.assignInput("Z",nz);
+            point.assignInput("X",nx.getOutput("N"));
+            point.assignInput("Y",ny.getOutput("N"));
+            point.assignInput("Z",nz.getOutput("N"));
 
-            degree = new dataFlow.components.number.NumberComponent();
-            degree.assignInput("N",d);
             periodic = new dataFlow.components.boolean.BooleanFalseComponent();
             curve = new dataFlow.components.curve.CurveControlPointComponent();
 

@@ -23,6 +23,9 @@ define([
                 componentPrettyName: name
             });
             this.base_init(args);
+
+            // Initially, the input must be copied to the output tree or the output will be empty
+            this.recalculate();
         },
         recalculate: function(){
             this.getOutput("B").clearValues();
