@@ -149,19 +149,19 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             expect(pointComponent.fetchPointCoordinates()).toEqual([[1,2,9],[2,4,10]]);
         });
         it("Has a null output value until all inputs are assigned",function(){
-            spyOn(pointComponent, '_recalculate');
-            pointComponent.assignInput("X",outputX);
+            spyOn(pointComponent, 'simulatedRecalculate');
+            pointComponent.assignInput("X", outputX.getOutput("N"));
             expect(pointComponent.isNull()).toBe(true);
-            expect(pointComponent._recalculate).not.toHaveBeenCalled();
+            expect(pointComponent.simulatedRecalculate).not.toHaveBeenCalled();
 
-            pointComponent.assignInput("Y",outputY);
+            pointComponent.assignInput("Y", outputY.getOutput("N"));
             expect(pointComponent.isNull()).toBe(true);
-            expect(pointComponent._recalculate).not.toHaveBeenCalled();
+            expect(pointComponent.simulatedRecalculate).not.toHaveBeenCalled();
 
             // setting the z-input completes the inputs, and should trigger calculations:
-            pointComponent.assignInput("Z",outputZ);
+            pointComponent.assignInput("Z", outputZ.getOutput("N"));
             expect(pointComponent.isNull()).toBe(false);
-            expect(pointComponent._recalculate).toHaveBeenCalled();
+            expect(pointComponent.simulatedRecalculate).toHaveBeenCalled();
             expect(pointComponent.fetchOutputs().length).toBe(2);
         });
         it("Calls destroy() on Geo.Point when a point is replaced with a new point")
