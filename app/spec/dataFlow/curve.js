@@ -32,8 +32,8 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             expect(output[0].constructor).toBe(Geo.Curve);
             expect(curve.getOutput("C").getTree().flattenedTree().dataAtPath([0])).toEqual(output);
         });
-        it("Creates multiple Curves when two numbers are passed in",function(){
-            degree.getOutput("N").assignValues([2,3],[0]);
+        it("Creates multiple Curves when two 'degree' numbers are passed in",function(){
+            degree.getInput("N").assignPersistedData([2,3]);
 
             // get data AFTER recalculation occurs, the tree reference could change.
             var outData = curve.getOutput("C").getTree().dataAtPath([0]);
