@@ -1,4 +1,4 @@
-define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
+define(["dataFlow/dataFlow_loader","SISL/sisl_loader","dataFlow/dataTree"],function(dataFlow,Geo,dataTree){
     return ["CurveControlPointComponent",function(){
         var nx,ny,nz,degree,point,periodic,curve;
 
@@ -51,13 +51,16 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
 
             var pointList = point.getOutput().getTree().dataAtPath([0]).slice(0),
                 pointList2 = pointList.slice(0),
-                pointList3 = pointList.slice(0);
-            point.getOutput().clearValues();
-            point.getOutput().getTree().setDataAtPath([0,100],pointList);
-            point.getOutput().getTree().setDataAtPath([0,101],pointList2);
-            point.getOutput().getTree().setDataAtPath([0,102],pointList3);
+                pointList3 = pointList.slice(0),
+                pointData = new dataTree();
 
-            degree.getOutput().assignValues([3,4],[0]);
+            pointData.setDataAtPath(pointList,[0,100]);
+            pointData.setDataAtPath(pointList2,[0,101]);
+            pointData.setDataAtPath(pointList3,[0,102]);
+
+            curve.getInput("V").disconnectAll();
+            curve.getInput("V").assignPersistedData(pointData);
+            degree.getInput("N").assignPersistedData([3,4]);
 
             var resultTree = curve.getOutput().getTree(),
                 path0100 = resultTree.dataAtPath([0,100]),

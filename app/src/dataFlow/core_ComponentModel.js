@@ -172,7 +172,7 @@ define([
             // consider current input statuses: do we have enough input to do the calculation?
             var isNullNow = !_.every(this.inputs,function(input){
                 var empty =  input.getTree().isEmpty();
-                console.log(input.shortName + " is empty? "+ empty);
+                console.log(input.shortName + " is ", input.getTree());
                 if (empty) console.log(input.values);
                 return empty !== true;
             });

@@ -213,12 +213,12 @@ console.log('processIncomingChange on '+this.shortName);
                     if (treeCreated === false) {
                         console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
                         outputModel.values.log();
-                        that.values = outputModel.values.copy();
+                        that.values = outputModel.getTree().copy();
                         treeCreated = true;
                     } else {
                         console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
                         // ADD this model's data to the end of each path in the tree
-                        outputModel.values.recurseTree(function(data,node){
+                        outputModel.getTree().recurseTree(function(data,node){
                             var path = node.getPath(),
                                 existingData = that.values.dataAtPath(path),
                                 newData = existingData.concat(data);
