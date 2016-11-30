@@ -117,8 +117,10 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader","dataFlow/dataTree"],funct
             // COMPARE THIS BEHAVIOR TO THE EXAMPLE SCREENSHOT IN THE GHX FOLDER:
             // test_listParam_data_matching_3.png
 
-            degree.getOutput().assignValues([3],[0,0]);
-            degree.getOutput().assignValues([4],[0,1]);
+            var degreeData = new dataTree();
+            degreeData.setDataAtPath([3],[0,0]);
+            degreeData.setDataAtPath([4],[0,1]);
+            degree.getInput("N").assignPersistedData(degreeData);
 
             var resultTree = curve.getOutput().getTree(),
                 path00 = resultTree.dataAtPath([0,0]),
