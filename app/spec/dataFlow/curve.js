@@ -83,14 +83,20 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader","dataFlow/dataTree"],funct
 
             var pointList = point.getOutput().getTree().dataAtPath([0]).slice(0),
                 pointList2 = pointList.slice(0),
-                pointList3 = pointList.slice(0);
-            point.getOutput().clearValues();
-            point.getOutput().getTree().setDataAtPath([0,100],pointList);
-            point.getOutput().getTree().setDataAtPath([0,101],pointList2);
-            point.getOutput().getTree().setDataAtPath([0,102],pointList3);
+                pointList3 = pointList.slice(0),
+                pointData = new dataTree();
 
-            degree.getOutput().assignValues([3],[0,10]);
-            degree.getOutput().assignValues([4],[0,11]);
+            pointData.setDataAtPath(pointList,[0,100]);
+            pointData.setDataAtPath(pointList2,[0,101]);
+            pointData.setDataAtPath(pointList3,[0,102]);
+            curve.getInput("V").disconnectAll();
+            curve.getInput("V").assignPersistedData(pointData);
+
+            var degreeData = new dataTree();
+            degreeData.setDataAtPath([3],[0,10]);
+            degreeData.setDataAtPath([4],[0,11]);
+
+            degree.getInput("N").assignPersistedData(degreeData);
 
             var resultTree = curve.getOutput().getTree(),
                 path010 = resultTree.dataAtPath([0,10]),
@@ -98,6 +104,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader","dataFlow/dataTree"],funct
                 path012 = resultTree.dataAtPath([0,12]),
                 fullPaths = [path010,path011,path012],
                 currentPath;
+                
             while (currentPath = fullPaths.shift()) {
                 expect(currentPath.length).toEqual(1);
                 expect(currentPath[0].constructor).toBe(Geo.Curve);
