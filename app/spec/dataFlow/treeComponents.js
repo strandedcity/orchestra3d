@@ -41,16 +41,16 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
 
             // check up on a couple key phases of the data bubbling. Can only spy on one thing at a time, so we need to assignValues() twice
             spyOn(graftComponent.getOutput(),'replaceData');
-            numberComponent.getOutput().assignValues([0,1,1,0,0,1,1,0,0,1]);
+            numberComponent.getInput("N").assignPersistedData([0,1,1,0,0,1,1,0,0,1]);
             expect(graftComponent.getOutput().replaceData).not.toHaveBeenCalled();
 
-            spyOn(graftComponent,'recalculate');
-            numberComponent.getOutput().assignValues([0,1,1,0,0,1,1,0,0,1]);
-            expect(graftComponent.recalculate).toHaveBeenCalled();
+            spyOn(graftComponent,'simulatedRecalculate');
+            numberComponent.getInput("N").assignPersistedData([0,1,1,0,0,1,1,0,0,1]);
+            expect(graftComponent.simulatedRecalculate).toHaveBeenCalled();
         });
         it("Output has grafted data",function(){
             graftComponent["T"].connectOutput(numberComponent.getOutput());
-            numberComponent.getOutput().assignValues([0,1,1,0,0,1,1,0,0,1]);
+            numberComponent.getInput("N").assignPersistedData([0,1,1,0,0,1,1,0,0,1]);
 
             expect(graftComponent.getOutput().getTree().dataAtPath([0,0])).toEqual([0]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,1])).toEqual([1]);
@@ -65,13 +65,13 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
         });
         it("Output's grafted data tree data updates when input data tree updates",function(){
             graftComponent["T"].connectOutput(numberComponent.getOutput());
-            numberComponent.getOutput().assignValues([0,1,1]);
+            numberComponent.getInput("N").assignPersistedData([0,1,1]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,0])).toEqual([0]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,1])).toEqual([1]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,2])).toEqual([1]);
 
             // change inputs, verify outputs have updated
-            numberComponent.getOutput().assignValues([2,3,4]);
+            numberComponent.getInput("N").assignPersistedData([2,3,4]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,0])).toEqual([2]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,1])).toEqual([3]);
             expect(graftComponent.getOutput().getTree().dataAtPath([0,2])).toEqual([4]);
