@@ -100,7 +100,7 @@ define([
             return inputs;
         },
         _propagatePulse: function(pulse){
-             console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'),pulse.cid);
+             //console.log(pulse.get('state') + ' pulse received: ',this.get('componentPrettyName'),pulse.cid);
 
             if (pulse.get('state') === "GRAPH_DISCOVERY") {
                 // DO NOT update path counts prior to running calculations if we're in calculation mode
@@ -109,7 +109,7 @@ define([
                     this.trigger('pulse',pulse);
                 }
             } else if (pulse.get('state') === "RECALCULATION")  {
-                console.trace();
+                //console.trace();
                 this._handleInputChange();
                 var propagate = pulse.updatePathCounts(this);
                 if (propagate) this.trigger('pulse',pulse);
@@ -133,7 +133,7 @@ define([
             if (_.isUndefined(inputName) || _.isUndefined(output)) {throw new Error("Unspecified Input");}
             if (!_.has(this,inputName)) {throw new Error("Tried to specify an input that does not exist");}
             if (this[inputName].type !== output.type) {throw new Error("Tried to specify an input of the wrong type");}
-            console.log('assigning input '+inputName);
+            //console.log('assigning input '+inputName);
             this[inputName].connectOutput(output); // matches signature found in inputOutputView.js
 
 //            this._calculateSufficiency(); // shouldn't be necessary -- the connection will trigger a 'change' on the input if applicable, which the component will be listening for
@@ -172,8 +172,8 @@ define([
             // consider current input statuses: do we have enough input to do the calculation?
             var isNullNow = !_.every(this.inputs,function(input){
                 var empty =  input.getTree().isEmpty();
-                console.log(input.shortName + " is ", input.getTree());
-                if (empty) console.log(input.values);
+                //console.log(input.shortName + " is ", input.getTree());
+                //if (empty) console.log(input.values);
                 return empty !== true;
             });
 
@@ -185,7 +185,7 @@ define([
                 this.simulatedRecalculate();
             } else {
 
-                console.log("NULL");
+                //console.log("NULL");
             }
 
             /////////// POST recalculation
@@ -265,7 +265,7 @@ define([
         },
         _recalculate: function(){
             // run whatever calculations are necessary, if all inputs are available
-            console.log(this.get('componentPrettyName')+ ' calls the deprecated method _recalculate()');
+            console.warn(this.get('componentPrettyName')+ ' calls the deprecated method _recalculate()');
 //            if (this.get('preview') === true) {
 //                this.drawPreviews();
 //            }

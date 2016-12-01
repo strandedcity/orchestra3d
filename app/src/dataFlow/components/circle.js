@@ -29,7 +29,7 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            window.LOG_TIME_EVENT("BEGIN RECALCULATE");
+            //window.LOG_TIME_EVENT("BEGIN RECALCULATE");
             this.getOutput("C").clearValues();
 
             // TODO: Protect against errors with zero-radius circles
@@ -40,18 +40,18 @@ define([
 
             this.getOutput("C").replaceData(result.tree);
 
-            window.LOG_TIME_EVENT("END RECALCULATE");
+            //window.LOG_TIME_EVENT("END RECALCULATE");
         },
         clearPreviews: function(){
-            window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
+            //window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
             DataFlow.Component.prototype.clearPreviews.call(this);
-            window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
+            //window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
         },
         drawPreviews: function(){
 
             //this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
 
-            window.LOG_TIME_EVENT("BEGIN REDRAW");
+            //window.LOG_TIME_EVENT("BEGIN REDRAW");
             var that=this;
             var curves = [];
             this.getOutput("C").getTree().recurseTree(function(data){

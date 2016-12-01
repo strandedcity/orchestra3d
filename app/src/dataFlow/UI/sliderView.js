@@ -38,7 +38,7 @@ define([
         // That bogs down even in desktop grasshopper, so it seems like a tall order. But this can be changed...
         // See "events" on the github page at the top of this file.
         input.on('slide slideStop',function(){
-            window.LOG_TIME_EVENT("SLIDER PULSE");
+            //window.LOG_TIME_EVENT("SLIDER PULSE");
             valueCallback(input.slider('getValue'));
         });
 

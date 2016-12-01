@@ -30,7 +30,7 @@ require(["appconfig"],function(){
                 prevTimeStamp = timestamp;
 
                 if (end) {
-                    console.log(JSON.stringify(events).toString().replace(/},{/g,"\n"));
+                    //console.log(JSON.stringify(events).toString().replace(/},{/g,"\n"));
                     prevTimeStamp = 0;
                     events = [];
                 }
@@ -199,7 +199,7 @@ require(["appconfig"],function(){
                             // if all inputs to a component are disconnected, trigger a pulse
                             // to make sure the component recalculates now that all conections are in place
                             if (disconnectedCount === cpt.inputs.length) {
-                                console.log('master trigger now');
+                                //console.log('master trigger now');
                                 var start = cpt.inputs[0];
                                 start.trigger('pulse',new Pulse({startPoint:start}));
                             }

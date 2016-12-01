@@ -13,12 +13,10 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             outputX.getInput("N").assignPersistedData([1,2]);
             outputY.getInput("N").assignPersistedData([2,4]);
             outputZ.getInput("N").assignPersistedData([4,8]);
-            console.log("VALUES Output from NUMBER:");
             outputX.getOutput("N").values.log();
 
             pointComponent = new dataFlow.components.point.PointComponent();
             setTimeout(function(){
-                console.log("-------------");
                 done();
             },50);
         });
@@ -127,8 +125,6 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
         });
         it("Listens ONLY to a new input when that input is re-assigned",function(){
             assignInputs();
-            console.clear();
-            console.log("------------------\nBEGIN SPYING");
             spyOn(pointComponent, 'simulatedRecalculate');
 
             // create new input

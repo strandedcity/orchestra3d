@@ -197,26 +197,26 @@ define([
             // In a simple world, an input can only be connected to one output, so it would inherit that
             // output's values directly. However, an input can be attached to multiple outputs, so it needs to
             // harvest and combine those output's values into a single data tree.
-console.log('processIncomingChange on '+this.shortName);
+            // console.log('processIncomingChange on '+this.shortName);
             // Step through each connected output model. For each model, append data to the same branch of the tree
             var treeCreated = false,
                 pulse = p || new Pulse({startPoint:this}),
                 that = this;
 
             if (pulse.get('state') === "RECALCULATION") {
-                console.log("RECALCULATION pulse received on " + this.shortName + " from " + pulse.cid  );
-                console.trace();
+                //console.log("RECALCULATION pulse received on " + this.shortName + " from " + pulse.cid  );
+                //console.trace();
                 // Only actually copy the tree data during the recalculation phase.
                 // Doing it during Graph Discovery will cause multiple copy operations
                 // for one data tree, a huge waste of an expensive operation!
                 _.each(this._listeningTo,function(outputModel){
                     if (treeCreated === false) {
-                        console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
-                        outputModel.values.log();
+                        //console.log('COPYING values from output '+outputModel.shortName + " to input " + that.shortName);;
+                        //outputModel.values.log();
                         that.values = outputModel.getTree().copy();
                         treeCreated = true;
                     } else {
-                        console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
+                        //console.log('APPENDING values from output '+outputModel.shortName + " to input " + that.shortName);
                         // ADD this model's data to the end of each path in the tree
                         outputModel.getTree().recurseTree(function(data,node){
                             var path = node.getPath(),
@@ -227,15 +227,15 @@ console.log('processIncomingChange on '+this.shortName);
                     }
                 });
             } else {
-                console.log("(no changes made for GRAPH_DISCOVERY)");
+                //console.log("(no changes made for GRAPH_DISCOVERY)");
             }
 
-            console.log('processIncomingChange DONE:'+this.shortName);
-            this.values.log();
+            //console.log('processIncomingChange DONE:'+this.shortName);
+            //this.values.log();
             this.trigger("pulse",pulse);
         },
         connectAdditionalOutput: function(outputModel, validateModels){
-            console.log('CONNECT ADDITIONAL OUTPUT------------');
+            //console.log('CONNECT ADDITIONAL OUTPUT------------');
             if (validateModels !== false) this.validateOutput(outputModel);
 
             var that=this;
@@ -259,7 +259,7 @@ console.log('processIncomingChange on '+this.shortName);
 
             //this.set({isNull: false},{silent: true}); // unset the "null" override
             this.trigger("connectedOutput", outputModel);
-console.log('trigger pulse on '+this.shortName);
+            //console.log('trigger pulse on '+this.shortName);
             this.processIncomingChange();
             //this.trigger('pulse',new Pulse({startPoint: this})); // Not the best
         },
