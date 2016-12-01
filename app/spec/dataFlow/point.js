@@ -85,7 +85,7 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             // IF there are sufficient inputs for the calculation to occur
             setTimeout(function(){
 
-                outputX.assignValues([8,8]);
+                outputX.getInput("N").assignPersistedData([8,8]);
                 expect(pointComponent.simulatedRecalculate).not.toHaveBeenCalled();
             },50);
         });
@@ -132,10 +132,10 @@ define(["dataFlow/dataFlow_loader","SISL/sisl_loader"],function(dataFlow,Geo){
             spyOn(pointComponent, 'simulatedRecalculate');
 
             // create new input
-            var outputZReplacement = new dataFlow.Output({type: dataFlow.OUTPUT_TYPES.NUMBER, shortName: "N"});
-            outputZReplacement.assignValues([9,10]);
+            var outputZReplacement = new dataFlow.components.number.NumberComponent();
+            outputZReplacement.getInput("N").assignPersistedData([9,10]);
             expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(0);
-            pointComponent.assignInput("Z",outputZReplacement);
+            pointComponent.assignInput("Z",outputZReplacement.getOutput());
 
             // Verify component has recalculated based on new input
             expect(pointComponent.simulatedRecalculate.calls.count()).toEqual(1);

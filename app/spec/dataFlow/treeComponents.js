@@ -9,7 +9,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
         booleanTrueComponent = dataFlow.createComponentByName("BooleanTrueComponent");
 
         mixedBooleanToggleComponent = dataFlow.createComponentByName("BooleanToggleComponent");
-        mixedBooleanToggleComponent.getOutput().assignValues([true,false,true,false,true,false]);
+        mixedBooleanToggleComponent.getInput("B").assignPersistedData([true,false,true,false,true,false]);
 
         pointComponent = dataFlow.createComponentByName("PointComponent");
     });
@@ -39,7 +39,7 @@ define(["dataFlow/dataFlow_loader"],function(dataFlow){
         it("Triggers recalculation for upstream changes",function(){
             graftComponent["T"].connectOutput(numberComponent.getOutput());
 
-            // check up on a couple key phases of the data bubbling. Can only spy on one thing at a time, so we need to assignValues() twice
+            // check up on a couple key phases of the data bubbling. Can only spy on one thing at a time, so we need to assignPersistedData() twice
             spyOn(graftComponent.getOutput(),'replaceData');
             numberComponent.getInput("N").assignPersistedData([0,1,1,0,0,1,1,0,0,1]);
             expect(graftComponent.getOutput().replaceData).not.toHaveBeenCalled();

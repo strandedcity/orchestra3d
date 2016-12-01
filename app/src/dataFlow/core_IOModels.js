@@ -341,23 +341,6 @@ console.log('trigger pulse on '+this.shortName);
             // For outputs
             this.trigger("disconnectAll",this); // completely remove the input
         },
-        assignValues: function(values, forPath){
-            // THIS FUNCTION IS FOR TESTING ONLY! IT ALLOWS THE CREATION OF 'MOCK' OUTPUT OBJECTS.
-            // USE OUTSIDE OF THIS SCENARIO INDICATES INCORRECT CODE, PROBABLY FROM TRYING TO SET
-            // 'USER-DATA' WITH THE WRONG METHOD. SET USER DATA ON INPUTS ONLY, USING 'ASSIGNPERSISTEDDATA'
-
-            if (window.jasmine === "undefined") throw new Error("Use of assignValues() on an OUTPUT outside a JavaScript Test Indicates a mistake. Use assignPersistedData on an INPUT instead.");
-            if (!_.isArray(values)) throw new Error("'Values' must be an array");
-
-            _.each(values,function(v){
-                if (typeof v !== "number" && typeof  v !== "boolean") {throw new Error("Only Numeric & Boolean values can be assigned directly.");}
-            });
-
-            // store data
-            this.values.addChildAtPath(values,forPath || [0],true);
-
-            this.trigger("pulse",new Pulse({startPoint: this}));
-        },
         assignPersistedData: function(dataTree){
 
             // Persisted data is independent of "connected" data... so we assign each branch of it normally, but keep an un-altered copy

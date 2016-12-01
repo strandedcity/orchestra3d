@@ -1,4 +1,4 @@
-define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(DataTree,dataFlow,DataMatcher){
+define(["dataFlow/dataTree","dataFlow/dataFlow_loader","dataFlow/dataMatcher"],function(DataTree,dataFlow,DataMatcher){
     /*
         THE TESTS IN THIS FILE ARE INTENDED TO MIMIC GRASSHOPPER'S DATA-MATCHING BEHAVIOR PERFECTLY
         TO SEE THE PARALLEL GRASSHOPPER RESULTS, SEE /dataFlow/ghx/dataMatcherTests.ghx
@@ -6,6 +6,23 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
 
     return ["DataMatcher",function(){
         var outputs;
+
+        function createNumberOutputWithValuesAtPaths(values){
+            // values should be an array of objects:
+            // [
+            //     {data: [data], path: [path]},
+            //     {data: [data], path: [path]}
+            //     ...
+            // ]
+            var t = new DataTree();
+            _.each(values,function(val){
+                t.setDataAtPath(val.data,val.path);
+            })
+
+            var n = new dataFlow.components.number.NumberComponent();
+            n.getInput("N").assignPersistedData(t);
+            return n.getOutput();
+        }
 
         beforeEach(function(){
             // let's have some trees to work with. Because DataMatcher is a "class" specifically designed to mimic grasshopper's
@@ -19,13 +36,16 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
         });
 
         it("Selects the correct master list when there are equal numbers of branches, but a deeper path in one case",function(){
-            var A = outputs[0], B = outputs[1];
-            A.assignValues([0.1],[0]);
-            A.assignValues([0.11],[1]);
+            A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1], path: [0]},
+                {data: [0.11], path: [1]}
+            ]);
 
             // B -- should act as "master" list though it doesn't matter in this case
-            B.assignValues([1],[0,0]);
-            B.assignValues([2],[0,1]);
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1], path: [0,0]},
+                {data: [2], path: [0,1]}
+            ]);
 
             // Output C
             var calculatedResult = DataMatcher([A,B],function(a,b){
@@ -38,14 +58,17 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             expect(calculatedResult.tree.dataAtPath([0,1],false)).toEqual([0.22]);
         });
         it("Selects the correct master list when there more branches on the non-master path, but deeper branches on the master path",function(){
-            var A = outputs[0], B = outputs[1];
-            A.assignValues([0.1],[0]);
-            A.assignValues([0.11],[1]);
-            A.assignValues([0.111],[2]);
+            var A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1], path: [0]},
+                {data: [0.11], path: [1]},
+                {data: [0.111], path: [2]}
+            ]),
 
             // B -- should act as "master" list though it doesn't matter in this case
-            B.assignValues([1],[0,0]);
-            B.assignValues([2],[0,1]);
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1], path: [0,0]},
+                {data: [2], path: [0,1]}
+            ]);
 
             // Output C
             var calculatedResult = DataMatcher([A,B],function(a,b){
@@ -59,9 +82,12 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             expect(calculatedResult.tree.dataAtPath([0,2],false)).toEqual([0.222]);
         });
         it("Matches two trees with no branches",function(){
-            var A = outputs[0], B = outputs[1];
-            A.assignValues([0.1,0.11,0.111],[0]);
-            B.assignValues([1,2,3,4,5],[0]);
+            var A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1,0.11,0.111], path: [0]}
+            ]),
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1,2,3,4,5], path: [0]}
+            ]);
 
             // Calculate result tree
             var calculatedResult = DataMatcher([A,B],function(a,b){
@@ -73,10 +99,15 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             expect(calculatedResult.dataAtPath([0],false)).toEqual([0.1, 0.22, 0.333, 0.444, 0.555 ]);
         });
         it("Matches three trees with no branches",function(){
-            var A = outputs[0], B = outputs[1], C = outputs[2];
-            A.assignValues([0.1,0.11,0.111],[0]);
-            B.assignValues([1,2],[0]);
-            C.assignValues([1000,2000,3000,4000,5000],[0]); // C is master
+            var A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1,0.11,0.111], path: [0]}
+            ]),
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1,2], path: [0]}
+            ]),
+            C = createNumberOutputWithValuesAtPaths([
+                {data: [1000,2000,3000,4000,5000], path: [0]} // C is master
+            ]);
 
             // Calculate result tree
             var calculatedResult = DataMatcher([A,B,C],function(a,b,c){
@@ -88,13 +119,15 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             expect(calculatedResult.dataAtPath([0],false)).toEqual([1000.1, 2000.22, 3000.222, 4000.222, 5000.222 ]);
         });
         it("Matches two trees with non-matching branch levels",function(){
-            var A = outputs[0], B = outputs[1];
-            A.assignValues([0.1],[0]);
-            A.assignValues([0.11],[1]);
-            A.assignValues([0.111],[2]);
-
-            B.assignValues([1,4],[0,0,0]);
-            B.assignValues([2,5],[0,1,0]);
+            var A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1], path: [0]},
+                {data: [0.11], path: [1]},
+                {data: [0.111], path: [2]}
+            ]),
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1,4], path: [0,0,0]},
+                {data: [2,5], path: [0,1,0]}
+            ]);
 
             // Calculate result tree
             var calculatedResult = DataMatcher([A,B],function(a,b){
@@ -108,15 +141,18 @@ define(["dataFlow/dataTree","dataFlow/core","dataFlow/dataMatcher"],function(Dat
             expect(calculatedResult.dataAtPath([0,1,1],false)).toEqual([  0.222,0.555  ]);
         });
         it("Matches three trees with non-matching branch levels",function(){
-            var A = outputs[0], B = outputs[1], C = outputs[2];
-            A.assignValues([0.1],[0]);
-            A.assignValues([0.11],[1]);
-            A.assignValues([0.111],[2]);
-
-            B.assignValues([1],[0,0]);
-            B.assignValues([2],[0,1]);
-
-            C.assignValues([1000,2000,3000],[0,0,0,0]); // C is master
+            var A = createNumberOutputWithValuesAtPaths([
+                {data: [0.1], path: [0]},
+                {data: [0.11], path: [1]},
+                {data: [0.111], path: [2]}
+            ]),
+            B = createNumberOutputWithValuesAtPaths([
+                {data: [1], path: [0,0]},
+                {data: [2], path: [0,1]}
+            ]),
+            C = createNumberOutputWithValuesAtPaths([
+                {data: [1000,2000,3000], path: [0,0,0,0]} // C is master
+            ]);
 
             // Calculate result tree
             var calculatedResult = DataMatcher([A,B,C],function(a,b,c){
