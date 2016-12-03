@@ -14,7 +14,7 @@ define(["SISL/sisl_loader"],function(SISL){
             expect(typeof ptr).toBe("function");
         });
         it("freeCurve",function(){
-            var freeCurve = Module.cwrap('freeCurve','number',['number']);
+            var freeCurve = Module.cwrap('freeSISLCurve','number',['number']);
             expect(typeof freeCurve).toBe("function");
         });
         it("s1240 / curve length",function(){

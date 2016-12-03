@@ -6,7 +6,7 @@ echo "Building javascript..."
 # source ~/emsdk-portable/emsdk_set_env.sh
 
 # Run the compile operation!
-/home/phil/emscripten/emcc \
+emcc \
     src/SISL/src/*.c \
     -o src/SISL/compiled.js \
     -s EXPORTED_FUNCTIONS="[
@@ -14,10 +14,10 @@ echo "Building javascript..."
         '_freeSISLCurve',
         '_curveParametricEnd',
         '_curveParametricStart',
-        '_s1240',
-        '_s1227',
-        '_s1303',
-        '_s1356'
+        '_s1240', # Compute Curve Length
+        '_s1227', # Evaluate 1st Deriv of Curve (parameter value)
+        '_s1303', # Circle(center, axis, rotational angle)
+        '_s1356' # InterpolateCurve(pointList)
     ]" \
     -s TOTAL_MEMORY=536870912 \
     -O3 \
