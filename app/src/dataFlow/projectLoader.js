@@ -38,6 +38,7 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
     }
 
     function loadProjectFromParse(projectId, callback){
+        var p = new Parse.Promise();
         var query = new Parse.Query(OrchestraProject);
         query.get(projectId, {
             success: function(parseModel) {
@@ -46,13 +47,15 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
                 currentProject = parseModel;
 
                 // Create the corresponding native project model, and return it
-                callback(new Project(parseModel.toJSON()));
+                p.resolve(new Project(parseModel.toJSON()));
             },
             error: function(object, error) {
                 // The object was not retrieved successfully.
                 // error is a Parse.Error with an error code and message.
+                p.reject(error);
             }
         });
+        return p;
     }
 
     function loadProjectFromUrl(url, callback){

@@ -82,7 +82,15 @@ require(["appconfig"],function(){
 
             App.prototype.init = function(){
                 this.currentProject = null;
-                _.bindAll(this,"newProject","save","loadJSONProject","loadParseProject","clearWorkspace");
+                _.bindAll(this,
+                    "newProject",
+                    "save",
+                    "loadJSONProject",
+                    "loadParseProject",
+                    "clearWorkspace",
+                    "initializeViewer",
+                    "setupDemoMode"
+                );
 
                 viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
                 workspace.createWorkspace();
@@ -168,6 +176,51 @@ require(["appconfig"],function(){
                 });
             };
 
+            App.prototype.setupDemoMode = function(){
+                console.warn("TODO: Visual indicators for demo mode.");
+
+                // Load a list of available sample projects instead of "this user's" projects
+
+                // Show Orientation
+
+                // Show "DEMO" Flag in the corner
+
+                // Load sample project du jour
+
+                this.loadJSONProject.call(this,'example_gridOfPoints_attractorField.json?');
+            };
+
+            App.prototype.initializeViewer = function(proj){
+                this.loadWorkspace(proj);
+
+                console.warn('window.frozen = false');
+                window.frozen = false;
+
+                // Trigger "change" events on components with inputs without connections, one per component
+                // These are the beginnings of the "graph"
+                _.each(proj.get('components'),function(cpt){
+                    var disconnectedCount = 0;
+                    _.each(cpt.inputs,function(ipt){
+                        if (  _.keys(ipt._listeningTo).length === 0 && !ipt.getTree().isEmpty()) {
+                            disconnectedCount++;
+//                                    console.log('triggering change on '+ipt.shortName+cpt.get('componentPrettyName'));
+//                                    ipt.trigger("change");
+                        } else if (ipt.get('invisible') === true) {
+                            disconnectedCount++;
+                        }
+                    });
+
+                    // if all inputs to a component are disconnected, trigger a pulse
+                    // to make sure the component recalculates now that all conections are in place
+                    if (disconnectedCount === cpt.inputs.length) {
+                        //console.log('master trigger now');
+                        var start = cpt.inputs[0];
+                        start.trigger('pulse',new Pulse({startPoint:start}));
+                    }
+                });
+                //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
+            };
+
             App.prototype.loadParseProject = function(projectId){
                 console.warn('window.frozen = true');
                 window.frozen = true;
@@ -175,37 +228,23 @@ require(["appconfig"],function(){
                 var that = this;
                 require(["dataFlow/projectLoader"],function(Loader){
                     // no reference necessary. The slider will clean itself up.
-                    Loader.loadProjectFromParse(projectId,function(proj){
-                        that.loadWorkspace(proj);
-                        console.log('\n\nLOADED PROJECT FROM PARSE');
+                    Loader.loadProjectFromParse(projectId)
+                        .then(function(proj){
+                            console.log('\n\nLOADED PROJECT FROM PARSE');
 
-                        console.warn('window.frozen = false');
-                        window.frozen = false;
-
-                        // Trigger "change" events on components with inputs without connections, one per component
-                        // These are the beginnings of the "graph"
-                        _.each(proj.get('components'),function(cpt){
-                            var disconnectedCount = 0;
-                            _.each(cpt.inputs,function(ipt){
-                                if (  _.keys(ipt._listeningTo).length === 0 && !ipt.getTree().isEmpty()) {
-                                    disconnectedCount++;
-//                                    console.log('triggering change on '+ipt.shortName+cpt.get('componentPrettyName'));
-//                                    ipt.trigger("change");
-                                } else if (ipt.get('invisible') === true) {
-                                    disconnectedCount++;
-                                }
-                            });
-
-                            // if all inputs to a component are disconnected, trigger a pulse
-                            // to make sure the component recalculates now that all conections are in place
-                            if (disconnectedCount === cpt.inputs.length) {
-                                //console.log('master trigger now');
-                                var start = cpt.inputs[0];
-                                start.trigger('pulse',new Pulse({startPoint:start}));
+                            that.initializeViewer.call(that,proj);
+                        })
+                        .fail(function(e){
+                            if (e && e.code === 100) {
+                                // Server is unavailable. This is a fatal error, but for right now let's just enter demo mode
+                                alert("Server Unavailable. Entering Demo Mode.");
+                                that.setupDemoMode();
+                            } else {
+                                alert("Unknown fatal error. See console for more info.");
+                                console.log("Error details while trying to load project from Parse Server:");
+                                console.log(e);
                             }
                         });
-                        //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
-                    });
                 });
             };
 
@@ -215,8 +254,9 @@ require(["appconfig"],function(){
 
                 require(["dataFlow/projectLoader"],function(Loader){
                     Loader.loadProjectFromUrl(url,function(proj){
-                        that.loadWorkspace(proj);
                         console.log('\n\nLOADED PROJECT FROM FILE');
+
+                        that.initializeViewer.call(that,proj);
                     });
                 });
             };
