@@ -4,4 +4,4 @@ node_modules/*
 secrets/*
 logs/*
 .vscode/*
-
+emsdk_portable/*
