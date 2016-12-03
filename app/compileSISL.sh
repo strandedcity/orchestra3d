@@ -17,7 +17,8 @@ emcc \
         '_s1240', # Compute Curve Length
         '_s1227', # Evaluate 1st Deriv of Curve (parameter value)
         '_s1303', # Circle(center, axis, rotational angle)
-        '_s1356' # InterpolateCurve(pointList)
+        '_s1356', # InterpolateCurve(pointList)
+        '_s1360', # Create an approximation of the offset to a curve within a tolerance
     ]" \
     -s TOTAL_MEMORY=536870912 \
     -O3 \
