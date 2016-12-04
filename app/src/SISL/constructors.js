@@ -11,6 +11,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
         var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
         var s1356 = Module.cwrap('s1356','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
+        var s1360 = Module.cwrap('s1360','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
@@ -165,6 +166,21 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         s1303(startpt, precision, angle, centrept, axis, dim, ptr, 0);
 
         // store the pointer for later use. s1303 takes a pointer to a pointer, so this._pointer needs to be retrieved
+        this._pointer = Module.getValue(ptr, 'i8*');
+    };
+
+    Geo.CurveOffset = function CurveOffset(oldCrv,offsetDist,normalVect){
+        // s1360(*oldcurve, double offset, double maxdeviation, double[] normal Vector (for 3d), double maxStepLength, int dimension, **newcurve, int* stat)
+
+        var normal = normalVect || new THREE.Vector3(0,0,1),
+            normalArr = Module.Utils.copyJSArrayToC([normal.x,normal.y,normal.z]),
+            maxStepLength = 0.01, // ignored when > precision
+            ptr = Module._malloc(16*7); // SISLCurve Struct size, for output
+
+        console.warn("Not sure what step length means!");
+
+        s1360(oldCrv._pointer, offsetDist, precision, normalArr, maxStepLength, 3, ptr, 0);
+
         this._pointer = Module.getValue(ptr, 'i8*');
     };
 

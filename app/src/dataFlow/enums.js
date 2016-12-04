@@ -11,8 +11,9 @@ define([],function(){
             POINT: 2,
             CURVE: 3,
             SURFACE: 4,
-            WILD: 5,
-            NULL: 6
+            PLANE: 5,
+            WILD: 6,
+            NULL: 7
         },
         KEYS: {
             SHIFT: 16

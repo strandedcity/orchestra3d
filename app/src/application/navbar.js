@@ -89,6 +89,7 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
                         User.fetchProjects(function(list){
                             var model = currentUser.toJSON();
                             that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_in').html(),model));
+
                         });
                     }
                 });
@@ -113,7 +114,7 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
             });
         },
         render: function(){
-            var userData = {username: "Phil"}; // STUBBED OUT! The navbar should be templated with the logged in user's stuff.
+            var userData = {username: ""}; // STUBBED OUT! The navbar should be templated with the logged in user's stuff.
             var navHTML = this.template(userData);
             this.$el.html(navHTML);
         }

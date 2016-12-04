@@ -30,7 +30,7 @@ define(["jquery","parse","underscore","backbone"],function($,Parse,_,Backbone){
                         });
                         user.set('projects',projectList);
                         user.save();
-                        callback(user.get('projects'));
+                        callback(projectList);
                     }
                 });
             } else {

@@ -122,6 +122,58 @@ define([
         }
     });
 
+    components.CurveOffsetComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "C", required: true, type: DataFlow.OUTPUT_TYPES.CURVE},
+                {shortName: "D", required: false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "P", required: false, default: false, type: DataFlow.OUTPUT_TYPES.PLANE} // default worldXY
+                //{shortName: "C", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}, // corner type flag ?
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Offset",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            console.log('recalculating offsetcurve');
+
+            /* C = Curve, D = Distance, P = Plane */
+            var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(curve, distance, plane){
+                //var normalVect = plane.getNormal();
+                console.warn("NEED TO DEFINE PLANE OBJECT WITH .getNormal() method");
+                return new Geometry.CurveOffset(curve,distance,plane);
+            });
+
+            this.getOutput("C").replaceData(result.tree);
+        },
+        drawPreviews: function(){
+            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
+
+            var preview;
+            if (_.isArray(this.previews) && this.previews.length > 0) {
+                preview = this.previews[0];
+
+                // update the preview geometry
+                preview.updateCurveList(curves);
+                preview.show();
+            }
+            else {
+                preview = new Preview.CurveListPreview(curves);
+                this.previews = [preview];
+            }
+        }
+    });
+
     components.CurveInterpolatedComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
