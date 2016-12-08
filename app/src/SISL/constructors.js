@@ -245,6 +245,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     _.extend(Geo.Curve.prototype,curveMethods);
     _.extend(Geo.CircleCNR.prototype,curveMethods);
     _.extend(Geo.CurveInterpolated.prototype,curveMethods);
+    _.extend(Geo.CurveOffset.prototype,curveMethods);
 
     // BASIC TESTING STRATEGY:
     // window.CurveInterp = Geo.CurveInterpolated;

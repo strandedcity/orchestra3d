@@ -148,7 +148,7 @@ define([
             console.log('recalculating offsetcurve');
 
             /* C = Curve, D = Distance, P = Plane */
-            var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(curve, distance, plane){
+            var result = DataMatcher([this.getInput("C"),this.getInput("D"),this.getInput("P")],function(curve, distance, plane){
                 //var normalVect = plane.getNormal();
                 console.warn("NEED TO DEFINE PLANE OBJECT WITH .getNormal() method");
                 return new Geometry.CurveOffset(curve,distance,plane);
