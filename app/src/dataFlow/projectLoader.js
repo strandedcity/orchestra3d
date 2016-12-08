@@ -7,7 +7,7 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
         currentProject = null;
 
     function saveProjectToParse(proj){
-        User.fetchCurrentUser(function(user){
+        Parse.User.current().fetch().then(function(user){
             // The project should always be saved with the current user's information, even if it was originally by someone else
             proj.set('authorId',user.id);
             proj.set('authorName',user.get('username'));
@@ -59,7 +59,7 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
     }
 
     function loadProjectFromUrl(url, callback){
-        $.get(url +Math.random(),function(json){
+        $.get("examples/" + url + "?" + Math.random(),function(json){
 
             // NOT loading from parse, so if the user hits "save" it should make a new parse model:
             currentProject = null;

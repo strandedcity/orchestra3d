@@ -40,7 +40,12 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         },
         openProject: function(e){
             var projectId = $(e.target).attr('id');
-            this.trigger('openParseProject',projectId);
+
+            if (projectId.indexOf('.json') > -1) {
+                this.trigger('openExampleProject',projectId);
+            } else {
+                this.trigger('openParseProject',projectId);
+            }
         },
         newProject: function(e){
             this.trigger("openNewProject");
@@ -78,20 +83,11 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
         fetchUser: function(){
             var that = this;
             require(["dataFlow/user"],function(User){
-                User.fetchCurrentUser(function(currentUser){
-                    if (_.isNull(currentUser)) {
-                        // show login menu
-                        // that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_out').html()));
-                        window.location = "login.html";
-                    } else {
-                        // show logged-in view
-                        that.setUser(currentUser);
-                        User.fetchProjects(function(list){
-                            var model = currentUser.toJSON();
-                            that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_in').html(),model));
+                User.fetchProjects(function(currentUser){
+                    // Will either return a user or a 'user stub' to be used for the demo
+                    var model = currentUser.toJSON();
+                    that.$el.find('#nav-loggedin-area').append(_.template($('#user_menu_template_logged_in').html(),model));
 
-                        });
-                    }
                 });
             });
         },

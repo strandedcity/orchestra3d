@@ -123,7 +123,7 @@ require(["appconfig"],function(){
                 //this.loadJSONProject('example_gridOfPoints.json?');
                 //this.loadJSONProject('curveWithVectorsTest.json?');
 //                this.loadJSONProject('example_lamp.json?');
-                this.loadParseProject("JnbJpY8YjG");
+//                this.loadParseProject("JnbJpY8YjG");
                 // this.loadParseProject("lU5ZVtZCzl"); // "Just a Circle"
 //                this.loadParseProject("xehmUDz4Lk"); // "Just a Point"
 

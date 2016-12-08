@@ -52,7 +52,7 @@ requirejs.config({
         // general libraries
         jquery: 'lib/jquery-2.1.1.min',
         backbone: 'lib/backbone-min',
-        "parse-lib": 'lib/parse-1.3.3.min',
+        "parse-lib": 'lib/parse-1.5.0.min',
         parse: 'src/dataFlow/parseInitializer',
         underscore: 'lib/underscore-min',
         bootstrap: 'lib/bootstrap.min',
