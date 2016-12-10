@@ -184,6 +184,44 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         this._pointer = Module.getValue(ptr, 'i8*');
     };
 
+    Geo.Intersections = {};
+    Geo.Intersections.CurveCurve = function CurveCurveIntersection(curve1,curve2){
+        // s1857 - Find all the intersections between two curves.
+        //void s1857(curve1, curve2, epsco, epsge, numintpt, intpar1, intpar2,
+        //    numintcu, intcurve, stat)
+
+        // INPUT
+        //SISLCurve *curve1;
+        //SISLCurve *curve2;
+        //double            epsco;
+        //double            epsge;
+        //int            *numintpt;
+
+        // OUTPUT
+        //double            **intpar1;
+        //double            **intpar2;
+        //int            *numintcu;     // not implemented in round 1
+        //SISLIntcurve ***intcurve;     // not implemented in round 1
+        //int            *stat;         // not implemented in round 1
+
+
+        // CCX component
+        // IN: A, B (curves)
+        // OUT: P (points), tA (parameters on curve A AS_LIST), tB (parameters on curve B AS_LIST)
+
+        // For each intersection point, calculate the point in world xyz
+        // (sisl outputs the point in terms of parameters on the first curve)
+        var intersectionPointsXYZ = [];
+
+        // Returns list of intersection points, as well as the parameters of the intersection points
+        // on c1 and c2
+        return {
+            intersectionPointsXYZ: intersectionPointsXYZ,
+            curve1Parameters: [],
+            curve2Parameters: []
+        };
+    };
+
     Geo.CurveInterpolated = function CurveInterpolated(pointList,degree,periodic){
         validateControlPointList(pointList);
         if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
