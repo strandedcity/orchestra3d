@@ -5,10 +5,11 @@ define([
         "dataFlow/components/number",
         "dataFlow/components/point",
         "dataFlow/components/curve",
+        "dataFlow/components/intersections",
         "dataFlow/components/circle",
         "dataFlow/components/treeComponents",
         "dataFlow/components/math_simple"
-    ],function(_,core,boolean,number,point,curve,circle,tree,simpleMath){
+    ],function(_,core,boolean,number,point,curve,intersections,circle,tree,simpleMath){
         var dataFlow = {};
         dataFlow = _.extend(dataFlow,core);
 
@@ -18,6 +19,7 @@ define([
         dataFlow["components"]["point"] = point;
         dataFlow["components"]["curve"] = curve;
         dataFlow["components"]["curve"] = _.extend(dataFlow["components"]["curve"],circle);
+        dataFlow["components"]["intersections"] = intersections;
         dataFlow["components"]["tree"] = tree;
         dataFlow["components"]["simpleMath"] = simpleMath;
 

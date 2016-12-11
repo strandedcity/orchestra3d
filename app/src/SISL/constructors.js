@@ -12,6 +12,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
         var s1356 = Module.cwrap('s1356','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
         var s1360 = Module.cwrap('s1360','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
+        var s1857 = Module.cwrap('s1857','number',['number','number','number','number','number','number','number','number','number','number']);
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
@@ -187,38 +188,40 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     Geo.Intersections = {};
     Geo.Intersections.CurveCurve = function CurveCurveIntersection(curve1,curve2){
         // s1857 - Find all the intersections between two curves.
-        //void s1857(curve1, curve2, epsco, epsge, numintpt, intpar1, intpar2,
-        //    numintcu, intcurve, stat)
 
-        // INPUT
-        //SISLCurve *curve1;
-        //SISLCurve *curve2;
-        //double            epsco;
-        //double            epsge;
-        //int            *numintpt;
+        // INPUT arguments
+        var crv1ptr = curve1.getPointer(),  // SISLCurve        *curve1;
+            crv2ptr = curve2.getPointer(),  // SISLCurve        *curve2;
+            epsco = precision,              // double           epsco;
+            epsge  = precision,             // double           epsge;
 
         // OUTPUT
-        //double            **intpar1;
-        //double            **intpar2;
-        //int            *numintcu;     // not implemented in round 1
-        //SISLIntcurve ***intcurve;     // not implemented in round 1
-        //int            *stat;         // not implemented in round 1
+            numintpt = Module._malloc(8),   // int              *numintpt;
+            intpar1 = Module._malloc(8),    // double           **intpar1;
+            intpar2 = Module._malloc(8),    // double           **intpar2;
+            numintcu = Module._malloc(8),   // int              *numintcu;     // not implemented in round 1
+            intcurve = Module._malloc(8),   // SISLIntcurve     ***intcurve;     // not implemented in round 1
+            stat = Module._malloc(8);       // int              *stat;         // not implemented in round 1
 
+        // Find Intersections!
+        s1857(crv1ptr,crv2ptr,epsco,epsge,numintpt,intpar1,intpar2,numintcu,intcurve,stat);
 
-        // CCX component
-        // IN: A, B (curves)
-        // OUT: P (points), tA (parameters on curve A AS_LIST), tB (parameters on curve B AS_LIST)
+        // how to deal with the pointer-pointer????
+        // http://kapadia.github.io/emscripten/2013/09/13/emscripten-pointers-and-pointers.html
+        // ... that would actually lead you astray, because in this case the memory is allocated by functions
+        // in SISL. So all we need is to read the first pointer, then start reading the array at the array's location
+        var intersectionCount = Module.getValue(numintpt, 'i8');
+        var tA = Module.Utils.copyCArrayToJS(Module.getValue(intpar1,'i8*'),intersectionCount);
+        var tB = Module.Utils.copyCArrayToJS(Module.getValue(intpar2,'i8*'),intersectionCount);
+        // console.log("Intersection Result:",{count: intersectionCount, curve1Min: curve1.getMinParameter(),curve1Max: curve1.getMaxParameter(), tA: tA,tB: tB});
 
-        // For each intersection point, calculate the point in world xyz
-        // (sisl outputs the point in terms of parameters on the first curve)
-        var intersectionPointsXYZ = [];
+        console.warn("TODO: FREE MEMORY FOR ALL THE STUFF ALLOCATED FOR INTERSECTIONS -- WE HAVE WHAT WE NEED NOW")
 
         // Returns list of intersection points, as well as the parameters of the intersection points
         // on c1 and c2
         return {
-            intersectionPointsXYZ: intersectionPointsXYZ,
-            curve1Parameters: [],
-            curve2Parameters: []
+            curve1Parameters: tA,
+            curve2Parameters: tB
         };
     };
 
@@ -254,6 +257,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             paramsPtr = Module._malloc(16*numPts),
             numberOfParams = Module._malloc(80);
         console.warn('interpcurves are DRAMATICALLY overallocated, but I dont know how.');
+        console.warn('ALSO the hard-coded value of periodic seems to be a bug!!');
 
         var arg = [
             pointsToInterpolate,    // double epoint[];

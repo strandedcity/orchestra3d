@@ -143,5 +143,10 @@
     "functionName": "MathExponentComponent",
     "name": "Exponent a^b",
     "shortDescription": "Returns the first input (a) raised to a power of the second input (b)."
+  },
+  {
+    "functionName": "CurveCurveIntersectionComponent",
+    "name": "Curve-Curve Intersection",
+    "shortDescription": "Finds intersections between two given curves."
   }
 ]
