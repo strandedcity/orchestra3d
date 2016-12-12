@@ -211,8 +211,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         // ... that would actually lead you astray, because in this case the memory is allocated by functions
         // in SISL. So all we need is to read the first pointer, then start reading the array at the array's location
         var intersectionCount = Module.getValue(numintpt, 'i8');
-        var tA = Module.Utils.copyCArrayToJS(Module.getValue(intpar1,'i8*'),intersectionCount);
-        var tB = Module.Utils.copyCArrayToJS(Module.getValue(intpar2,'i8*'),intersectionCount);
+        var t1 = Module.Utils.copyCArrayToJS(Module.getValue(intpar1,'i8*'),intersectionCount);
+        var t2 = Module.Utils.copyCArrayToJS(Module.getValue(intpar2,'i8*'),intersectionCount);
         // console.log("Intersection Result:",{count: intersectionCount, curve1Min: curve1.getMinParameter(),curve1Max: curve1.getMaxParameter(), tA: tA,tB: tB});
 
         console.warn("TODO: FREE MEMORY FOR ALL THE STUFF ALLOCATED FOR INTERSECTIONS -- WE HAVE WHAT WE NEED NOW")
@@ -220,8 +220,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         // Returns list of intersection points, as well as the parameters of the intersection points
         // on c1 and c2
         return {
-            curve1Parameters: tA,
-            curve2Parameters: tB
+            t1: t1,
+            t2: t2
         };
     };
 

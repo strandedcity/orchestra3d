@@ -94,9 +94,20 @@ define([
     };
 
     DataTree.prototype.copy = function(){
+        return this.map();
+    };
+
+    DataTree.prototype.map = function(dataTransformFunction){
+        // same as "copy" function in that it returns a fresh new tree. Different, in that
+        // it allows for the data in each branch to be transformed along the way.
+
         var copy = new DataTree();
         this.recurseTree(function(data,node){
-            copy.addChildAtPath(data,node.getPath(),true);
+            if (typeof dataTransformFunction === "function") {
+                copy.addChildAtPath(_.map(data,function(d){return dataTransformFunction(d)}),node.getPath(),true);
+            } else {
+                copy.addChildAtPath(data,node.getPath(),true);
+            }
         });
         return copy;
     };

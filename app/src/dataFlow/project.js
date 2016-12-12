@@ -65,7 +65,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             var connectionRoutes = [];
             var components = [];
             var that = this;
-            console.log(JSON.stringify(json));
+
             _.each(json, function (cpt) {
                 // Prior JSON files will use CIDs as IDs to identify components.
                 // Any components we end up adding in this session should absolutely not conflict with those,
@@ -76,8 +76,6 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 var component = DataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
                 components.push(component);
                 that.addComponentToProject.call(that,component);
-
-                console.log(cpt);
 
                 // if the inputs are supposed to be connected to something, keep track of them for a moment
                 _.each(cpt.inputs, function (iptJSON) {

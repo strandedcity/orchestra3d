@@ -12,11 +12,11 @@ define([
     // OUT: P (points), tA (parameters on curve A AS_LIST), tB (parameters on curve B AS_LIST)
     components.CurveCurveIntersectionComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = this.createIObjectsFromJSON([
+            var outputs = this.createIObjectsFromJSON([
                 {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT},
                 {shortName: "tA", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST},
                 {shortName: "tB", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST}
-            ], opts, "output");
+            ], opts, "outputs");
 
             var inputs = this.createIObjectsFromJSON([
                 {shortName: "A", required: true, type: DataFlow.OUTPUT_TYPES.CURVE},
@@ -28,7 +28,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: outputs
             });
             this.base_init(args);
         },
@@ -38,27 +38,24 @@ define([
                 // fill multiple output trees with return:
                 // {A: "data for tree A", B: "data for tree B"}
                 var intersections = Geometry.Intersections.CurveCurve(c1,c2);
-
-console.log(intersections);
+                intersections.p = _.map(intersections.t1,function(param){
+                    return c1.getPositionAt(param)
+                });
                 return intersections;
             });
 
-            // each intersetion will contain two pieces of data, and we need to extract a third:
-            //{
-            //    curve1Parameters: tA,
-            //        curve2Parameters: tB
-            //}
-
-            //// For each intersection point, calculate the point in world xyz
-            //// (sisl outputs the point in terms of parameters on the first curve)
-            //var intersectionPointsXYZ = _.map(tA,function(param){
-            //    return curve1.getPositionAt(param);
-            //});
-
-            this.getOutput("C").replaceData(result.tree);
+            this.getOutput("P").replaceData(result.tree.map(function(data){return data.p}));
+            this.getOutput("tA").replaceData(result.tree.map(function(data){return data.t1}));
+            this.getOutput("tB").replaceData(result.tree.map(function(data){return data.t2}));
         },
         drawPreviews: function(){
-            // TODO! Preview the intersection points.
+            var points = _.flatten(this.getOutput("P").getTree().flattenedTree().dataAtPath([0]));
+
+            if (this.previews[0]) {
+                this.previews[0].updatePoints(points);
+            } else {
+                this.previews[0] = new Preview.PointListPreview(points);
+            }
         }
     });
 
