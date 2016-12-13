@@ -27,9 +27,6 @@ requirejs.config({
         'bootstrap3-typeahead': {
             deps: ['bootstrap']
         },
-        'threejs': {
-            exports: 'THREE'
-        },
         'OrbitControls': {
             deps: ['threejs']
         },
@@ -44,7 +41,7 @@ requirejs.config({
     paths: {
         // UI
         viewer: 'src/viewer',
-        threejs: 'src/viewer/three.min',
+        threejs: 'src/viewer/three.wrapper',
         OrbitControls: 'src/viewer/OrbitControls',
         navbar: 'src/application/navbar',
         componentSearcher: 'src/application/componentSearcher',
