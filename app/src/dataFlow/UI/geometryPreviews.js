@@ -139,7 +139,7 @@ define([
             pointTexture = loader.load("./img/pointSprite_selected.png");
 
         //var material = new THREE.PointCloudMaterial( { map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false } );
-        var material = new THREE.PointsMaterial( {sizeAttenuation: false, size: 16, alpha:1,transparent:true, blending: THREE.AdditiveBlending, depthTest: false,  map: pointTexture } );
+        var material = new THREE.PointsMaterial( {sizeAttenuation: false, size: 16, transparent:true, blending: THREE.AdditiveBlending, depthTest: false,  map: pointTexture } );
         this.system = new THREE.Points(
             particleGeometry,
             material
@@ -148,7 +148,7 @@ define([
         viewer.scene.add(this.system);
         _.delay(function(){
             viewer.render();
-        },0);
+        },100);
     };
     PointListPreview.prototype.updatePoints = function(points){
         viewer.scene.remove(this.system);

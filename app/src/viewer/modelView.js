@@ -6,7 +6,7 @@ define(["threejs","OrbitControls"],function(){
         // This module loads three.js, then provides a function to perform the basic setup of a scene. It returns three.js variables needed to access that scene.
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.width/this.height, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({ antialiasing: true });
         //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
 
         _.bindAll(this,"render","clearScene");
@@ -30,8 +30,12 @@ define(["threejs","OrbitControls"],function(){
     };
 
     ModelSpace.prototype.setupScene = function(){
-        var axisHelper = new THREE.AxisHelper( 2 );
-        this.scene.add( axisHelper );
+        //var axisHelper = new THREE.AxisHelper( 2 );
+        //this.scene.add( axisHelper );
+
+        var gridHelper = new THREE.GridHelper( 30, 60, 0x444444, 0x888888 );
+        this.scene.add(gridHelper);
+        this.renderer.setClearColor( 0xaaaaaa, 1 );
     };
 
     ModelSpace.prototype.clearScene = function(){
