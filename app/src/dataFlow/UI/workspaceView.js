@@ -396,14 +396,12 @@ define([
     };
 
     Workspace.prototype.unprojectMouse = function(x,y){
-        var projector = new THREE.Projector();
-
         var vector = new THREE.Vector3(
                 ( x / this.glrenderer.domElement.clientWidth ) * 2 - 1,
                 - ( y / this.glrenderer.domElement.clientHeight ) * 2 + 1,
             0.5 );
 
-        projector.unprojectVector( vector, this.camera );
+        vector.unproject(this.camera);
 
         return vector
     };

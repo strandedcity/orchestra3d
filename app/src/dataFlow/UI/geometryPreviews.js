@@ -146,9 +146,9 @@ define([
         );
 
         viewer.scene.add(this.system);
-        _.defer(function(){
+        _.delay(function(){
             viewer.render();
-        });
+        },0);
     };
     PointListPreview.prototype.updatePoints = function(points){
         viewer.scene.remove(this.system);
