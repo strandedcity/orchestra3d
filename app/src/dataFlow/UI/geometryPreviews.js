@@ -26,7 +26,7 @@ define([
             color: 0xff00f0
         });
 
-        this.line = new THREE.Line(this.draw(),this.material,THREE.LinePieces);
+        this.line = new THREE.LineSegments(this.draw(),this.material);
         viewer.scene.add(this.line);
         viewer.render();
     };
@@ -53,7 +53,7 @@ define([
     CurveListPreview.prototype.updateCurveList = function(curveList){
         this.curveList = curveList;
         this.remove();
-        this.line = new THREE.Line(this.draw(),this.material,THREE.LinePieces);
+        this.line = new THREE.LineSegments(this.draw(),this.material);
         // this.line.geometry = this.draw(this.line);
         viewer.render();
         return this.line;
@@ -79,7 +79,7 @@ define([
                     var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
 
                     // adding two points at a time enables us to keep multiple curves in a list defined inside a single THREE.Geometry
-                    // without connecting each of the lines. See THREE.LinePieces below. This is a huge performance gain over
+                    // without connecting each of the lines. See THREE.LineSegments below. This is a huge performance gain over
                     // adding one point at a time, assuming the lines can't be connected.
                     newVertices[newVertices.length] = prevPointInCurve;
                     newVertices[newVertices.length] = newpt;
@@ -135,11 +135,12 @@ define([
             particleGeometry.vertices.push(particle);  // repeat for every point
         });
 
-        var pointSprite = THREE.ImageUtils.loadTexture( "./img/pointSprite.png" );
+        var loader = new THREE.TextureLoader(),
+            pointTexture = loader.load("./img/pointSprite_selected.png");
 
         //var material = new THREE.PointCloudMaterial( { map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false } );
-        var material = new THREE.PointCloudMaterial( { size: 0.5, map: pointSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent : true } );
-        this.system = new THREE.PointCloud(
+        var material = new THREE.PointsMaterial( {sizeAttenuation: false, size: 16, alpha:1,transparent:true, blending: THREE.AdditiveBlending, depthTest: false,  map: pointTexture } );
+        this.system = new THREE.Points(
             particleGeometry,
             material
         );
