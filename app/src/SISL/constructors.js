@@ -2,17 +2,27 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     console.warn("NEED A PLACE FOR USER SETTINGS SUCH AS PRECISION!");
     var precision = 0.00001;
 
+    // a tiny helper to avoid long lists of 'number' in the SISL cwrap calls
+    var numberArguments = function(count){
+        var arr = [];
+        while (count > 0){
+            arr.push('number');
+            count--;
+        }
+        return arr;
+    };
+
     try {
-        var newCurve = Module.cwrap('newCurve','number',['number','number','number','number','number','number','number']);
-        var freeCurve = Module.cwrap('freeSISLCurve','number',['number']);
-        var curveParametricEnd = Module.cwrap('curveParametricEnd','number',['number']);
-        var curveParametricStart = Module.cwrap('curveParametricStart','number',['number']);
-        var s1240 = Module.cwrap('s1240','number',['number','number','number','number']);
-        var s1227 = Module.cwrap('s1227','number',['number','number','number','number','number','number']);
-        var s1303 = Module.cwrap('s1303','number',['number','number','number','number','number','number','number','number']);
-        var s1356 = Module.cwrap('s1356','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
-        var s1360 = Module.cwrap('s1360','number',['number','number','number','number','number','number','number','number','number','number','number','number','number','number']);
-        var s1857 = Module.cwrap('s1857','number',['number','number','number','number','number','number','number','number','number','number']);
+        var newCurve = Module.cwrap('newCurve','number',numberArguments(7));
+        var freeCurve = Module.cwrap('freeSISLCurve','number',numberArguments(1));
+        var curveParametricEnd = Module.cwrap('curveParametricEnd','number',numberArguments(1));
+        var curveParametricStart = Module.cwrap('curveParametricStart','number',numberArguments(1));
+        var s1240 = Module.cwrap('s1240','number',numberArguments(4));
+        var s1227 = Module.cwrap('s1227','number',numberArguments(6));
+        var s1303 = Module.cwrap('s1303','number',numberArguments(8));
+        var s1356 = Module.cwrap('s1356','number',numberArguments(14));
+        var s1360 = Module.cwrap('s1360','number',numberArguments(14));
+        var s1857 = Module.cwrap('s1857','number',numberArguments(10));
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }
