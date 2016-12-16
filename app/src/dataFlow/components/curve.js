@@ -6,7 +6,28 @@ define([
     "dataFlow/dataMatcher"
 ],function(_,DataFlow,Geometry,Preview,DataMatcher){
     var components = {};
-    components.CurveControlPointComponent = DataFlow.Component.extend({
+
+    // THIS IS NOT A COMPONENT! It's just a common preview function for curve components
+    var AbsractPreviewableCurveComponent = DataFlow.Component.extend({
+        drawPreviews: function(){
+            var curves = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
+
+            var preview;
+            if (_.isArray(this.previews) && this.previews.length > 0) {
+                preview = this.previews[0];
+
+                // update the preview geometry
+                preview.updateCurveList(curves);
+                preview.show();
+            }
+            else {
+                preview = new Preview.CurveListPreview(curves);
+                this.previews = [preview];
+            }
+        }
+    });
+
+    components.CurveControlPointComponent = AbsractPreviewableCurveComponent.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -34,22 +55,69 @@ define([
             });
 
             this.getOutput("C").replaceData(result.tree);
+        }
+    });
+
+    // Line Connecting Two Points
+    components.LineABComponent = AbsractPreviewableCurveComponent.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "L", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "A", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "B", required: true, type: DataFlow.OUTPUT_TYPES.POINT}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Line",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
+            });
+            this.base_init(args);
         },
-        drawPreviews: function(){
-            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
+        recalculate: function(){
+            /* A = Point 1, B = Point2 */
+            var result = DataMatcher([this.getInput("A"),this.getInput("B")],function(p1,p2){
+                return new Geometry.Curve([p1,p2],1,false)
+            });
 
-            var preview;
-            if (_.isArray(this.previews) && this.previews.length > 0) {
-                preview = this.previews[0];
+            this.getOutput("L").replaceData(result.tree);
+        }
+    });
 
-                // update the preview geometry
-                preview.updateCurveList(curves);
-                preview.show();
-            }
-            else {
-                preview = new Preview.CurveListPreview(curves);
-                this.previews = [preview];
-            }
+    // Line: Start (point), Direction (vec), Length (num)
+    components.LineSDLComponent = AbsractPreviewableCurveComponent.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "L", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "S", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "D", required: true, type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "L", required: true, type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Line SDL",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                output: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* S = Start, D = Direction, L = Length */
+            var result = DataMatcher([this.getInput("S"),this.getInput("D"),this.getInput("L")],function(start,direction,length){
+                return new Geometry.Curve([start.clone(),start.clone().addScaledVector(direction.clone().normalize(),length)],1,false)
+            });
+
+            this.getOutput("L").replaceData(result.tree);
         }
     });
 
@@ -76,35 +144,20 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            this.getOutput("P").clearValues();
-            this.getOutput("T").clearValues();
-            this.getOutput("A").clearValues();
+            /* C = Curve, t = Parameter */
+            var result = DataMatcher([this.getInput("C"),this.getInput("t")],function(curve,parameter){
+                var evaluation = curve._evalAt(parameter);
 
-            /* C = curve, t = param, P = result point, T = result tangent, A = result angle between left & right tangents */
-            // Multi-output DataMatcher works with:
-            // 1) Array of input models
-            // 2) Calc function that returns an object of return values for each aligned entry
-            // 3) A matching object of output trees to fill
-            DataMatcher(
-                [
-                    this.getInput("C"),
-                    this.getInput("t")
-                ],
-                function(curve,parameter){
-                    var evaluation = curve._evalAt(parameter);
-
-                    return {
-                        P: new THREE.Vector3(evaluation[0],evaluation[1],evaluation[2]),
-                        T: new THREE.Vector3(evaluation[3],evaluation[4],evaluation[5]),
-                        A: 1
-                    }
-                },
-                {
-                    P: this.getOutput("P").getTree(),
-                    T: this.getOutput("T").getTree(),
-                    A: this.getOutput("A").getTree()
+                return {
+                    P: new THREE.Vector3(evaluation[0],evaluation[1],evaluation[2]),
+                    T: new THREE.Vector3(evaluation[3],evaluation[4],evaluation[5]),
+                    A: 1
                 }
-            );
+            });
+
+            this.getOutput("P").replaceData(result.tree.map(function(data){return data.P}));
+            this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
+            this.getOutput("A").replaceData(result.tree.map(function(data){return data.A}));
         },
         drawPreviews: function(){
             var points = [];
@@ -122,7 +175,7 @@ define([
         }
     });
 
-    components.CurveOffsetComponent = DataFlow.Component.extend({
+    components.CurveOffsetComponent = AbsractPreviewableCurveComponent.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -145,8 +198,6 @@ define([
             this.base_init(args);
         },
         recalculate: function(){
-            console.log('recalculating offsetcurve');
-
             /* C = Curve, D = Distance, P = Plane */
             var result = DataMatcher([this.getInput("C"),this.getInput("D"),this.getInput("P")],function(curve, distance, plane){
                 //var normalVect = plane.getNormal();
@@ -155,22 +206,6 @@ define([
             });
 
             this.getOutput("C").replaceData(result.tree);
-        },
-        drawPreviews: function(){
-            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
-
-            var preview;
-            if (_.isArray(this.previews) && this.previews.length > 0) {
-                preview = this.previews[0];
-
-                // update the preview geometry
-                preview.updateCurveList(curves);
-                preview.show();
-            }
-            else {
-                preview = new Preview.CurveListPreview(curves);
-                this.previews = [preview];
-            }
         }
     });
 

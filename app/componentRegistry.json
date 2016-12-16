@@ -60,6 +60,16 @@
     "shortDescription": "Offsets a curve with a specified distance"
   },
   {
+    "functionName": "LineSDLComponent",
+    "name": "Line (Start, Direction, Length)",
+    "shortDescription": "Creates a line from it's start point, direction vector, and length"
+  },
+  {
+    "functionName": "LineABComponent",
+    "name": "Line (A,B)",
+    "shortDescription": "Creates a line connecting two points"
+  },
+  {
     "functionName": "NumberComponent",
     "name": "Number",
     "shortDescription": "Holds a list of numbers. For short lists, you can enter the numbers directly into the component"
