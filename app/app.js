@@ -168,12 +168,20 @@ require(["appconfig"],function(){
             };
 
             App.prototype.save = function(){
-                var proj = this.currentProject;
+                var proj = this.currentProject,
+                    that=this;
                 if (_.isNull(proj)) throw new Error("No current project available to save");
 
                 require(["dataFlow/projectLoader"],function(Loader){
-                    Loader.saveProjectToParse(proj);
+                    Loader.saveProjectToParse(proj,that.getDisplayState());
                 });
+            };
+
+            App.prototype.getDisplayState = function(){
+                return {
+                    workspace: workspace.toJSON(),
+                    viewer: viewer.toJSON()
+                }
             };
 
             App.prototype.setupDemoMode = function(){
@@ -218,6 +226,11 @@ require(["appconfig"],function(){
                         start.trigger('pulse',new Pulse({startPoint:start}));
                     }
                 });
+
+                if (proj.get('contextData')) {
+                    viewer.fromJSON(proj.get('contextData')["viewer"]);
+                }
+
                 //console.log(JSON.stringify(proj.toJSON())); // for saving local hard copy in a json file easily.
             };
 
@@ -284,6 +297,10 @@ require(["appconfig"],function(){
                         });
                     });
                 });
+
+                if (proj.get('contextData')) {
+                    workspace.fromJSON(proj.get('contextData')["workspace"]);
+                }
             };
 
             return new App();

@@ -129,6 +129,43 @@ define([
         };
     });
 
+    Workspace.prototype.toJSON = function(){
+        // This method is in charge of storing any customized properties of the scene presentation, so it
+        // can be restored.
+        var c = this.camera;
+        window.camera = this.camera;
+        return {
+            camera: {
+                position: c.position.toArray(),
+                rotation: c.rotation.toArray()
+            },
+            controls: {
+                target: this.controls.target.toArray()
+            }
+        };
+    };
+
+    Workspace.prototype.fromJSON = function(json){
+        if (!json) return;
+
+        // Restore a model viewer from persisted data
+        if (json.camera) {
+            var expectedKeys = ['position','rotation','scale'],
+                c = this.camera;
+            _.each(expectedKeys,function(key){
+                if (json.camera[key]) {c[key].fromArray(json.camera[key])}
+            });
+            c.updateMatrixWorld(true);
+        }
+        if (json.controls && json.controls.target) {
+            this.controls.target.fromArray(json.controls.target);
+            this.controls.target0.fromArray(json.controls.target);
+            this.controls.update();
+        }
+
+        this.render();
+    };
+
     Workspace.prototype.render = function(){
         this.renderer.render(this.scene,this.camera);
         this.glrenderer.render(this.glscene,this.camera);

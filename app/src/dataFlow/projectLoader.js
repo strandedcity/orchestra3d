@@ -6,7 +6,7 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
     var OrchestraProject = Parse.ORCHESTRA_OBJECTS.PROJECT,
         currentProject = null;
 
-    function saveProjectToParse(proj){
+    function saveProjectToParse(proj,contextData){
         Parse.User.current().fetch().then(function(user){
             // The project should always be saved with the current user's information, even if it was originally by someone else
             proj.set('authorId',user.id);
@@ -14,6 +14,9 @@ define(["jquery","parse","dataFlow/project","dataFlow/user"],function($,Parse,Pr
 
             var persistable,
                 jsonData = proj.toJSON();
+
+            // save context, such as camera positions, precision settings, colors, etc
+            if (contextData) jsonData["contextData"] = contextData;
 
             console.log('SAVING: \n\n'+JSON.stringify(jsonData));
 

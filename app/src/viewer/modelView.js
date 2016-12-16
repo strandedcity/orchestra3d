@@ -9,7 +9,7 @@ define(["threejs","OrbitControls"],function(){
         this.renderer = new THREE.WebGLRenderer({ antialiasing: true });
         //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
 
-        _.bindAll(this,"render","clearScene");
+        _.bindAll(this,"render","clearScene","toJSON","fromJSON");
     }
 
     ModelSpace.prototype.createScene = function(){
@@ -23,10 +23,49 @@ define(["threejs","OrbitControls"],function(){
 
         this.controls.addEventListener( 'change', this.render);
 
-        this.camera.position.z = 7;
-        this.camera.position.y = 0;
+        this.camera.position.set(6,8,6);
+        this.camera.up = new THREE.Vector3(0,1,0);
+        this.camera.lookAt(new THREE.Vector3(0,0,0));
 
         this.setupScene();
+    };
+
+
+    ModelSpace.prototype.toJSON = function(){
+        // This method is in charge of storing any customized properties of the scene presentation, so it
+        // can be restored.
+        var c = this.camera;
+        window.camera = this.camera;
+        return {
+            camera: {
+                position: c.position.toArray(),
+                rotation: c.rotation.toArray()
+            },
+            controls: {
+                target: this.controls.target.toArray()
+            }
+        };
+    };
+
+    ModelSpace.prototype.fromJSON = function(json){
+        if (!json) return;
+
+        // Restore a model viewer from persisted data
+        if (json.camera) {
+            var expectedKeys = ['position','rotation','scale'],
+                c = this.camera;
+            _.each(expectedKeys,function(key){
+                if (json.camera[key]) {c[key].fromArray(json.camera[key])}
+            });
+            c.updateMatrixWorld(true);
+        }
+        if (json.controls && json.controls.target) {
+            this.controls.target.fromArray(json.controls.target);
+            this.controls.target0.fromArray(json.controls.target);
+            this.controls.update();
+        }
+
+        this.render();
     };
 
     ModelSpace.prototype.setupScene = function(){
