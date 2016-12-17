@@ -19,7 +19,7 @@ define([
                     preview: false
                 },opts || {},{
                     inputs: this.prepareTwoNumericInputs(opts),
-                    output: output
+                    outputs: output
                 });
                 this.base_init(args);
             },
@@ -66,7 +66,7 @@ define([
 
                 var args = _.extend(opts || {},{
                     inputs: this.prepareTwoNumericInputs(opts),
-                    output: output, // Different name, same thing
+                    outputs: output, // Different name, same thing
                     preview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"
                 });
@@ -90,7 +90,7 @@ define([
 
                 var args = _.extend(opts || {},{
                     inputs: inputs,
-                    output: output,
+                    outputs: output,
                     componentPrettyName: "Vec2Pt",
                     preview: false
                 });
@@ -122,7 +122,7 @@ define([
 
                 var args = _.extend({
                     inputs: inputs,
-                    output: output,
+                    outputs: output,
                     componentPrettyName: "VecNormal",
                     preview: false
                 },opts || {});
@@ -156,7 +156,7 @@ define([
                     preview: false
                 },opts || {},{
                     inputs: inputs,
-                    output: output
+                    outputs: output
                 });
                 this.base_init(args);
             },
@@ -187,7 +187,7 @@ define([
 
                 var args = _.extend(opts || {},{
                     inputs: inputs,
-                    output: output,
+                    outputs: output,
                     componentPrettyName: "VDisplay",
                     preview: true
                 });

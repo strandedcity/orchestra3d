@@ -44,7 +44,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },
@@ -75,7 +75,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },
@@ -107,7 +107,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },
@@ -193,7 +193,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },
@@ -226,7 +226,7 @@ define([
                 preview: true
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },

@@ -19,7 +19,7 @@ define([
                 preview: false
             },opts || {},{
                 inputs: this.prepareNumericInputs(opts),
-                output: output
+                outputs: output
             });
 
             this.recalculate = function(){

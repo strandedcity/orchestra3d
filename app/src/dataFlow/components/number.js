@@ -18,7 +18,7 @@ define([
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
-                output: output,
+                outputs: output,
                 componentPrettyName: "Number"
             });
             this.base_init(args);
@@ -44,7 +44,7 @@ define([
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
-                output: output,
+                outputs: output,
                 componentPrettyName: "Series",
                 preview: false
             });
@@ -91,7 +91,7 @@ define([
                 preview: false
             },opts || {},{
                 inputs: inputs,
-                output: output
+                outputs: output
             });
             this.base_init(args);
         },

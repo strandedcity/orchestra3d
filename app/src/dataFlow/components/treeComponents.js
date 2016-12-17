@@ -20,7 +20,7 @@ define([
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
-                output: output,
+                outputs: output,
                 componentPrettyName: "Graft"
             });
             this.base_init(args);
@@ -63,7 +63,7 @@ define([
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
-                output: output,
+                outputs: output,
                 componentPrettyName: "Shift"
             });
             this.base_init(args);

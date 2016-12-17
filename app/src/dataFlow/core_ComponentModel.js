@@ -32,8 +32,8 @@ define([
         },
         createIObjectsFromJSON: function(schemaListJSON,opts,dataKey){
             var objectList = [],
+                dataKey = dataKey === "output" ? "outputs" : dataKey, // CODE DEBT! "output" should be "outputs"
                 constructorMap = {
-                    output: IOModels["Output"],
                     outputs: IOModels["Output"],
                     inputs: IOModels["Input"]
                 };
@@ -44,12 +44,20 @@ define([
             var correspondingUserData = _.isUndefined(opts) ? {} : _.isUndefined(opts[dataKey]) ? {} : opts[dataKey];
             _.each(_.values(schemaListJSON),function(spec){
                 var providedData = _.findWhere(correspondingUserData, {shortName: spec.shortName, type: spec.type});
+                if (typeof providedData === "undefined") {
+                    /// THIS IS MY ERROR CASE --- INVESTIGATE THIS
+                    console.warn('NO PROVIDED USER DATA FOUND FOR '+dataKey+" "+spec.shortName);
+                    console.log("ALL USER DATA: ",opts);
+                    console.log("SPEC:",schemaListJSON);
+                    console.log('-------------');
+                    //console.log('provided user data for: ',spec,providedData);
+                }
                 var outputObject = new constructorMap[dataKey](_.extend(providedData || {},spec));
                 objectList.push(outputObject);
             });
 
             // TODO: Here's a hack until I figure out multiple outputs
-            if (dataKey === "output") return objectList[0];
+            //if (dataKey === "output") return objectList[0];
             return objectList;
         },
         base_init: function(opts){
@@ -313,7 +321,7 @@ define([
                 position: this.position,
                 preview: this.attributes.preview,
                 inputs: inputData,
-                output: outputData,
+                outputs: outputData,
                 id: this.id || this.cid
             };
         }

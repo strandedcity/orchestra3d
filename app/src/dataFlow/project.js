@@ -73,6 +73,11 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 // counter once per item that gets added to the project.
                 // see https://github.com/dobtco/formbuilder/issues/123
                 _.uniqueId();
+                if (cpt.output) {
+                    // CODE DEBT! "output" should be "outputs"...
+                    cpt.outputs = cpt.output;
+                    delete cpt.output;
+                }
                 var component = DataFlow.createComponentByName(cpt.componentName, _.clone(cpt));
                 components.push(component);
                 that.addComponentToProject.call(that,component);
@@ -97,6 +102,18 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 _.each(component.outputs,function(out){
                     _.uniqueId();
                     IOIdsForConnections[out.id] = out;
+
+                    //// Find the ID of each output as it was when the project was saved. That's the connection
+                    //// we want to make if anything was listening to this output "out"
+                    //var correspondingOutputJson = _.findWhere(cpt.outputs,function(outputJson){
+                    //    return outputJson.shortName = out.shortName;
+                    //});
+                    //console.log('json out.id: '+correspondingOutputJson.id);
+                    //console.log("out.id: "+out.id);
+                    //console.log(out);
+                    //console.log('------')
+                    //
+                    //IOIdsForConnections[correspondingOutputJson.id] = out;
                 });
             });
 

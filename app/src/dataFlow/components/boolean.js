@@ -19,7 +19,7 @@ define([
 
             var args = _.extend(opts || {},{
                 inputs: inputs,
-                output: output,
+                outputs: output,
                 componentPrettyName: name
             });
             this.base_init(args);
