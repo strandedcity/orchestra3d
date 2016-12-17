@@ -104,7 +104,19 @@ define([
         var copy = new DataTree();
         this.recurseTree(function(data,node){
             if (typeof dataTransformFunction === "function") {
-                copy.addChildAtPath(_.map(data,function(d){return dataTransformFunction(d)}),node.getPath(),true);
+                var dataAtBranch = _.map(data,function(d){return dataTransformFunction(d)});
+
+                // Some components, such as CCX, produce multiple outputs for each set of inputs. Ie,
+                // Two input curves (A&B) could produce hundreds of intersection points (output P)
+                if (dataAtBranch.length > 0 && _.isArray(dataAtBranch[0])) {
+                    _.each(dataAtBranch,function(dataItem,index){
+                        var path = node.getPath();
+                        path.push(index);
+                        copy.addChildAtPath(dataItem,path,true);
+                    });
+                } else {
+                    copy.addChildAtPath(dataAtBranch,node.getPath(),true);
+                }
             } else {
                 copy.addChildAtPath(data,node.getPath(),true);
             }
