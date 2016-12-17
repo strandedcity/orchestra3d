@@ -102,18 +102,6 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 _.each(component.outputs,function(out){
                     _.uniqueId();
                     IOIdsForConnections[out.id] = out;
-
-                    //// Find the ID of each output as it was when the project was saved. That's the connection
-                    //// we want to make if anything was listening to this output "out"
-                    //var correspondingOutputJson = _.findWhere(cpt.outputs,function(outputJson){
-                    //    return outputJson.shortName = out.shortName;
-                    //});
-                    //console.log('json out.id: '+correspondingOutputJson.id);
-                    //console.log("out.id: "+out.id);
-                    //console.log(out);
-                    //console.log('------')
-                    //
-                    //IOIdsForConnections[correspondingOutputJson.id] = out;
                 });
             });
 

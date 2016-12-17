@@ -66,7 +66,7 @@ define([
 
                 var args = _.extend(opts || {},{
                     inputs: this.prepareTwoNumericInputs(opts),
-                    outputs: output, // Different name, same thing
+                    outputs: output,
                     preview: false, // in case the base class changes this behavior
                     componentPrettyName: "Vec(x,y,z)"
                 });
