@@ -79,6 +79,72 @@ define([
         }
     });
 
+    components.FlattenComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            //var output = new DataFlow.OutputMultiType({shortName: "L"});
+            var output = this.createIObjectsFromJSON([
+                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "output");
+
+            //var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
+            //var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
+            //var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD},
+                {required: false, shortName: "P", default: [0], type: DataFlow.OUTPUT_TYPES.ARRAY}
+            ], opts, "inputs");
+
+            var args = _.extend(opts || {},{
+                inputs: inputs,
+                outputs: output,
+                componentPrettyName: "Flatten"
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* T=input Tree Data, P = (optional) path to put flattened data on (default is [0] */
+            console.warn("PATH input is ignored for now");
+            var flattened = this.getInput("T").flattenedTree(false); // makes a copy!
+            this.getOutput("T").replaceData(flattened);
+        }
+    });
+
+    components.ListItemComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            //var output = new DataFlow.OutputMultiType({shortName: "L"});
+            var output = this.createIObjectsFromJSON([
+                {shortName: "i", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST},
+                {required: false, shortName: "i", default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
+
+            var args = _.extend(opts || {},{
+                inputs: inputs,
+                outputs: output,
+                componentPrettyName: "Item"
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* L=input list, i=item to retrieve, W=wrap list */
+            var result = DataMatcher([this.getInput("L"),this.getInput("i"),this.getInput("W")],function(list,item,wrap){
+                if (!_.isArray(list)) return null;
+                if (!wrap && list.length <= item) return null;
+
+                // wrap is true, so we're going to return something! "wrapping" is easy, using a modulo
+                return list[item % list.length];
+            });
+
+            this.getOutput("i").replaceData(result.tree);
+        }
+    });
+
+
+
     return components;
 });
 

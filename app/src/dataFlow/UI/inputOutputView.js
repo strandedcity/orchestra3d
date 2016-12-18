@@ -53,8 +53,8 @@ define([
         };
 
         this.doubleclick = function(){
-            console.log(this.model.values.toJSON());
-        }
+            this.model.values.log();
+        };
 
         workspace.setupDraggableView(this);  // make the view draggable!
         this.setupStretchyWire();

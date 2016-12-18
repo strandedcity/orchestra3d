@@ -20,6 +20,16 @@
     "shortDescription": "Removes items from the beginning of a data list, and optionally tacks them back onto the end"
   },
   {
+    "functionName": "FlattenComponent",
+    "name": "Flatten Tree Data",
+    "shortDescription": "Flatten a data tree by removing all branching information"
+  },
+  {
+    "functionName": "ListItemComponent",
+    "name": "Extract Item from List",
+    "shortDescription": "Retrieve a specific item from a list"
+  },
+  {
     "functionName": "GraftComponent",
     "name": "Graft Tree",
     "shortDescription": "Creates a separate branch for each data item in the supplied tree"
