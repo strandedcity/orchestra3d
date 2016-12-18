@@ -165,6 +165,11 @@
     "shortDescription": "Returns the first input (a) raised to a power of the second input (b)."
   },
   {
+    "functionName": "DivideCurveComponent",
+    "name": "Divide Curve",
+    "shortDescription": "Divides a curve into N segments"
+  },
+  {
     "functionName": "CurveCurveIntersectionComponent",
     "name": "Curve-Curve Intersection",
     "shortDescription": "Finds intersections between two given curves."

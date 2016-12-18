@@ -175,6 +175,64 @@ define([
         }
     });
 
+    components.DivideCurveComponent = AbsractPreviewableCurveComponent.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST}, // Division Points
+                {shortName: "T", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST}, // Tangents at Division Points
+                {shortName: "t", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST} // Parameter Values
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "C", required: true, type: DataFlow.OUTPUT_TYPES.CURVE},
+                {shortName: "N", required: false, default: 10, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                {shortName: "K", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // default worldXY
+                //{shortName: "C", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}, // corner type flag ?
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Divide",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* C = Curve, N = # of segments, K = Split at knots */
+            var result = DataMatcher([this.getInput("C"),this.getInput("N"),this.getInput("K")],function(curve, segmentCount, divideAtKnots){
+                var minParam = curve.getMinParameter(),
+                    max = curve.getMaxParameter(),
+                    step = (max-minParam)/segmentCount,
+                    steps = [],
+                    positions = [],
+                    tangents = [];
+                for (var i=0; i<segmentCount-1; i++) {
+                    steps.push(minParam + i * step);
+                }
+                steps.push(max);
+
+                _.each(steps,function(paramValue){
+                    var evaluation = curve._evalAt(paramValue);
+                    positions.push(new Geometry.Point(evaluation[0],evaluation[1],evaluation[2]));
+                    tangents.push(new Geometry.Point(evaluation[3],evaluation[4],evaluation[5]));
+                });
+
+                console.warn("'KINKS' OPTION NOT SUPPORTED YET");
+                return {
+                    P: positions,
+                    T: tangents,
+                    t: steps
+                }
+            });
+
+            this.getOutput("P").replaceData(result.tree.map(function(data){return data.P}));
+            this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
+            this.getOutput("t").replaceData(result.tree.map(function(data){return data.t}));
+        }
+    });
+
     components.CurveOffsetComponent = AbsractPreviewableCurveComponent.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
