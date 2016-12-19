@@ -73,6 +73,12 @@ div.IO {
     line-height: 50px;
     text-align: center;
     font-weight: bold;
+
+    -webkit-user-select: none;       
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    -o-user-select: none;
+    user-select: none;
 }
 div.IO:hover {
     box-sizing: border-box;

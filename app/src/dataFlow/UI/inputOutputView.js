@@ -56,6 +56,23 @@ define([
             this.model.values.log();
         };
 
+        var that = this;
+        this.click = function(x,y){
+            console.warn("CLICK HANDLER DUPLICATES CODE IN COMPONENTVIEW. FIX!");
+
+            if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER) return;
+
+            // Show the table-number-enterer UI. It cleans up after itself.
+            var data = that.model.get('persistedData') || new DataTree(),
+                callback = function(tree){
+                    that.model.assignPersistedData(tree);
+                };
+            require(["dataFlow/UI/tableValueEnterer"],function(TableView){
+                // no reference necessary. The slider will clean itself up.
+                new TableView(data,x,y,callback);
+            });
+        };
+
         workspace.setupDraggableView(this);  // make the view draggable!
         this.setupStretchyWire();
     }
