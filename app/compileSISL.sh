@@ -14,6 +14,12 @@ emcc \
         '_freeSISLCurve',
         '_curveParametricEnd',
         '_curveParametricStart',
+        '_curveKnotCnt',
+        '_curveCtrlPtCnt',
+        '_curveGetOrder',
+        '_curveGetKind',
+        '_curveGetKnots',
+        '_curveGetCtrlPts',
         '_s1240', # Compute Curve Length
         '_s1227', # Evaluate 1st Deriv of Curve (parameter value)
         '_s1303', # Circle(center, axis, rotational angle)

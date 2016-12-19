@@ -25,32 +25,39 @@ void freeSISLCurve(SISLCurve *crv)
     if (crv) freeCurve(crv);
 }
 
-// Deprecated 12/2014 with removal of SISLPoint as a struct used directly in JS
-//double * pointCoords(SISLPoint *pt);
-//double * pointCoords(SISLPoint *pt)
-//{
-//    return pt->ecoef;
-//}
+int curveKnotCnt(SISLCurve *crv);
+int curveKnotCnt(SISLCurve *crv)
+{
+    // # knots =  number of control points plus curve order
+    return crv->in + crv->ik;
+}
 
-// from example07
-//// read curve from file
-//SISLCurve* cv = readGoCurve(is);
-//
-//// computing length of curve
-//double epsge = 1.0e-5; // geometric tolerance
-//double length = 0;
-//int jstat = 0;
-//
-//s1240(cv,      // the curve we want to know the length of
-//      epsge,   // geometric tolerance
-//      &length, // the calculated length
-//      &jstat); // status report variable
-//
-//if (jstat < 0) {
-//    throw runtime_error("Error occured inside call to SISL routine s1240.");
-//} else if (jstat > 0) {
-//    cerr << "WARNING: warning occured inside call to SISL routine s1240. \n"
-//     << endl;
-//}
-//
-//cout << "Computed length of curve: " << length << "\n";
+int curveCtrlPtCnt(SISLCurve *crv);
+int curveCtrlPtCnt(SISLCurve *crv)
+{
+    return crv->in;
+}
+
+int curveGetOrder(SISLCurve *crv);
+int curveGetOrder(SISLCurve *crv)
+{
+    return crv->ik;
+}
+
+int curveGetKind(SISLCurve *crv);
+int curveGetKind(SISLCurve *crv)
+{
+    return crv->ikind;
+}
+
+double * curveGetKnots(SISLCurve *crv);
+double * curveGetKnots(SISLCurve *crv)
+{
+    return crv->et;
+}
+
+double * curveGetCtrlPts(SISLCurve *crv);
+double * curveGetCtrlPts(SISLCurve *crv)
+{
+    return crv->ecoef;
+}

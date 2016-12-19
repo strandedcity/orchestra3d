@@ -17,6 +17,12 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var freeCurve = Module.cwrap('freeSISLCurve','number',numberArguments(1));
         var curveParametricEnd = Module.cwrap('curveParametricEnd','number',numberArguments(1));
         var curveParametricStart = Module.cwrap('curveParametricStart','number',numberArguments(1));
+        var curveKnotVectorCount = Module.cwrap('curveKnotCnt','number',numberArguments(1));
+        var curveControlPointCount = Module.cwrap('curveCtrlPtCnt','number',numberArguments(1));
+        var curveOrder = Module.cwrap('curveGetOrder','number',numberArguments(1));
+        var curveKind = Module.cwrap('curveGetKind','number',numberArguments(1));
+        var curveGetKnotVectorPointer = Module.cwrap('curveGetKnots','number',numberArguments(1));
+        var curveGetControlPointsPointer = Module.cwrap('curveGetCtrlPts','number',numberArguments(1));
         var s1240 = Module.cwrap('s1240','number',numberArguments(4));
         var s1227 = Module.cwrap('s1227','number',numberArguments(6));
         var s1303 = Module.cwrap('s1303','number',numberArguments(8));
@@ -85,7 +91,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         // Preparing data for geometry library:
         var vertexCount = controlPoints.length,
             curveOrder = degree + 1,
-            ikind = 1,
+            ikind = 1, /* see sisl.h:   = 1 : Polynomial B-spline curve.    = 2 : Rational B-spline curve.
+                                        = 3 : Polynomial Bezier curve.      = 4 : Rational Bezier curve.   */
             dimension = 3, // always
             icopy = 2, // set pointer and remember to free arrays
             knotVector, knotVectorPointer,
@@ -110,6 +117,26 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             Module._free(buffer);
             return len;
         },
+        getKnotVector: function(){
+            var cnt = curveKnotVectorCount(this._pointer);
+            var pntr = curveGetKnotVectorPointer(this._pointer);
+            return Module.Utils.copyCArrayToJS(Module.getValue(pntr,'i8*'),cnt);
+        },
+        getControlPoints: function(){
+            var cnt = curveControlPointCount(this._pointer);
+            var pntr = curveGetControlPointsPointer(this._pointer);
+            return Module.Utils.copyCArrayToJS(Module.getValue(pntr,'i8*'),cnt);
+        },
+        getCurveKind: function(){
+            return curveKind(this._pointer);
+        },
+        getCurveOrder: function(){
+            return curveOrder(this._pointer);
+        },
+//applyMatrix: function(matrix4){
+//    // returns a new curve, transformed by the supplied matrix
+//
+//},
         getPointer: function(){
             return this._pointer;
         },
