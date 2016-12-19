@@ -36,7 +36,7 @@ define(["./compiled"],function(){
         for (var a=0; a < curveOrder; a++){
             knotVector.push(0);
         }
-        var internalKnotCount = (numControlPoints + curveOrder) - 2 * curveOrder + 1;
+        var internalKnotCount = (numControlPoints + curveOrder) - 2 * curveOrder;
         var i = 0;
         for (i; i<internalKnotCount;i++) {
             knotVector.push((i+1)/internalKnotCount);

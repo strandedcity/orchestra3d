@@ -118,14 +118,23 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             return len;
         },
         getKnotVector: function(){
-            var cnt = curveKnotVectorCount(this._pointer);
-            var pntr = curveGetKnotVectorPointer(this._pointer);
-            return Module.Utils.copyCArrayToJS(Module.getValue(pntr,'i8*'),cnt);
+            // # knots =  number of control points plus curve order
+            var cnt = curveControlPointCount(this._pointer) + curveOrder(this._pointer),
+                pntr = curveGetKnotVectorPointer(this._pointer);
+            return Module.Utils.copyCArrayToJS(pntr,cnt);
         },
         getControlPoints: function(){
-            var cnt = curveControlPointCount(this._pointer);
-            var pntr = curveGetControlPointsPointer(this._pointer);
-            return Module.Utils.copyCArrayToJS(Module.getValue(pntr,'i8*'),cnt);
+            var dim = 3,
+                cnt = curveControlPointCount(this._pointer) * dim,
+                pntr = curveGetControlPointsPointer(this._pointer)
+                pointPositions = Module.Utils.copyCArrayToJS(pntr,cnt),
+                controlPoints = [];
+
+            // Turn the control points into Geo.Point objects from [x1,y1,z1,x2,y2,z2....]
+            for (var i=0; i<pointPositions.length; i+=3){
+                controlPoints.push(new Geo.Point(pointPositions[i],pointPositions[i+1],pointPositions[i+2]));
+            }
+            return controlPoints;
         },
         getCurveKind: function(){
             return curveKind(this._pointer);
@@ -167,6 +176,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             s1227(this._pointer,1,param,0,buffer,0);
             var derivs = Module.Utils.copyCArrayToJS(buffer,6);
             Module._free(buffer);
+            
             return derivs;
         },
         destroy: function(){
