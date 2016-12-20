@@ -48,15 +48,15 @@ define([
             this.getOutput("tA").replaceData(result.tree.map(function(data){return data.t1}));
             this.getOutput("tB").replaceData(result.tree.map(function(data){return data.t2}));
         },
-        drawPreviews: function(){
-            var points = _.flatten(this.getOutput("P").getTree().flattenedTree().dataAtPath([0]));
+        // drawPreviews: function(){
+        //     var points = _.flatten(this.getOutput("P").getTree().flattenedTree().dataAtPath([0]));
 
-            if (this.previews[0]) {
-                this.previews[0].updatePoints(points);
-            } else {
-                this.previews[0] = new Preview.PointListPreview(points);
-            }
-        }
+        //     if (this.previews[0]) {
+        //         this.previews[0].updatePoints(points);
+        //     } else {
+        //         this.previews[0] = new Preview.PointListPreview(points);
+        //     }
+        // }
     });
 
 

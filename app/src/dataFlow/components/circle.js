@@ -42,35 +42,35 @@ define([
 
             //window.LOG_TIME_EVENT("END RECALCULATE");
         },
-        clearPreviews: function(){
-            //window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
-            DataFlow.Component.prototype.clearPreviews.call(this);
-            //window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
-        },
-        drawPreviews: function(){
+        // clearPreviews: function(){
+        //     //window.LOG_TIME_EVENT("BEGIN CLEAR PREVIEWS");
+        //     DataFlow.Component.prototype.clearPreviews.call(this);
+        //     //window.LOG_TIME_EVENT("END CLEAR PREVIEWS");
+        // },
+        // drawPreviews: function(){
 
-            //this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
+        //     //this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
 
-            //window.LOG_TIME_EVENT("BEGIN REDRAW");
-            var that=this;
-            var curves = [];
-            this.getOutput("C").getTree().recurseTree(function(data){
-                _.each(data, function(curve){
-                    curves.push(curve);
-                });
-            });
+        //     //window.LOG_TIME_EVENT("BEGIN REDRAW");
+        //     var that=this;
+        //     var curves = [];
+        //     this.getOutput("C").getTree().recurseTree(function(data){
+        //         _.each(data, function(curve){
+        //             curves.push(curve);
+        //         });
+        //     });
 
-            if (!_.isArray(this.previews) || this.previews.length == 0) {
-                // create the preview geometry
-                this.previews = [new Preview.CurveListPreview(curves)];
-            } else {
-                // update the preview geometry
-                this.previews[0].updateCurveList(curves);
-                this.previews[0].show();
-            }
+        //     if (!_.isArray(this.previews) || this.previews.length == 0) {
+        //         // create the preview geometry
+        //         this.previews = [new Preview.CurveListPreview(curves)];
+        //     } else {
+        //         // update the preview geometry
+        //         this.previews[0].updateCurveList(curves);
+        //         this.previews[0].show();
+        //     }
 
-            //window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
-        }
+        //     //window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
+        // }
     });
 
     return components;

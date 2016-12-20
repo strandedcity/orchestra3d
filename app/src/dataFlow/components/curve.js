@@ -9,22 +9,22 @@ define([
 
     // THIS IS NOT A COMPONENT! It's just a common preview function for curve components
     var AbsractPreviewableCurveComponent = DataFlow.Component.extend({
-        drawPreviews: function(){
-            var curves = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
+        // drawPreviews: function(){
+        //     var curves = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
 
-            var preview;
-            if (_.isArray(this.previews) && this.previews.length > 0) {
-                preview = this.previews[0];
+        //     var preview;
+        //     if (_.isArray(this.previews) && this.previews.length > 0) {
+        //         preview = this.previews[0];
 
-                // update the preview geometry
-                preview.updateCurveList(curves);
-                preview.show();
-            }
-            else {
-                preview = new Preview.CurveListPreview(curves);
-                this.previews = [preview];
-            }
-        }
+        //         // update the preview geometry
+        //         preview.updateCurveList(curves);
+        //         preview.show();
+        //     }
+        //     else {
+        //         preview = new Preview.CurveListPreview(curves);
+        //         this.previews = [preview];
+        //     }
+        // }
     });
 
     components.CurveControlPointComponent = AbsractPreviewableCurveComponent.extend({
@@ -161,20 +161,20 @@ define([
             this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
             this.getOutput("A").replaceData(result.tree.map(function(data){return data.A}));
         },
-        drawPreviews: function(){
-            var points = [];
+        // drawPreviews: function(){
+        //     var points = [];
 
-            // Using flattenedTree() here causes something odd to happen... Not worth bugfixing right now.
-            this.getOutput("P").getTree().recurseTree(function(data){
-                points = points.concat(data);
-            });
+        //     // Using flattenedTree() here causes something odd to happen... Not worth bugfixing right now.
+        //     this.getOutput("P").getTree().recurseTree(function(data){
+        //         points = points.concat(data);
+        //     });
 
-            if (_.isArray(this.previews) && !_.isUndefined(this.previews[0])) {
-                this.previews[0].updatePoints(points);
-            } else {
-                this.previews = [new Preview.PointListPreview(points)];
-            }
-        }
+        //     if (_.isArray(this.previews) && !_.isUndefined(this.previews[0])) {
+        //         this.previews[0].updatePoints(points);
+        //     } else {
+        //         this.previews = [new Preview.PointListPreview(points)];
+        //     }
+        // }
     });
 
     components.DivideCurveComponent = AbsractPreviewableCurveComponent.extend({
@@ -305,22 +305,22 @@ define([
 
             this.getOutput("C").replaceData(result.tree);
         },
-        drawPreviews: function(){
-            var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
+        // drawPreviews: function(){
+        //     var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
 
-            var preview;
-            if (_.isArray(this.previews) && this.previews.length > 0) {
-                preview = this.previews[0];
+        //     var preview;
+        //     if (_.isArray(this.previews) && this.previews.length > 0) {
+        //         preview = this.previews[0];
 
-                // update the preview geometry
-                preview.updateCurveList(curves);
-                preview.show();
-            }
-            else {
-                preview = new Preview.CurveListPreview(curves);
-                this.previews = [preview];
-            }
-        }
+        //         // update the preview geometry
+        //         preview.updateCurveList(curves);
+        //         preview.show();
+        //     }
+        //     else {
+        //         preview = new Preview.CurveListPreview(curves);
+        //         this.previews = [preview];
+        //     }
+        // }
     });
 
 

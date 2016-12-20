@@ -30,23 +30,6 @@ define([
             });
             this.base_init(args);
         },
-        drawPreviews: function(){
-            console.warn("TEMPORARY, MUST BE REMOVED. THIS PREVIEW FUNCTION ONLY DISPLAYS CURVE OUTPUT");
-            var curves = this.getOutput("G").getTree().flattenedTree().dataAtPath([0]);
-
-            var preview;
-            if (_.isArray(this.previews) && this.previews.length > 0) {
-                preview = this.previews[0];
-
-                // update the preview geometry
-                preview.updateCurveList(curves);
-                preview.show();
-            }
-            else {
-                preview = new Preview.CurveListPreview(curves);
-                this.previews = [preview];
-            }
-        },
         recalculate: function(){
             var result = DataMatcher(
                 [this.getInput("G"),this.getInput("A"),this.getInput("C"),this.getInput("X")],

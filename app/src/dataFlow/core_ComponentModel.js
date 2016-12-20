@@ -2,8 +2,11 @@ define([
     "underscore",
     "backbone",
     "dataFlow/core_IOModels",
-    "dataFlow/pulse"
-],function(_,Backbone, IOModels, Pulse){
+    "dataFlow/pulse",
+    "dataFlow/enums",
+    "dataFlow/UI/geometryPreviews",
+    "SISL/sisl_loader"
+],function(_,Backbone, IOModels, Pulse, ENUMS, Preview, Geometry){
 
 
     var component = Backbone.Model.extend({
@@ -281,8 +284,61 @@ define([
             /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */
             return this.getOutput().getTree().flattenedTree().dataAtPath([0]);
         },
+        getPreviewOutputs: function(){
+            // Most components have a "primary" output which is previewable. However, some components might have multiple
+            // or non-first previewable outputs, in which case this function can be overridden
+            return [this.getOutput()];
+        },
         drawPreviews: function(){
-            console.warn(this.constructor.name + " objects have a no-op 'drawPreviews' function.")
+            var previewOutputs = this.getPreviewOutputs(); // plural, though components can't currently display more than one type
+            var geom = previewOutputs[0].getTree().flattenedTree().dataAtPath([0]);
+            var type = previewOutputs[0].type;
+            var preview;
+
+            if (type === ENUMS.OUTPUT_TYPES.WILD) {
+                // extract type from the first piece of data. Discard mismatched data.
+                if (geom[0].constructor === Geometry.Curve) {
+                    type = ENUMS.OUTPUT_TYPES.CURVE;
+                    geom = _.filter(geom,function(item){
+                        return item.constructor === Geometry.Curve;
+                    });
+                } else if (geom[0].constructor === Geometry.Point) {
+                    type = ENUMS.OUTPUT_TYPES.POINT;
+                    geom = _.filter(geom,function(item){
+                        return item.constructor === Geometry.Point;
+                    });
+                }
+            }
+
+            switch (type) {
+                case ENUMS.OUTPUT_TYPES.POINT:
+                        if (this.previews[0]) {
+                            this.previews[0].updatePoints(geom);
+                        } else {
+                            this.previews[0] = new Preview.PointListPreview(geom);
+                        }
+                    break;
+                
+                case ENUMS.OUTPUT_TYPES.CURVE:
+                        if (_.isArray(this.previews) && this.previews.length > 0) {
+                            preview = this.previews[0];
+
+                            // update the preview geometry
+                            preview.updateCurveList(geom);
+                            preview.show();
+                        }
+                        else {
+                            preview = new Preview.CurveListPreview(geom);
+                            this.previews = [preview];
+                        }
+                    break;
+            
+                default:
+                        console.warn("UNPREVIEWABLE TYPE: " + type)
+                    break;
+            }
+
+
         },
         destroyPreviews: function(){
             // destroy prior views

@@ -37,15 +37,15 @@ define([
 
                 this.getOutput("P").replaceData(resultObject.tree);
             },
-            drawPreviews: function(){
-                var output = this.getOutput("P").getTree();
-                var points = output.flattenedTree().dataAtPath([0]);
-                if (this.previews[0]) {
-                    this.previews[0].updatePoints(points);
-                } else {
-                    this.previews[0] = new Preview.PointListPreview(points);
-                }
-            },
+            // drawPreviews: function(){
+            //     var output = this.getOutput("P").getTree();
+            //     var points = output.flattenedTree().dataAtPath([0]);
+            //     if (this.previews[0]) {
+            //         this.previews[0].updatePoints(points);
+            //     } else {
+            //         this.previews[0] = new Preview.PointListPreview(points);
+            //     }
+            // },
             fetchPointCoordinates: function(){
                 /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
                 var outputs = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
