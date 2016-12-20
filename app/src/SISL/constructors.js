@@ -77,35 +77,47 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
-    Geo.Curve = function GeoCurve(controlPoints, degree, knots){
-        // validate inputs
-        validateControlPointList(controlPoints);
-        if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
-        if (knots && !_.isArray(knots)) {throw new Error("Knots, if defined, must be an array");}
-        if (degree >= controlPoints.length) {throw new Error("Curve degree must be smaller than the number of control points");}
-        // By definition, from http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline
-        // #knots = #control pts + curve order
-        // curve order = degree + 1
-        // knot vectors look like [0,0,1,2,3,3]
+    Geo.Curve = function GeoCurve(){
+        var that = this;
 
-        // Preparing data for geometry library:
-        var vertexCount = controlPoints.length,
-            curveOrder = degree + 1,
-            ikind = 1, /* see sisl.h:   = 1 : Polynomial B-spline curve.    = 2 : Rational B-spline curve.
-                                        = 3 : Polynomial Bezier curve.      = 4 : Rational Bezier curve.   */
-            dimension = 3, // always
-            icopy = 2, // set pointer and remember to free arrays
-            knotVector, knotVectorPointer,
-            vertices = flattenPointList(controlPoints), verticesPointer;
+        // Direct Construction of a Curve can have a few different inputs....
+        this.fromControlPointsDegreeKnots = function(controlPoints, degree, knots){
+            // validate inputs
+            validateControlPointList(controlPoints);
 
-        // Knot vector must be generated if not supplied... there are a couple ways we might do this, but the simplest is:
-        knotVector = _.isArray(knots) ? knots : Module.Utils.generateUniformKnotVector(vertexCount,curveOrder);
+            return this.fromControlPointArrayDegreeKnots(flattenPointList(controlPoints),degree,knots);
+        };
 
-        // copy knotvector, get pointer:
-        knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
-        verticesPointer = Module.Utils.copyJSArrayToC(vertices);
+        this.fromControlPointArrayDegreeKnots = function(controlPointArray, degree, knots) {
+            // Preparing data for geometry library:
+            var dimension = 3, // always
+                vertexCount = controlPointArray.length / dimension,
+                curveOrder = degree + 1,
+                ikind = 1, /* see sisl.h:   = 1 : Polynomial B-spline curve.    = 2 : Rational B-spline curve.
+                                            = 3 : Polynomial Bezier curve.      = 4 : Rational Bezier curve.   */
+                icopy = 2, // set pointer and remember to free arrays
+                knotVector, knotVectorPointer,
+                vertices = controlPointArray, verticesPointer;
 
-        this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
+            if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
+            if (knots && !_.isArray(knots)) {throw new Error("Knots, if defined, must be an array");}
+            if (degree >= vertexCount) {throw new Error("Curve degree must be smaller than the number of control points");}
+            // By definition, from http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline
+            // #knots = #control pts + curve order
+            // curve order = degree + 1
+            // knot vectors look like [0,0,1,2,3,3]
+
+            // Knot vector must be generated if not supplied... there are a couple ways we might do this, but the simplest is:
+            knotVector = _.isArray(knots) ? knots : Module.Utils.generateUniformKnotVector(vertexCount,curveOrder);
+
+            // copy knotvector, get pointer:
+            knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
+            verticesPointer = Module.Utils.copyJSArrayToC(vertices);
+
+            this._pointer = newCurve(vertexCount,curveOrder,knotVectorPointer,verticesPointer,ikind,dimension,icopy);
+
+            return this;
+        }
     };
 
     var curveMethods = {
@@ -145,19 +157,29 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         getCurveOrder: function(){
             return curveOrder(this._pointer);
         },
-        rotate: function(theta,axis){
-            
-            var rotationMatrix = new THREE.Matrix4().makeRotationAxis ( axis, theta )
+        translateMatrix: function(translation){
+            return new THREE.Matrix4().makeTranslation(translation.x,translation.y,translation.z);
         },
-        applyMatrix: function(matrix4){
+        rotateAxisAndCenterMatrix: function(theta,axis,center) {
+            // return this.rotateAxisMatrix(theta,axis).multiply(this.translateMatrix(center.clone().multiplyScalar(-1)));
+            var composed = new THREE.Matrix4();
+            return composed.multiplyMatrices(this.rotateAxisMatrix(theta,axis), this.translateMatrix(center.clone().multiplyScalar(-1))).premultiply(this.translateMatrix(center.clone()));
+        },
+        rotateAxisMatrix: function(theta,axis){
+            // Axis is optional. Omitting it will assume a rotation in the XY plane around the origin.
+            var rotationAxis = axis ? axis.clone().normalize() : new THREE.Vector3(0,0,1),
+            rotationMatrix = new THREE.Matrix4().makeRotationAxis ( rotationAxis, theta );
+
+            return rotationMatrix;
+        },
+        applyMatrix4: function(matrix4){
             // Returns a new curve, transformed by the supplied matrix. The beauty of NURBS: affine transforms can be done on control points, and the resulting objects will appear translated.
             // THREEJS supplies robust enough matrix math to nicely complement SISL's disinterest in affine transforms.
-            var m = new THREE.Matrix4(),
-                controlPoints = this.getControlPointArray(); // so I can use .applyToVector3Array ( array ), see https://threejs.org/docs/api/math/Matrix4.html
-
+            var oldControlPoints = this.getControlPointArray(), // so I can use .applyToVector3Array ( array ), see https://threejs.org/docs/api/math/Matrix4.html
+                newControlPoints = matrix4.applyToVector3Array(oldControlPoints),
+                degree = this.getCurveOrder()-1;
             
-            
-
+            return new Geo.Curve().fromControlPointArrayDegreeKnots(newControlPoints,degree,this.getKnotVector());
         },
         getPointer: function(){
             return this._pointer;

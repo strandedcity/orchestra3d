@@ -129,9 +129,12 @@ define([
     };
 
     DataTree.prototype.log = function(){
+        var empty = true;
         this.recurseTree(function(data,node){
+            empty = false;
             console.log('Path: ',node.getPath(),'      Data: ',data);
         });
+        if (empty) console.log("(Tree has no data)");
     };
 
     DataTree.prototype.getMaxPathLength = function(){

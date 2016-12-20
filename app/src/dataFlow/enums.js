@@ -29,7 +29,8 @@ define([],function(){
             WILD: 5,
             NULL: 6,
             PLANE: 7,
-            ARRAY: 8
+            ARRAY: 8,
+            MATRIX4: 9 // transform matrices
         },
         KEYS: {
             SHIFT: 16

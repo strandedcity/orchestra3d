@@ -52,7 +52,7 @@ define([
             /* D = degree, P = periodic, V = points (AS LIST) */
             console.warn("PERIODIC input is ignored!");
             var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(degree,periodic,pointList){
-                return new Geometry.Curve(pointList,degree)
+                return new Geometry.Curve().fromControlPointsDegreeKnots(pointList,degree)
             });
 
             this.getOutput("C").replaceData(result.tree);
@@ -83,7 +83,7 @@ define([
         recalculate: function(){
             /* A = Point 1, B = Point2 */
             var result = DataMatcher([this.getInput("A"),this.getInput("B")],function(p1,p2){
-                return new Geometry.Curve([p1,p2],1)
+                return new Geometry.Curve().fromControlPointsDegreeKnots([p1,p2],1);
             });
 
             this.getOutput("L").replaceData(result.tree);
@@ -115,7 +115,8 @@ define([
         recalculate: function(){
             /* S = Start, D = Direction, L = Length */
             var result = DataMatcher([this.getInput("S"),this.getInput("D"),this.getInput("L")],function(start,direction,length){
-                return new Geometry.Curve([start.clone(),start.clone().addScaledVector(direction.clone().normalize(),length)],1)
+                return new Geometry.Curve()
+                    .fromControlPointsDegreeKnots([start.clone(),start.clone().addScaledVector(direction.clone().normalize(),length)],1);
             });
 
             this.getOutput("L").replaceData(result.tree);

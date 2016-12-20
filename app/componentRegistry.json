@@ -173,5 +173,10 @@
     "functionName": "CurveCurveIntersectionComponent",
     "name": "Curve-Curve Intersection",
     "shortDescription": "Finds intersections between two given curves."
+  },
+  {
+    "functionName": "GeometryRotateAxisAndCenterComponent",
+    "name": "Rotate 3D",
+    "shortDescription": "Rotate around a 3D Axis and Center Point"
   }
 ]
