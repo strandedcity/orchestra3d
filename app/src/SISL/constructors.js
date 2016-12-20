@@ -123,11 +123,14 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                 pntr = curveGetKnotVectorPointer(this._pointer);
             return Module.Utils.copyCArrayToJS(pntr,cnt);
         },
-        getControlPoints: function(){
+        getControlPointArray: function(){
             var dim = 3,
                 cnt = curveControlPointCount(this._pointer) * dim,
-                pntr = curveGetControlPointsPointer(this._pointer)
-                pointPositions = Module.Utils.copyCArrayToJS(pntr,cnt),
+                pntr = curveGetControlPointsPointer(this._pointer);
+            return Module.Utils.copyCArrayToJS(pntr,cnt);
+        },
+        getControlPoints: function(){
+            var pointPositions = this.getControlPointArray(),
                 controlPoints = [];
 
             // Turn the control points into Geo.Point objects from [x1,y1,z1,x2,y2,z2....]
@@ -142,10 +145,20 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         getCurveOrder: function(){
             return curveOrder(this._pointer);
         },
-//applyMatrix: function(matrix4){
-//    // returns a new curve, transformed by the supplied matrix
-//
-//},
+        rotate: function(theta,axis){
+            
+            var rotationMatrix = new THREE.Matrix4().makeRotationAxis ( axis, theta )
+        },
+        applyMatrix: function(matrix4){
+            // Returns a new curve, transformed by the supplied matrix. The beauty of NURBS: affine transforms can be done on control points, and the resulting objects will appear translated.
+            // THREEJS supplies robust enough matrix math to nicely complement SISL's disinterest in affine transforms.
+            var m = new THREE.Matrix4(),
+                controlPoints = this.getControlPointArray(); // so I can use .applyToVector3Array ( array ), see https://threejs.org/docs/api/math/Matrix4.html
+
+            
+            
+
+        },
         getPointer: function(){
             return this._pointer;
         },
