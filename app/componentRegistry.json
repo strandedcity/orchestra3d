@@ -178,5 +178,10 @@
     "functionName": "GeometryRotateAxisAndCenterComponent",
     "name": "Rotate 3D",
     "shortDescription": "Rotate around a 3D Axis and Center Point"
+  },
+  {
+    "functionName": "GeometryMoveComponent",
+    "name": "Move",
+    "shortDescription": "Translate (move) and object along a vector"
   }
 ]

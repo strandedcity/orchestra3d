@@ -47,6 +47,44 @@ define([
     });
 
 
+
+    components.GeometryMoveComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "G", type: DataFlow.OUTPUT_TYPES.WILD},     // rotated geometry
+                {shortName: "X", type: DataFlow.OUTPUT_TYPES.MATRIX4}   // the transform matrix
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "G", required: true, type: DataFlow.OUTPUT_TYPES.WILD},                                         // Base geometry
+                {shortName: "T", required: false, default: new Geometry.Point(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT},   // Translation Vector              
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Move",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            var result = DataMatcher(
+                [this.getInput("G"),this.getInput("T")],
+                function(geom,translation){
+                    var matrix = geom.translateMatrix(translation);
+                    return {
+                        G: geom.applyMatrix4(matrix),
+                        X: matrix
+                    }
+                });
+
+            this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
+            this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
+        }
+    });
+
     return components;
 });
 

@@ -105,7 +105,7 @@ define([
                 _.each(data, function(object){
                     // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
                     // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
-                    if (!_.isNull(object) && typeof object.destroy === "function") object.destroy();
+                    if (!_.isEmpty(object) && typeof object.destroy === "function") object.destroy();
                     else if (!_.isNull(object) && !_.isNumber(object) && !_.isArray(object)) {
                         console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
                     }
