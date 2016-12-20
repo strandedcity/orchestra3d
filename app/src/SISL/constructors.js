@@ -29,6 +29,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1356 = Module.cwrap('s1356','number',numberArguments(14));
         var s1360 = Module.cwrap('s1360','number',numberArguments(14));
         var s1857 = Module.cwrap('s1857','number',numberArguments(10));
+        var s1961 = Module.cwrap('s1961','number',numberArguments(15));
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
     }

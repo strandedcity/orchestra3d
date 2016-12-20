@@ -26,6 +26,7 @@ emcc \
         '_s1356', # InterpolateCurve(pointList)
         '_s1360', # Create an approximation of the offset to a curve within a tolerance
         '_s1857', # Find all the intersections between two curves
+        '_s1961', # Data reduction: Point data as input
     ]" \
     -s TOTAL_MEMORY=536870912 \
     -O3 \
