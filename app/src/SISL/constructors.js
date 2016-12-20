@@ -77,11 +77,11 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
-    Geo.Curve = function GeoCurve(controlPoints, degree, periodic){
+    Geo.Curve = function GeoCurve(controlPoints, degree, knots){
         // validate inputs
         validateControlPointList(controlPoints);
         if (typeof degree !== "number" || degree % 1 !== 0) {throw new Error("Curve degree must be an integer");}
-        if (typeof periodic !== "boolean") {throw new Error("Periodic must be a boolean");}
+        if (knots && !_.isArray(knots)) {throw new Error("Knots, if defined, must be an array");}
         if (degree >= controlPoints.length) {throw new Error("Curve degree must be smaller than the number of control points");}
         // By definition, from http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline
         // #knots = #control pts + curve order
@@ -98,8 +98,8 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             knotVector, knotVectorPointer,
             vertices = flattenPointList(controlPoints), verticesPointer;
 
-        // Knot vector must be generated... there are a couple ways we might do this, but the simplest is:
-        knotVector = Module.Utils.generateUniformKnotVector(vertexCount,curveOrder);
+        // Knot vector must be generated if not supplied... there are a couple ways we might do this, but the simplest is:
+        knotVector = _.isArray(knots) ? knots : Module.Utils.generateUniformKnotVector(vertexCount,curveOrder);
 
         // copy knotvector, get pointer:
         knotVectorPointer = Module.Utils.copyJSArrayToC(knotVector);
@@ -176,7 +176,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             s1227(this._pointer,1,param,0,buffer,0);
             var derivs = Module.Utils.copyCArrayToJS(buffer,6);
             Module._free(buffer);
-            
+
             return derivs;
         },
         destroy: function(){
