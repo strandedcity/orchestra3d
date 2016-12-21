@@ -19,12 +19,6 @@ double curveParametricStart(SISLCurve *crv)
     return crv->et[0];
 }
 
-void freeSISLCurve(SISLCurve *crv);
-void freeSISLCurve(SISLCurve *crv)
-{
-    if (crv) freeCurve(crv);
-}
-
 int curveKnotCnt(SISLCurve *crv);
 int curveKnotCnt(SISLCurve *crv)
 {

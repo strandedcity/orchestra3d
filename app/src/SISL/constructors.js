@@ -14,7 +14,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
 
     try {
         var newCurve = Module.cwrap('newCurve','number',numberArguments(7));
-        var freeCurve = Module.cwrap('freeSISLCurve','number',numberArguments(1));
+        var freeCurve = Module.cwrap('freeCurve','number',numberArguments(1));
         var curveParametricEnd = Module.cwrap('curveParametricEnd','number',numberArguments(1));
         var curveParametricStart = Module.cwrap('curveParametricStart','number',numberArguments(1));
         var curveKnotVectorCount = Module.cwrap('curveKnotCnt','number',numberArguments(1));
@@ -80,7 +80,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
     Geo.Curve = function GeoCurve(){
         var that = this;
-window.TESTCURVE = this;
+
         // Direct Construction of a Curve can have a few different inputs....
         this.fromControlPointsDegreeKnots = function(controlPoints, degree, knots){
             // validate inputs
@@ -136,16 +136,18 @@ window.TESTCURVE = this;
         },
 
         divideEqualLengthSegments: function(segmentCount){
+
+            // var timing = (new Date()).getTime();
             // SISL doesn't natively include the facility to retrieve parameter values of a curve which, when evaluated,
             // will produce equal-length sections along the curve.
             // There's almost no tax to doing this in JavaScript, however, since all the arrays and pointers stay in C-land until the end.
             // Strategy: Use s1613 to approximate the curve with straight segments, then use the straight segments to divide the curve by
             // length. Pull those points back to the original curve using s1957 or s1953
-            // s1613(curve, epsge, points, numpoints, stat)
+            // s1613(*curve, geometricPrecision, **points, *numpoints, *stat)
 
             // INPUT ARGS
             var curve = this._pointer,
-                epsge = precision*10, // less precision needed at this step, since points will be pulled back to curve.
+                epsge = precision, // less precision needed at this step, since points will be pulled back to curve.
 
             // OUTPUT ARGS
                 points = Module._malloc(8),
@@ -154,17 +156,48 @@ window.TESTCURVE = this;
 
             s1613(curve,epsge,points,numPoints,stat);
 
-            var sv = Module.Utils.copyCArrayToJS(points,Module.getValue(numPoints)*3); //"segmentVertices"
-            var accumulatedLengthsByVertex = [0];
+            var sv = Module.Utils.copyCArrayToJS(Module.getValue(points,'i8*'),Module.getValue(numPoints,'i8*')*3); //"segmentVertices";
+            var accumulatedLengthsToStartOfVertex = [0];
 
-            for (var i=0; i < sv.length; i+=3) {
+            // In testing, I find that even simple curves are broken into a LOT of parts, even when epsge is set to large numbers. Given that,
+            // 'accumulatedLengthsToStartOfVertex' can probably be used directly, rather than further interpolating along that segment length.
+            // So the task here is to find which vertex is immediately after each requested length as determined by segment.
+            var segmentLength = this.getLength()/segmentCount,
+                vertexIndicesAtSegmentEnds = [0],
+                whichSegment = 1;
+
+            for (var i=0; i < sv.length / 3 - 1; i++) {
                 // find distance between this point and the next point
-                var dist = Math.sqrt(  )
+                var deltaDist = Math.sqrt( Math.pow(sv[3*i+3]-sv[3*i],2) + Math.pow(sv[3*i+4]-sv[3*i+1],2) + Math.pow(sv[3*i+5]-sv[3*i+2],2)  ),
+                    lastDist = accumulatedLengthsToStartOfVertex[accumulatedLengthsToStartOfVertex.length-1],
+                    totalDist = lastDist+deltaDist;
+                accumulatedLengthsToStartOfVertex.push(totalDist);
+
+                if (lastDist < whichSegment * segmentLength && totalDist > whichSegment * segmentLength) {
+                    // The length-along-curve that I'm looking for is in this segment!
+                    vertexIndicesAtSegmentEnds.push(accumulatedLengthsToStartOfVertex.length);
+
+                    whichSegment++;
+                    if (totalDist > (whichSegment) * segmentLength) {
+                        throw new Error("Multiple segments end inside this segment. This is a bug caused by a corner that was cut by the programmers, and should be fixed by interpolating the correct position inside this curve segment where the requested segment really ends.");
+                    }
+
+                } 
             }
 
-            // some geometric work to do now! Add up all the segment lengths, marking the from => to positions
-            // of each segments to speed up our search as we seek to divide.
+            var divisionPointArray = [];
+            for (var j=0; j < vertexIndicesAtSegmentEnds.length-1; j++){
+                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3]);
+                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3+1]);
+                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3+2]);
+            }
+            divisionPointArray.push(sv[sv.length-3]);
+            divisionPointArray.push(sv[sv.length-2]);
+            divisionPointArray.push(sv[sv.length-1]);
 
+            console.log('positions in array for '+segmentCount+' divisions: ',vertexIndicesAtSegmentEnds);
+            console.log(divisionPointArray);
+            // console.log('time to complete: ', (new Date()).getTime()-timing)
         },
         getKnotVector: function(){
             // # knots =  number of control points plus curve order
@@ -252,7 +285,7 @@ window.TESTCURVE = this;
             return derivs;
         },
         destroy: function(){
-            //console.warn('freeCurve needs fixing');
+            console.warn('freeCurve needs fixing. When called a lot, the browser freezes!');
             freeCurve(this._pointer);
         }
     };

@@ -11,7 +11,7 @@ emcc \
     -o src/SISL/compiled.js \
     -s EXPORTED_FUNCTIONS="[
         '_newCurve',
-        '_freeSISLCurve',
+        '_freeCurve',
         '_curveParametricEnd',
         '_curveParametricStart',
         '_curveKnotCnt',
