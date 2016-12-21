@@ -29,7 +29,7 @@ emcc \
         '_s1961', # Data reduction: Point data as input
         '_s1613', # Approximate a curve with a sequence of straight lines
     ]" \
-    -s TOTAL_MEMORY=536870912 \
+    -s TOTAL_MEMORY=1073741824 \
     -O3 \
     --memory-init-file 0
 
