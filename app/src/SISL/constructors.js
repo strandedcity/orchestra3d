@@ -29,7 +29,6 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1356 = Module.cwrap('s1356','number',numberArguments(14));
         var s1360 = Module.cwrap('s1360','number',numberArguments(14));
         var s1857 = Module.cwrap('s1857','number',numberArguments(10));
-        var s1961 = Module.cwrap('s1961','number',numberArguments(15));
         var s1613 = Module.cwrap('s1613','number',numberArguments(5));
     } catch (e) {
         throw new Error("Missing SISL dependency encountered.")
@@ -139,8 +138,8 @@ window.TESTCURVE = this;
             // SISL doesn't natively include the facility to retrieve parameter values of a curve which, when evaluated,
             // will produce equal-length sections along the curve.
             // There's almost no tax to doing this in JavaScript, however, since all the arrays and pointers stay in C-land until the end.
-            // Strategy: Use s1613 to approximate the curve with straight segments, then use s1961 to data-reduce with the 'cord-length' parameterization
-            // return that curve.
+            // Strategy: Use s1613 to approximate the curve with straight segments, then use the straight segments to divide the curve by
+            // length. Pull those points back to the original curve using s1957 or s1953
             // s1613(curve, epsge, points, numpoints, stat)
 
             // INPUT ARGS
@@ -157,25 +156,6 @@ window.TESTCURVE = this;
             var done = Module.Utils.copyCArrayToJS(points,Module.getValue(numPoints)*3);
             console.log("DONE");
 
-            // // // Now, we have a set of segments approximating the curve. Pass those to s1961 for data reduction using the cord-length parameterization.
-            // // // void s1961(ep, im, idim, ipar, epar, eeps, ilend, irend, iopen, afctol, itmax, ik, rc, emxerr, jstat)
-            // var reducedCurvePointer = Module._malloc(8);
-            // var arr = new Array();
-            // for (var i=0; i<numPoints; i++) {
-            //     arr.push(1);
-            // }
-            // var prec = 0.1;
-            // var epar = Module.Utils.copyJSArrayToC(arr);
-            // var eeps = Module.Utils.copyJSArrayToC([prec,prec,prec]);
-            // var maxErr = Module.Utils.copyJSArrayToC([prec,prec,prec]);
-            // s1961(points, numPoints, 3, 1, epar, eeps, 4, 4, 1 /* HARD CODED: OPEN CURVE */, 0.5, 100, 6, reducedCurvePointer, maxErr, 0);
-            // var reducedCurve = new Geo.Curve().fromPointer(reducedCurvePointer);
-
-            // // On the approximating curve, the "t" parameter is linearly propotionate to length. Divide it, evaluate at each point,
-            // // then find the closest point on the ORIGINAL curve. That's what we return!
-            // // void s1953(curve, point, dim, epsco, epsge, numintpt, intpar, numintcu, intcurve, jstat)
-            // console.log("ORIGINAL curve length: ",this.getLength());
-            // console.log("REDUCED curve length: ",reducedCurve.getLength());
         },
         getKnotVector: function(){
             // # knots =  number of control points plus curve order
