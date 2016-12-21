@@ -134,7 +134,8 @@ window.TESTCURVE = this;
             Module._free(buffer);
             return len;
         },
-        getEqualLengthParameterValues: function(segmentCount){
+
+        divideEqualLengthSegments: function(segmentCount){
             // SISL doesn't natively include the facility to retrieve parameter values of a curve which, when evaluated,
             // will produce equal-length sections along the curve.
             // There's almost no tax to doing this in JavaScript, however, since all the arrays and pointers stay in C-land until the end.
@@ -144,7 +145,7 @@ window.TESTCURVE = this;
 
             // INPUT ARGS
             var curve = this._pointer,
-                epsge = precision,
+                epsge = precision*10, // less precision needed at this step, since points will be pulled back to curve.
 
             // OUTPUT ARGS
                 points = Module._malloc(8),
@@ -153,8 +154,16 @@ window.TESTCURVE = this;
 
             s1613(curve,epsge,points,numPoints,stat);
 
-            var done = Module.Utils.copyCArrayToJS(points,Module.getValue(numPoints)*3);
-            console.log("DONE");
+            var sv = Module.Utils.copyCArrayToJS(points,Module.getValue(numPoints)*3); //"segmentVertices"
+            var accumulatedLengthsByVertex = [0];
+
+            for (var i=0; i < sv.length; i+=3) {
+                // find distance between this point and the next point
+                var dist = Math.sqrt(  )
+            }
+
+            // some geometric work to do now! Add up all the segment lengths, marking the from => to positions
+            // of each segments to speed up our search as we seek to divide.
 
         },
         getKnotVector: function(){
