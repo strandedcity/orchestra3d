@@ -143,6 +143,71 @@ define([
         }
     });
 
+    components.DuplicateDataComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
+                {required: false, shortName: "N", default: 2, type: DataFlow.OUTPUT_TYPES.NUMBER}, // number of duplicates
+                {required: false, shortName: "O", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // retain list order
+            ], opts, "inputs");
+
+            var args = _.extend(opts || {},{
+                inputs: inputs,
+                outputs: output,
+                componentPrettyName: "Dup"
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            var result = DataMatcher([this.getInput("D"),this.getInput("N"),this.getInput("O")],function(data,numberOfDupes,retainOrder){
+                if (!_.isArray(data)) return null;
+                console.warn("RETAIN ORDER FALSE NOT SUPPORTED");
+                
+                var duppedList = [];
+                for (var i=0; i<numberOfDupes; i++){
+                    duppedList = duppedList.concat(data);
+                }
+
+                return duppedList;
+            });
+
+            console.warn("THIS IS A BAD CORNER TO CUT -- the function to return data 'as a list' should not live inside of .map()");
+            this.getOutput("D").replaceData(result.tree.map(function(d){return d;}));
+        }
+    });
+
+    components.ListLengthComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "L", type: DataFlow.OUTPUT_TYPES.NUMBER}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
+            ], opts, "inputs");
+
+            var args = _.extend(opts || {},{
+                inputs: inputs,
+                outputs: output,
+                componentPrettyName: "Lng"
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            var result = DataMatcher([this.getInput("L")],function(list){
+                if (!_.isArray(list)) return null;
+                
+                return list.length;
+            });
+
+            this.getOutput("L").replaceData(result.tree);
+        }
+    });
+
 
 
     return components;

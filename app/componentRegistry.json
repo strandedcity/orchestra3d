@@ -30,6 +30,16 @@
     "shortDescription": "Retrieve a specific item from a list"
   },
   {
+    "functionName": "DuplicateDataComponent",
+    "name": "Duplicate Data",
+    "shortDescription": "Duplicate data a predefined number of times"
+  },
+  {
+    "functionName": "ListLengthComponent",
+    "name": "List Length",
+    "shortDescription": "Measure the length of a List"
+  },
+  {
     "functionName": "GraftComponent",
     "name": "Graft Tree",
     "shortDescription": "Creates a separate branch for each data item in the supplied tree"

@@ -34,6 +34,7 @@ define([
             var result = DataMatcher(
                 [this.getInput("G"),this.getInput("A"),this.getInput("C"),this.getInput("X")],
                 function(geom,angle,center,axis){
+                    // console.log('rotating '+geom + " by " + angle + " radians " + " along ", axis.toArray() + " around " + center.toArray());
                     var matrix = geom.rotateAxisAndCenterMatrix(angle,axis,center);
                     return {
                         G: geom.applyMatrix4(matrix),

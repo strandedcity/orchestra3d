@@ -53,7 +53,7 @@ define([
         };
 
         this.doubleclick = function(){
-            this.model.values.log();
+            this.model.getTree().log();
         };
 
         var that = this;
