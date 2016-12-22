@@ -261,6 +261,78 @@ define([
     });
 
 
+
+    components.CurvePolyLine = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "Pl", type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST},
+                {shortName: "C", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "PLine",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* V = Point List (AS LIST), C = Closed */
+            var result = DataMatcher([this.getInput("V"),this.getInput("C")],function(pointList,closed){
+                return new Geometry.Curve().fromControlPointsDegreeKnots(pointList,1); // knots will be generated automatically if parameterization is not supplied
+            });
+
+            this.getOutput("Pl").replaceData(result.tree);
+        }
+    });
+
+
+
+    components.CurveEndPoints = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "S", type: DataFlow.OUTPUT_TYPES.POINT},
+                {shortName: "E", type: DataFlow.OUTPUT_TYPES.POINT}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "C", required: true, type: DataFlow.OUTPUT_TYPES.CURVE}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "End",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(){
+            /* C = Curve */
+            var result = DataMatcher([this.getInput("C")],function(curve){
+                return {
+                    S: curve.getStartPoint(),
+                    E: curve.getEndPoint()
+                }
+            });
+
+            this.getOutput("S").replaceData(result.tree.map(function(data){return data.S}));
+            this.getOutput("E").replaceData(result.tree.map(function(data){return data.E}));
+        },
+        getPreviewOutputs: function(){
+            // Special preview, because both outputs are previewable (not just the first one)
+            return [this.getOutput("S"),this.getOutput("E")];
+        },
+    });
+
+
     return components;
 });
 

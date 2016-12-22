@@ -71,21 +71,33 @@ define([
                     paramWidth = maxParameter - minParameter,
                     prevPointInCurve = (new THREE.Vector3()).fromArray(curve.getPositionAt(minParameter).toArray());
 
-                // Step through curve parameters
-                segmentCounter = 0;
-                while (segmentCounter <= SETTINGS.CURVE_SECTIONS) {
-                    var evalAt = segmentCounter*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
-                    var pt = curve.getPositionAt(evalAt).toArray();
-                    var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
+                //degree = this.getCurveOrder()-1;
+                if (curve.getCurveOrder()-1 === 1) {
+                    // straight lines. Use the control points directly.
+                    console.log('degree 1. Using control points directly for drawing.');
+                    _.each(curve.getControlPoints(),function(newpt){
+                        newVertices[newVertices.length] = prevPointInCurve;
+                        newVertices[newVertices.length] = newpt;
+                        prevPointInCurve = newpt;
+                    });
+                } else {
+                    // Step through curve parameters
+                    segmentCounter = 0;
+                    while (segmentCounter <= SETTINGS.CURVE_SECTIONS) {
+                        var evalAt = segmentCounter*paramWidth/SETTINGS.CURVE_SECTIONS + minParameter;
+                        var pt = curve.getPositionAt(evalAt).toArray();
+                        var newpt = new THREE.Vector3(pt[0], pt[1], pt[2]);
 
-                    // adding two points at a time enables us to keep multiple curves in a list defined inside a single THREE.Geometry
-                    // without connecting each of the lines. See THREE.LineSegments below. This is a huge performance gain over
-                    // adding one point at a time, assuming the lines can't be connected.
-                    newVertices[newVertices.length] = prevPointInCurve;
-                    newVertices[newVertices.length] = newpt;
-                    prevPointInCurve = newpt;
-                    segmentCounter++;
+                        // adding two points at a time enables us to keep multiple curves in a list defined inside a single THREE.Geometry
+                        // without connecting each of the lines. See THREE.LineSegments below. This is a huge performance gain over
+                        // adding one point at a time, assuming the lines can't be connected.
+                        newVertices[newVertices.length] = prevPointInCurve;
+                        newVertices[newVertices.length] = newpt;
+                        prevPointInCurve = newpt;
+                        segmentCounter++;
+                    }
                 }
+
             }
         });
 

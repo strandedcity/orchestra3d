@@ -295,6 +295,14 @@ define([
             var type = previewOutputs[0].type;
             var preview;
 
+            // When more than one output is previewable, gather its data into the same list
+            // Currently, a component can only preview one data TYPE at a time.
+            if (previewOutputs.length > 1) {
+                for (var i=1; i<previewOutputs.length; i++){
+                    geom = geom.concat(previewOutputs[i].getTree().flattenedTree().dataAtPath([0]));
+                }
+            }
+
             if (type === ENUMS.OUTPUT_TYPES.WILD) {
                 // extract type from the first piece of data. Discard mismatched data.
                 if (geom[0].constructor === Geometry.Curve) {

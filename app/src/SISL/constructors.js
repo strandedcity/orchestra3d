@@ -48,7 +48,10 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                 }
             });
         }
-        if (!controlPointsPass) {throw new Error("Controlpoints must be an array of at least 2 Vector3 objects");}
+        if (!controlPointsPass) {
+            console.log("Bad control points: ",controlPoints);
+            throw new Error("Controlpoints must be an array of at least 2 Vector3 objects");
+        }
     }
 
     function flattenPointList(points){

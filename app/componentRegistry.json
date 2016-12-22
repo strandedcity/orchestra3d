@@ -65,6 +65,16 @@
     "shortDescription": "Outputs a circle curve based on a center point, normal vector, and radius"
   },
   {
+    "functionName": "CurvePolyLine",
+    "name": "PolyLine (Pline)",
+    "shortDescription": "Create a polyline connecting a number of points"
+  },
+  {
+    "functionName": "CurveEndPoints",
+    "name": "End Points",
+    "shortDescription": "Extract the end points of a curve"
+  },
+  {
     "functionName": "CurveControlPointComponent",
     "name": "NURBS Curve",
     "shortDescription": "Generates a new Curve object based on a list of control points"

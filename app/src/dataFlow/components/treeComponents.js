@@ -104,7 +104,7 @@ define([
         recalculate: function(){
             /* T=input Tree Data, P = (optional) path to put flattened data on (default is [0] */
             console.warn("PATH input is ignored for now");
-            var flattened = this.getInput("T").flattenedTree(false); // makes a copy!
+            var flattened = this.getInput("T").getTree().flattenedTree(false); // makes a copy!
             this.getOutput("T").replaceData(flattened);
         }
     });
