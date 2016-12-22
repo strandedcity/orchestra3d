@@ -7,27 +7,7 @@ define([
 ],function(_,DataFlow,Geometry,Preview,DataMatcher){
     var components = {};
 
-    // THIS IS NOT A COMPONENT! It's just a common preview function for curve components
-    var AbsractPreviewableCurveComponent = DataFlow.Component.extend({
-        // drawPreviews: function(){
-        //     var curves = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
-
-        //     var preview;
-        //     if (_.isArray(this.previews) && this.previews.length > 0) {
-        //         preview = this.previews[0];
-
-        //         // update the preview geometry
-        //         preview.updateCurveList(curves);
-        //         preview.show();
-        //     }
-        //     else {
-        //         preview = new Preview.CurveListPreview(curves);
-        //         this.previews = [preview];
-        //     }
-        // }
-    });
-
-    components.CurveControlPointComponent = AbsractPreviewableCurveComponent.extend({
+    components.CurveControlPointComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -60,7 +40,7 @@ define([
     });
 
     // Line Connecting Two Points
-    components.LineABComponent = AbsractPreviewableCurveComponent.extend({
+    components.LineABComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -91,7 +71,7 @@ define([
     });
 
     // Line: Start (point), Direction (vec), Length (num)
-    components.LineSDLComponent = AbsractPreviewableCurveComponent.extend({
+    components.LineSDLComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -160,24 +140,10 @@ define([
             this.getOutput("P").replaceData(result.tree.map(function(data){return data.P}));
             this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
             this.getOutput("A").replaceData(result.tree.map(function(data){return data.A}));
-        },
-        // drawPreviews: function(){
-        //     var points = [];
-
-        //     // Using flattenedTree() here causes something odd to happen... Not worth bugfixing right now.
-        //     this.getOutput("P").getTree().recurseTree(function(data){
-        //         points = points.concat(data);
-        //     });
-
-        //     if (_.isArray(this.previews) && !_.isUndefined(this.previews[0])) {
-        //         this.previews[0].updatePoints(points);
-        //     } else {
-        //         this.previews = [new Preview.PointListPreview(points)];
-        //     }
-        // }
+        }
     });
 
-    components.DivideCurveComponent = AbsractPreviewableCurveComponent.extend({
+    components.DivideCurveComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST}, // Division Points
@@ -204,18 +170,6 @@ define([
         recalculate: function(){
             /* C = Curve, N = # of segments, K = Split at knots */
             var result = DataMatcher([this.getInput("C"),this.getInput("N"),this.getInput("K")],function(curve, segmentCount, divideAtKnots){
-                // var minParam = curve.getMinParameter(),
-                //     max = curve.getMaxParameter(),
-                //     step = (max-minParam)/segmentCount,
-                //     steps = [],
-                //     positions = [],
-                //     tangents = [];
-                // for (var i=0; i<segmentCount-1; i++) {
-                //     steps.push(minParam + i * step);
-                // }
-                // steps.push(max);
-
-
                 var steps = curve.divideEqualLengthSegments(segmentCount), // parameter values at division points
                     positions = [],
                     tangents = [];
@@ -239,7 +193,7 @@ define([
         }
     });
 
-    components.CurveOffsetComponent = AbsractPreviewableCurveComponent.extend({
+    components.CurveOffsetComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
                 {shortName: "C", type: DataFlow.OUTPUT_TYPES.CURVE}
@@ -296,11 +250,6 @@ define([
         },
         recalculate: function(){
             console.log('recalculating interpcrv');
-            //this.getOutput("C").getTree().recurseTree(function(data){
-            //    _.each(data,function(interpcrv){
-            //        interpcrv.destroy();
-            //    });
-            //});
 
             /* D = degree, P = periodic, V = points (AS LIST) */
             var result = DataMatcher([this.getInput("D"),this.getInput("P"),this.getInput("V")],function(degree,periodic,pointList){
@@ -308,23 +257,7 @@ define([
             });
 
             this.getOutput("C").replaceData(result.tree);
-        },
-        // drawPreviews: function(){
-        //     var curves = this.getOutput("C").getTree().flattenedTree().dataAtPath([0]);
-
-        //     var preview;
-        //     if (_.isArray(this.previews) && this.previews.length > 0) {
-        //         preview = this.previews[0];
-
-        //         // update the preview geometry
-        //         preview.updateCurveList(curves);
-        //         preview.show();
-        //     }
-        //     else {
-        //         preview = new Preview.CurveListPreview(curves);
-        //         this.previews = [preview];
-        //     }
-        // }
+        }
     });
 
 
