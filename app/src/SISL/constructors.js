@@ -166,18 +166,32 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             // Would be nice if this happened in C-land to avoid copying the whole array sv, which turns out to be very long, into JS
             var segmentLength = this.getLength()/segmentCount,
                 vertexIndicesAtSegmentEnds = [0],
+                closePointsByLinearSegmentApproximation = [],
                 whichSegment = 1;
 
             for (var i=0; i < sv.length / 3 - 1; i++) {
                 // find distance between this point and the next point
-                var deltaDist = Math.sqrt( Math.pow(sv[3*i+3]-sv[3*i],2) + Math.pow(sv[3*i+4]-sv[3*i+1],2) + Math.pow(sv[3*i+5]-sv[3*i+2],2)  ),
+                var deltaX = sv[3*i+3]-sv[3*i],
+                    deltaY = sv[3*i+4]-sv[3*i+1],
+                    deltaZ = sv[3*i+5]-sv[3*i+2],
+                    deltaDist = Math.sqrt( Math.pow(deltaX,2) + Math.pow(deltaY,2) + Math.pow(deltaZ,2)  ),
                     lastDist = accumulatedLengthsToStartOfVertex[accumulatedLengthsToStartOfVertex.length-1],
                     totalDist = lastDist+deltaDist;
                 accumulatedLengthsToStartOfVertex.push(totalDist);
 
                 if (lastDist < whichSegment * segmentLength && totalDist > whichSegment * segmentLength) {
-                    // The length-along-curve that I'm looking for is in this segment!
-                    vertexIndicesAtSegmentEnds.push(accumulatedLengthsToStartOfVertex.length);
+                    // The length-along-curve that I'm looking for is in this segment! Interpolate to find the position of the point
+                    // that matches the requested length best
+
+                    var neededLengthOfSegment = whichSegment*segmentLength - lastDist,
+                        scale = neededLengthOfSegment / deltaDist;
+
+                    closePointsByLinearSegmentApproximation.push(new Geo.Point(
+                        sv[3*i] + scale*deltaX,
+                        sv[3*i+1] + scale*deltaY,
+                        sv[3*i+2] + scale*deltaZ
+                    ));
+                    // vertexIndicesAtSegmentEnds.push(accumulatedLengthsToStartOfVertex.length);
 
                     whichSegment++;
                     if (totalDist > (whichSegment) * segmentLength) {
@@ -187,26 +201,31 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                 } 
             }
 
-            var paramsAtPoints = [];
-            for (var j=0; j < vertexIndicesAtSegmentEnds.length-1; j++){
-                // Rather than passing the point position ([x,y,z]), I can pass a pointer to the array, which is already in C-land,
-                // to avoid extra data-copies into javascript that I don't need.
-                var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
-                paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
+            var that = this;
+            var paramsAtPoints = _.map(closePointsByLinearSegmentApproximation,function(approxPoint){
+                return that.getClosestPointParameter.call(that,approxPoint);
+            });
 
-                // Method not involving pointers:
-                // paramsAtPoints.push(this.getClosestPointParameter(new Geo.Point(
-                //     sv[vertexIndicesAtSegmentEnds[j]*3],
-                //     sv[vertexIndicesAtSegmentEnds[j]*3+1],
-                //     sv[vertexIndicesAtSegmentEnds[j]*3+2]
-                // )));
-            }
-            // Add a point at the end of the line
-            paramsAtPoints.push(this.getClosestPointParameter(Module.getValue(points,'i8*')+(sv.length-3)*8));
+            // var paramsAtPoints = [];
+            // for (var j=0; j < vertexIndicesAtSegmentEnds.length-1; j++){
+            //     // Rather than passing the point position ([x,y,z]), I can pass a pointer to the array, which is already in C-land,
+            //     // to avoid extra data-copies into javascript that I don't need.
+            //     var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
+            //     paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
 
-            // Method not involving pointers:
-            // var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
-            // paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
+            //     // Method not involving pointers:
+            //     // paramsAtPoints.push(this.getClosestPointParameter(new Geo.Point(
+            //     //     sv[vertexIndicesAtSegmentEnds[j]*3],
+            //     //     sv[vertexIndicesAtSegmentEnds[j]*3+1],
+            //     //     sv[vertexIndicesAtSegmentEnds[j]*3+2]
+            //     // )));
+            // }
+            // // Add a point at the end of the line
+            // paramsAtPoints.push(this.getClosestPointParameter(Module.getValue(points,'i8*')+(sv.length-3)*8));
+
+            // // Method not involving pointers:
+            // // var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
+            // // paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
 
             // Clean up:
             Module._free(Module.getValue(points,'i8*'));
