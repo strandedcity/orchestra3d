@@ -336,7 +336,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         },
         destroy: function(){
             console.warn('freeCurve needs fixing. When called a lot, the browser freezes!');
-            freeCurve(this._pointer);
+            // freeCurve(this._pointer);
         }
     };
 
