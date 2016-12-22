@@ -204,17 +204,21 @@ define([
         recalculate: function(){
             /* C = Curve, N = # of segments, K = Split at knots */
             var result = DataMatcher([this.getInput("C"),this.getInput("N"),this.getInput("K")],function(curve, segmentCount, divideAtKnots){
-                var minParam = curve.getMinParameter(),
-                    max = curve.getMaxParameter(),
-                    step = (max-minParam)/segmentCount,
-                    steps = [],
+                // var minParam = curve.getMinParameter(),
+                //     max = curve.getMaxParameter(),
+                //     step = (max-minParam)/segmentCount,
+                //     steps = [],
+                //     positions = [],
+                //     tangents = [];
+                // for (var i=0; i<segmentCount-1; i++) {
+                //     steps.push(minParam + i * step);
+                // }
+                // steps.push(max);
+
+
+                var steps = curve.divideEqualLengthSegments(segmentCount), // parameter values at division points
                     positions = [],
                     tangents = [];
-                for (var i=0; i<segmentCount-1; i++) {
-                    steps.push(minParam + i * step);
-                }
-                steps.push(max);
-
                 _.each(steps,function(paramValue){
                     var evaluation = curve._evalAt(paramValue);
                     positions.push(new Geometry.Point(evaluation[0],evaluation[1],evaluation[2]));

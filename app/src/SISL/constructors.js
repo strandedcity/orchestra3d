@@ -30,8 +30,9 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var s1360 = Module.cwrap('s1360','number',numberArguments(14));
         var s1857 = Module.cwrap('s1857','number',numberArguments(10));
         var s1613 = Module.cwrap('s1613','number',numberArguments(5));
+        var s1957 = Module.cwrap('s1957','number',numberArguments(8));
     } catch (e) {
-        throw new Error("Missing SISL dependency encountered.")
+        throw new Error("Missing SISL dependency encountered.");
     }
 
     function validateControlPointList(controlPoints){
@@ -150,9 +151,9 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                 epsge = precision, // less precision needed at this step, since points will be pulled back to curve.
 
             // OUTPUT ARGS
-                points = Module._malloc(8),
-                numPoints = Module._malloc(8),
-                stat = Module._malloc(8);
+                points = Module._malloc(8),     // double**
+                numPoints = Module._malloc(8),  // int*
+                stat = Module._malloc(8);       // int*
 
             s1613(curve,epsge,points,numPoints,stat);
 
@@ -162,6 +163,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             // In testing, I find that even simple curves are broken into a LOT of parts, even when epsge is set to large numbers. Given that,
             // 'accumulatedLengthsToStartOfVertex' can probably be used directly, rather than further interpolating along that segment length.
             // So the task here is to find which vertex is immediately after each requested length as determined by segment.
+            // Would be nice if this happened in C-land to avoid copying the whole array sv, which turns out to be very long, into JS
             var segmentLength = this.getLength()/segmentCount,
                 vertexIndicesAtSegmentEnds = [0],
                 whichSegment = 1;
@@ -185,19 +187,65 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                 } 
             }
 
-            var divisionPointArray = [];
+            var paramsAtPoints = [];
             for (var j=0; j < vertexIndicesAtSegmentEnds.length-1; j++){
-                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3]);
-                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3+1]);
-                divisionPointArray.push(sv[vertexIndicesAtSegmentEnds[j]*3+2]);
-            }
-            divisionPointArray.push(sv[sv.length-3]);
-            divisionPointArray.push(sv[sv.length-2]);
-            divisionPointArray.push(sv[sv.length-1]);
+                // Rather than passing the point position ([x,y,z]), I can pass a pointer to the array, which is already in C-land,
+                // to avoid extra data-copies into javascript that I don't need.
+                var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
+                paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
 
-            console.log('positions in array for '+segmentCount+' divisions: ',vertexIndicesAtSegmentEnds);
-            console.log(divisionPointArray);
-            // console.log('time to complete: ', (new Date()).getTime()-timing)
+                // Method not involving pointers:
+                // paramsAtPoints.push(this.getClosestPointParameter(new Geo.Point(
+                //     sv[vertexIndicesAtSegmentEnds[j]*3],
+                //     sv[vertexIndicesAtSegmentEnds[j]*3+1],
+                //     sv[vertexIndicesAtSegmentEnds[j]*3+2]
+                // )));
+            }
+            // Add a point at the end of the line
+            paramsAtPoints.push(this.getClosestPointParameter(Module.getValue(points,'i8*')+(sv.length-3)*8));
+
+            // Method not involving pointers:
+            // var pointStartPointer = Module.getValue(points,'i8*')+vertexIndicesAtSegmentEnds[j]*3*8;
+            // paramsAtPoints.push(this.getClosestPointParameter(pointStartPointer));
+
+            // Clean up:
+            Module._free(Module.getValue(points,'i8*'));
+            Module._free(points);
+            Module._free(numPoints);
+            Module._free(stat);
+
+            return paramsAtPoints;
+        },
+        getClosestPointParameter: function(point){
+            // s1957(pcurve, epoint, idim, aepsco, aepsge, gpar, dist, jstat)
+            
+            if (typeof point !== "number" && point.constructor !== Geo.Point) {
+                throw new Error("getClosestPointParameter requires the input point to either be a C-style pointer, or a GeoPoint");
+            }
+
+            // INPUT ARGUMENTS
+            var pcurve = this._pointer,
+                // pass either a pointer to an array of length 3, or copy the data
+                epoint = typeof point === "number" ? point : Module.Utils.copyJSArrayToC(point.toArray()),
+                idim = 3,
+                aepsco = 0,
+                aepsge = precision,
+
+                // OUTPUT ARGUMENTS
+                gpar = Module._malloc(8), // parameter value of the closest point
+                dist = Module._malloc(8), // distance between the curve and point
+                jstat = Module._malloc(8); // <0=error, 0=point found, >0 warning, =1 point lies at an end
+
+            s1957(pcurve, epoint, idim, aepsco, aepsge, gpar, dist, jstat);
+
+            var outputParameter = Module.getValue(gpar,'double');
+
+            Module._free(gpar);
+            Module._free(dist);
+            Module._free(jstat);
+            if (typeof point !== "number") Module._free(epoint); // if "point" is just a number, it was a pointer passed in that's owned by somebody else
+
+            return outputParameter;
         },
         getKnotVector: function(){
             // # knots =  number of control points plus curve order
