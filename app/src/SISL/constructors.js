@@ -135,7 +135,6 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             Module._free(buffer);
             return len;
         },
-
         divideEqualLengthSegments: function(segmentCount){
 
             // var timing = (new Date()).getTime();
@@ -200,6 +199,9 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
 
                 } 
             }
+
+            // Add endpoint:
+            closePointsByLinearSegmentApproximation.push(this.getEndPoint());
 
             var that = this;
             var paramsAtPoints = _.map(closePointsByLinearSegmentApproximation,function(approxPoint){
@@ -340,6 +342,12 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         getTangentAt: function(param){
             var evaluation = this._evalAt(param);
             return new Geo.Point(evaluation[3],evaluation[4],evaluation[5]);
+        },
+        getStartPoint: function(){
+            return this.getPositionAt(this.getMinParameter());
+        },
+        getEndPoint: function(){
+            return this.getPositionAt(this.getMaxParameter());
         },
         _evalAt: function(param){
             // void s1227(*curve, int #derivatives to compute: 0=position 1=tangent, parvalue, *leftknot (opt), double[] derive, *stat))
