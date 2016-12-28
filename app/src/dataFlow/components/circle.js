@@ -71,6 +71,9 @@ define([
 
         //     //window.LOG_TIME_EVENT("DONE DRAWING PREVIEWS",true);
         // }
+    },{
+        "label": "Circle(Center,Normal, Radius)",
+        "desc": "Outputs a circle curve based on a center point, normal vector, and radius"
     });
 
     return components;

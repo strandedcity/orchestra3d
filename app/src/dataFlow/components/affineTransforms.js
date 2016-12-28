@@ -45,8 +45,10 @@ define([
             this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
             this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
         }
+    },{
+        "label": "Rotate 3D",
+        "desc": "Rotate around a 3D Axis and Center Point"
     });
-
 
 
     components.GeometryMoveComponent = DataFlow.Component.extend({
@@ -84,6 +86,9 @@ define([
             this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
             this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
         }
+    },{
+        "label": "Move",
+        "desc": "Translate (move) and object along a vector"
     });
 
     return components;

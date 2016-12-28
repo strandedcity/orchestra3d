@@ -57,7 +57,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Multiply",
+        "desc": "Returns the product of two numbers"
     });
+    
     components.MathDivideComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Divide";
@@ -66,7 +70,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Divide",
+        "desc": "Divides the first input (a) by the second input (b)"
     });
+
     components.MathMaxComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Max";
@@ -75,7 +83,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{ 
+        "label": "Max",
+        "desc": "Returns the larger (maximum value) of two numbers"
     });
+
     components.MathMinComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Min";
@@ -84,6 +96,9 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Min",
+        "desc": "Returns the smaller (minimum value) of two numbers"
     });
 
     components.MathAddComponent = simpleMathComponent.extend({
@@ -94,7 +109,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Add",
+        "desc": "Returns the sum of two numbers"
     });
+
     components.MathSubtractComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Subtract";
@@ -103,6 +122,9 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Subtract",
+        "desc": "Subtracts the second input (b) from the first input (a)"
     });
 
     components.MathSineComponent = simpleMathComponent.extend({
@@ -113,7 +135,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Sine(x)",
+        "desc": "Returns the sine of the input angle in radians"
     });
+
     components.MathCosineComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Cosine";
@@ -122,7 +148,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Cosine(x)",
+        "desc": "Returns the cosine of the input angle in radians"
     });
+
     components.MathTangentComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Tangent";
@@ -131,7 +161,11 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Tangent(x)",
+        "desc": "Returns the tangent of the input angle in radians"
     });
+
     components.MathExponentComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Exponent";
@@ -140,6 +174,9 @@ define([
 
             this.simpleMathInitialize(opts);
         }
+    },{
+        "label": "Exponent a^b",
+        "desc": "Returns the first input (a) raised to a power of the second input (b)."
     });
 
     return components;

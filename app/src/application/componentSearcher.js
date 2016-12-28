@@ -1,4 +1,4 @@
-define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
+define(['dataFlow/dataFlow_loader',"underscore","jquery","bootstrap","bootstrap3-typeahead"],function(DataFlow,_,$){
     // https://github.com/bassjobsen/Bootstrap-3-Typeahead
     //
     // This file essentially customizes typeahead behavior for component selection, and bottles it up for use in
@@ -14,9 +14,32 @@ define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
         this.init();
     }
 
+    // Build component registry from components that are loaded into memory. Replaces a 'componentRegistry' approach
+    // that requires me to maintain two changes for each new component, and there are starting to be lots.
+    var registryData = [];
+
+    // ComponentSearcher needs an array of: 
+    // {
+    //     "functionName": "PointComponent",
+    //     "name": "Point(x,y,z)",
+    //     "shortDescription": "Creates a Point Object from X, Y, and Z coordinate values"
+    // }
+    DataFlow.iterateComponents(function(name,func){
+        registryData.push({
+            functionName: name,
+            name: func.label,
+            shortDescription: func.desc
+        });
+
+        if (!func.label || !func.desc) {
+            if (console) console.warn(name + " lacks a name or description field. It will not be searchable.");
+        }
+    });
+
     ComponentSearcher.prototype.init = function(){
         var $input = this.$input, that=this;
-        $.get('componentRegistry.json?'+Math.random(),function(registryData){
+        // $.get('componentRegistry.json?'+Math.random(),function(registryData){
+
             var matcher = function(item,query){
                 var re = new RegExp(this.query || query, 'i'),
                     searchable = item.name + " " + item.shortDescription; // + item.functionName ?? Generates more results, but could be confusing
@@ -83,7 +106,7 @@ define(["jquery","bootstrap","bootstrap3-typeahead"],function($){
                     $input.val("");
                 }
             });
-        });
+        // });
     };
 
     ComponentSearcher.prototype.destroy = function(){

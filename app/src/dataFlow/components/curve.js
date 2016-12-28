@@ -37,6 +37,9 @@ define([
 
             this.getOutput("C").replaceData(result.tree);
         }
+    },{
+        "label": "NURBS Curve",
+        "desc": "Generates a new Curve object based on a list of control points"
     });
 
     // Line Connecting Two Points
@@ -68,6 +71,9 @@ define([
 
             this.getOutput("L").replaceData(result.tree);
         }
+    },{
+        "label": "Line (A,B)",
+        "desc": "Creates a line connecting two points"
     });
 
     // Line: Start (point), Direction (vec), Length (num)
@@ -101,6 +107,9 @@ define([
 
             this.getOutput("L").replaceData(result.tree);
         }
+    },{
+        "label": "Line (Start, Direction, Length)",
+        "desc": "Creates a line from it's start point, direction vector, and length"
     });
 
     components.EvaluateCurveComponent = DataFlow.Component.extend({
@@ -141,6 +150,9 @@ define([
             this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
             this.getOutput("A").replaceData(result.tree.map(function(data){return data.A}));
         }
+    },{
+        "label": "Evaluate Curve at Parameter",
+        "desc": "Given an input curve 'C' and parameter 't', find the position and tangent at that parameter"
     });
 
     components.DivideCurveComponent = DataFlow.Component.extend({
@@ -191,6 +203,9 @@ define([
             this.getOutput("T").replaceData(result.tree.map(function(data){return data.T}));
             this.getOutput("t").replaceData(result.tree.map(function(data){return data.t}));
         }
+    },{
+        "label": "Divide Curve",
+        "desc": "Divides a curve into N segments"
     });
 
     components.CurveOffsetComponent = DataFlow.Component.extend({
@@ -225,6 +240,9 @@ define([
 
             this.getOutput("C").replaceData(result.tree);
         }
+    },{
+        "label": "Offset Curve",
+        "desc": "Offsets a curve with a specified distance"
     });
 
     components.CurveInterpolatedComponent = DataFlow.Component.extend({
@@ -258,6 +276,9 @@ define([
 
             this.getOutput("C").replaceData(result.tree);
         }
+    },{
+        "label": "Interpolated Curve",
+        "desc": "Generates a new Curve object that will pass through each point in a supplied list of points. Parametricization is automatic."
     });
 
 
@@ -290,9 +311,10 @@ define([
 
             this.getOutput("Pl").replaceData(result.tree);
         }
+    },{
+        "label": "PolyLine (Pline)",
+        "desc": "Create a polyline connecting a number of points"
     });
-
-
 
     components.CurveEndPoints = DataFlow.Component.extend({
         initialize: function(opts){
@@ -330,8 +352,10 @@ define([
             // Special preview, because both outputs are previewable (not just the first one)
             return [this.getOutput("S"),this.getOutput("E")];
         },
+    },{
+        "label": "End Points",
+        "desc": "Extract the end points of a curve"
     });
-
 
     return components;
 });

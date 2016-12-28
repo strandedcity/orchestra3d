@@ -26,6 +26,9 @@ define([
         recalculate: function(){
             this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
         }
+    },{
+        "label": "Number",
+        "desc": "Holds a list of numbers. For short lists, you can enter the numbers directly into the component"
     });
 
     components.SeriesComponent = DataFlow.Component.extend({
@@ -69,6 +72,9 @@ define([
 
             this.getOutput("S").replaceData(final);
         }
+    },{
+        "label": "Series",
+        "desc": "Generates a list of numbers. You can control the start of the list, the increment, and the number of values"
     });
 
     components.SliderComponent = DataFlow.Component.extend({
@@ -117,6 +123,9 @@ define([
 
             this.getOutput("N").values.setDataAtPath([currVal],[0]);// assignValues([currVal],[0]);
         }
+    },{
+        "label": "Slider",
+        "desc": "A convenient way to change numerical values on the fly. Shows a touch/mouse-enabled slider"
     });
 
     return components;

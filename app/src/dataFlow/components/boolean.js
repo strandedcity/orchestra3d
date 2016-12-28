@@ -31,6 +31,9 @@ define([
             this.getOutput("B").clearValues();
             this.getOutput("B").replaceData(this.getInput("B").getTree().copy());
         }
+    },{
+        "label": "Boolean Toggle",
+        "desc": "This component gives you a convenient way to switch between a single True or False value"
     });
 
     // A couple convenience components that don't do much
@@ -38,11 +41,18 @@ define([
         initialize: function(opts){
             this.setupBooleanComponent(opts,true,true,"True");
         }
+    },{
+        "label": "True",
+        "desc": "Outputs a boolean True value"
     });
+
     components.BooleanFalseComponent = components.BooleanToggleComponent.extend({
         initialize: function(opts){
             this.setupBooleanComponent(opts,true,false,"False");
         }
+    },{
+        "label": "False",
+        "desc": "Outputs a boolean False value"
     });
 
     return components;

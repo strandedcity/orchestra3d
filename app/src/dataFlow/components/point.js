@@ -55,6 +55,9 @@ define([
                 });
                 return outputVals;
             }
+        },{
+            "label": "Point(x,y,z)",
+            "desc": "Creates a Point Object from X, Y, and Z coordinate values"
         });
 
         /*  VectorComponent and PointComponent are mostly the same, but there's a separate component name and prototype if differences emerge */
@@ -73,6 +76,9 @@ define([
 
                 this.base_init(args);
             }
+        },{
+            "label": "Vector(x,y,z)",
+            "desc": "Generates a new vector based on x, y, and z values"
         });
 
         /*  Another way to define a vector: the vector connecting two points*/
@@ -107,6 +113,9 @@ define([
 
                 this.getOutput("V").replaceData(result.tree);
             }
+        },{
+            "label": "Vector(p1,p2)",
+            "desc": "Generates a new vector based on input points"
         });
 
         /*  Vector Normalize  */
@@ -137,6 +146,9 @@ define([
 
                 this.getOutput("V").replaceData(result.tree);
             }
+        },{
+            "label": "Vector Normalize",
+            "desc": "Returns a unit vector with the same direction as the supplied vector"
         });
 
         /* Distance between two points */
@@ -169,6 +181,9 @@ define([
 
                 this.getOutput("D").replaceData(result.tree);
             }
+        },{
+            "label": "Distance(p1,p2)",
+            "desc": "Measures the distance between two supplied points"
         });
 
         /*  A special component displays the vectors. This is because the 'anchor' property
@@ -209,6 +224,9 @@ define([
                     });
                 });
             }
+        },{
+            "label": "Vector Display",
+            "desc": "Enables vectors to be displayed in the model view using an optional 'anchor point'"
         });
 
         return components;

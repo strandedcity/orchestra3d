@@ -43,6 +43,9 @@ define([
             this.getOutput()._isNull = this.getOutput().getTree().isEmpty();
             this.getOutput().trigger("change");
         }
+    },{
+        "label": "Graft Tree",
+        "desc": "Creates a separate branch for each data item in the supplied tree"
     });
 
     components.ShiftComponent = DataFlow.Component.extend({
@@ -77,6 +80,9 @@ define([
 
             this.getOutput("L").replaceData(result.tree);
         }
+    },{
+        "label": "Shift List",
+        "desc": "Removes items from the beginning of a data list, and optionally tacks them back onto the end"
     });
 
     components.FlattenComponent = DataFlow.Component.extend({
@@ -107,6 +113,9 @@ define([
             var flattened = this.getInput("T").getTree().flattenedTree(false); // makes a copy!
             this.getOutput("T").replaceData(flattened);
         }
+    },{
+        "label": "Flatten Tree Data",
+        "desc": "Flatten a data tree by removing all branching information"
     });
 
     components.ListItemComponent = DataFlow.Component.extend({
@@ -141,6 +150,9 @@ define([
 
             this.getOutput("i").replaceData(result.tree);
         }
+    },{
+        "label": "Extract Item from List",
+        "desc": "Retrieve a specific item from a list"
     });
 
     components.DuplicateDataComponent = DataFlow.Component.extend({
@@ -178,6 +190,9 @@ define([
             console.warn("THIS IS A BAD CORNER TO CUT -- the function to return data 'as a list' should not live inside of .map()");
             this.getOutput("D").replaceData(result.tree.map(function(d){return d;}));
         }
+    },{
+        "label": "Duplicate Data",
+        "desc": "Duplicate data a predefined number of times"
     });
 
     components.ListLengthComponent = DataFlow.Component.extend({
@@ -206,6 +221,9 @@ define([
 
             this.getOutput("L").replaceData(result.tree);
         }
+    },{
+        "label": "List Length",
+        "desc": "Measure the length of a List"
     });
 
 
