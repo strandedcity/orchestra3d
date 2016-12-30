@@ -79,6 +79,60 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
     };
 
+    /*  Geo.Plane is a combination of THREE.Matrix4 and THREE.Plane, because Grasshopper conflates the two
+        ideas for the convenience of the user. So this hybrid "plane" object is basically a matrix4, but it uses
+        THREE.Plane to enable setting via coplanar points, and it tracks an 'origin' point unline three.plane,
+        which has an offset from origin but not actual center. */
+    Geo.Plane = THREE.Matrix4;
+    Geo.Plane.prototype.setOrigin = function(originPoint){
+        this.setPosition(originPoint);
+    };
+    Geo.Plane.prototype.setFromCoplanarPoints = function(a,b,c){
+        // Take the three coplanar points and construct a basis matrix.
+        // Normalize and force them to be orthogonal first, so no shear occurs using the resulting matrix4 for transforms
+        // Vec(a,b).normalize() => x-axis
+        // Vec(a,b) x Vec(a,c) .normalize() => z-axis
+        // Rotate x-axis 90 degrees around Z to get y
+        // Matrix4.makeBasis(x,y,z)
+        // Matrix4.setPosition(a)
+        var x = (new THREE.Vector3()).subVectors(b,a).normalize(),
+            y = x.clone().cross((new THREE.Vector3()).subVectors(c,a)).normalize(), // in webgl, Y is up. :/
+            z = x.clone().applyAxisAngle(y,Math.PI/2); // already normalized, since x was normalized
+
+        this.makeBasis(x,y,z);
+        this.setPosition(a);
+    };
+    Geo.Plane.prototype.translateMatrix = function(translation){
+        // duplicates a method currently in Geo.Curve!!
+        return new THREE.Matrix4().makeTranslation(translation.x,translation.y,translation.z);
+    };
+    Geo.Plane.prototype.getChangeBasisMatrixForTransformationTo = function(anotherPlane){
+        // Return a Matrix4 representing the full change-basis transformation from 'this' to 'anotherPlane', including
+        // the translate aspect introduced by having an origin point for the plane
+        // Method: http://stackoverflow.com/questions/10176456/subtracting-two-4x4-matrices-is-this-possible
+        // From "this" (frame 0) to "anotherPlane" (frame X)
+        // matrixOffset = inverse(matrixAtFrame0) * matrixAtFrameX
+
+        // 1: Matrix Offset
+        var matrixOffset = new THREE.Matrix4(),
+        inverse = (new THREE.Matrix4()).getInverse(this);
+        matrixOffset.multiplyMatrices(inverse,anotherPlane);
+
+        return matrixOffset;
+
+        // // 2: Translation of center point
+        // var center = this.origin.clone().sub(anotherPlane.origin);
+        // var translation = this.translateMatrix(center.clone().multiplyScalar(-1))
+
+        // var composed = new THREE.Matrix4();
+        // composed.multiplyMatrices(matrixOffset, translation).premultiply(this.translateMatrix(center.clone()));
+        
+        // return composed;
+    };
+    Geo.Plane.prototype.destroy = function(){
+        /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
+    };
+
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
