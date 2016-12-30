@@ -25,10 +25,9 @@ define([
             this.base_init(args);
 
             // Initially, the input must be copied to the output tree or the output will be empty
-            this.recalculate();
+            this._handleInputChange();
         },
         recalculate: function(){
-            this.getOutput("B").clearValues();
             this.getOutput("B").replaceData(this.getInput("B").getTree().copy());
         }
     },{

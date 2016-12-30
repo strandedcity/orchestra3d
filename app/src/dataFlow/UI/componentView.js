@@ -127,6 +127,7 @@ define([
         _.defer(function(){
             this.glObject = this.createGLElementToMatch(this.cssObject);
             workspace.setupDraggableView(this);  // make the view draggable!
+            if (this.component.get('sufficient') == true) this.changeSufficiency();
             this.listenTo(this.glObject,"changePosition",function(){component.position = this.glObject.position;});
         }.bind(this));
 
