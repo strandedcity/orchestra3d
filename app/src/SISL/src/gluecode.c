@@ -29,7 +29,10 @@ int curveKnotCnt(SISLCurve *crv)
 int curveCtrlPtCnt(SISLCurve *crv);
 int curveCtrlPtCnt(SISLCurve *crv)
 {
-    return crv->in;
+    // I'm not sure why this is apparently off by one.
+    // But drawing a degree-1 curve with 4 points illustrates very clearly: 
+    // only 3 are returned by this function unless 1 is added.
+    return crv->in + 1;
 }
 
 int curveGetOrder(SISLCurve *crv);
