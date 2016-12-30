@@ -31,17 +31,18 @@ define(["./compiled"],function(){
         // #knots = #control pts + curve order
         // curve order = degree + 1
         // the first p+1 and last p+1 knots are 0's and 1's, respectively, where p=degree=order-1
-        var knotVector = [];
-
+        var knotVector = [],
+            degree = curveOrder-1;
+        
         for (var a=0; a < curveOrder; a++){
             knotVector.push(0);
         }
-        var internalKnotCount = (numControlPoints + curveOrder) - 2 * curveOrder;
+        var internalKnotCount = (numControlPoints + curveOrder) - degree - curveOrder;
         var i = 0;
         for (i; i<internalKnotCount;i++) {
             knotVector.push((i+1)/internalKnotCount);
         }
-        for (var b=0; b < curveOrder; b++){
+        for (var b=0; b < degree; b++){
             knotVector.push(1);
         }
 
