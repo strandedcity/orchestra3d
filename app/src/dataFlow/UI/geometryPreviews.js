@@ -74,12 +74,12 @@ define([
                 //degree = this.getCurveOrder()-1;
                 if (curve.getCurveOrder()-1 === 1) {
                     // straight lines. Use the control points directly.
-                    console.log('degree 1. Using control points directly for drawing.');
-                    _.each(curve.getControlPoints(),function(newpt){
-                        newVertices[newVertices.length] = prevPointInCurve;
-                        newVertices[newVertices.length] = newpt;
-                        prevPointInCurve = newpt;
-                    });
+                    var controlPoints = curve.getControlPoints();
+                    for (var i=1; i<controlPoints.length; i++){
+                        newVertices.push(controlPoints[i-1]);
+                        newVertices.push(controlPoints[i]);
+                    }
+                    console.warn('TODO: if (closed curve) ...');
                 } else {
                     // Step through curve parameters
                     segmentCounter = 0;
@@ -107,6 +107,9 @@ define([
         // that. If the buffer shrinks from last time, "extra" vertices will be zeroed out / hidden.
         // If the buffer grows, we'll scrap the geometry and make a new, larger one.
         // See discussion:  https://github.com/mrdoob/three.js/issues/342
+
+        // Update! THREEJS has a built in means for doing this with BufferGeometry. See .setDrawRange()
+        // http://stackoverflow.com/questions/31399856/drawing-a-line-with-three-js-dynamically
         var geometry;
         if (_.isUndefined(line) || line.geometry.vertices.length < newVertices.length) {
             geometry = new THREE.Geometry();
