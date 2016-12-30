@@ -72,7 +72,9 @@ define([
             var result = DataMatcher(
                 [this.getInput("A"),this.getInput("B"),this.getInput("C")],
                 function(a,b,c){
-                    return (new Geometry.Plane()).setFromCoplanarPoints(a,b,c);
+                    var p = new Geometry.Plane();
+                    p.setFromCoplanarPoints(a,b,c);
+                    return p;
                 });
             this.getOutput("Pl").replaceData(result.tree);
         }
