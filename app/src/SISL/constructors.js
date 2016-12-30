@@ -79,14 +79,11 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
     };
 
-    /*  Geo.Plane is a combination of THREE.Matrix4 and THREE.Plane, because Grasshopper conflates the two
-        ideas for the convenience of the user. So this hybrid "plane" object is basically a matrix4, but it uses
-        THREE.Plane to enable setting via coplanar points, and it tracks an 'origin' point unline three.plane,
-        which has an offset from origin but not actual center. */
+    /*  Geo.Plane is basically a THREE.Matrix4, but with the added benefit of a 'setFromCoplanarPoints' method
+        that threejs only makes available for planes. I've added a method to its prototype here that allows you
+        to create a basis matrix from three coplanar points, and another that basically lets you subtract basis
+        matrices to arrive at a transform matrix that will handle position and rotation. */
     Geo.Plane = THREE.Matrix4;
-    Geo.Plane.prototype.setOrigin = function(originPoint){
-        this.setPosition(originPoint);
-    };
     Geo.Plane.prototype.setFromCoplanarPoints = function(a,b,c){
         // Take the three coplanar points and construct a basis matrix.
         // Normalize and force them to be orthogonal first, so no shear occurs using the resulting matrix4 for transforms
@@ -117,17 +114,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var matrixOffset = new THREE.Matrix4(),
         inverse = (new THREE.Matrix4()).getInverse(this);
         matrixOffset.multiplyMatrices(inverse,anotherPlane);
-
         return matrixOffset;
-
-        // // 2: Translation of center point
-        // var center = this.origin.clone().sub(anotherPlane.origin);
-        // var translation = this.translateMatrix(center.clone().multiplyScalar(-1))
-
-        // var composed = new THREE.Matrix4();
-        // composed.multiplyMatrices(matrixOffset, translation).premultiply(this.translateMatrix(center.clone()));
-        
-        // return composed;
     };
     Geo.Plane.prototype.destroy = function(){
         /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
