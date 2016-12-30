@@ -85,6 +85,41 @@ define([
         "desc": "Removes items from the beginning of a data list, and optionally tacks them back onto the end"
     });
 
+    components.CullIndexComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
+                                {required: true, shortName: "i", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling indices"},
+                                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Wrap indices to list range"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output"),
+                    componentPrettyName: "Cull i"
+                })
+            );
+        },
+        recalculate: function(){
+            console.warn("TODO: Support 'wrap' option on cull-index component");
+            var result = DataMatcher([this.getInput("L"),this.getInput("i"),this.getInput("W")],function(listIn,cullIndices,wrap){
+                var listOut = [];
+                _.each(listIn,function(val,idx){
+                    if (!_.contains(cullIndices,idx)) {
+                        listOut.push(val);
+                    }
+                })
+                return listOut;
+            });
+
+            this.getOutput("L").replaceData(result.tree);
+        }
+    },{
+        "label": "Cull Index",
+        "desc": "Cull (remove) indexed elements from a list"
+    });
+
     components.FlattenComponent = DataFlow.Component.extend({
         initialize: function(opts){
             //var output = new DataFlow.OutputMultiType({shortName: "L"});
