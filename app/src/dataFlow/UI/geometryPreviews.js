@@ -79,7 +79,6 @@ define([
                         newVertices.push(controlPoints[i-1]);
                         newVertices.push(controlPoints[i]);
                     }
-                    console.warn('TODO: if (closed curve) ...');
                 } else {
                     // Step through curve parameters
                     segmentCounter = 0;

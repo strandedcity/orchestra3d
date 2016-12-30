@@ -290,8 +290,8 @@ define([
             ], opts, "output");
 
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST},
-                {shortName: "C", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+                {shortName: "V", required: true, type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST}, // Points for polyline, as list
+                {shortName: "C", required: false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // Closed?
             ], opts, "inputs");
 
             var args = _.extend({
@@ -306,7 +306,13 @@ define([
         recalculate: function(){
             /* V = Point List (AS LIST), C = Closed */
             var result = DataMatcher([this.getInput("V"),this.getInput("C")],function(pointList,closed){
-                return new Geometry.Curve().fromControlPointsDegreeKnots(pointList,1); // knots will be generated automatically if parameterization is not supplied
+                var pts = pointList;
+                if (closed) {
+                    // push first point onto end of point list as well
+                    pts = pointList.slice(0);
+                    pts.push(pointList[0]);
+                }
+                return new Geometry.Curve().fromControlPointsDegreeKnots(pts,1); // knots will be generated automatically if parameterization is not supplied
             });
 
             this.getOutput("Pl").replaceData(result.tree);
