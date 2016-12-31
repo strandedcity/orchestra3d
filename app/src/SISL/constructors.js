@@ -384,8 +384,10 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             return derivs;
         },
         destroy: function(){
-            console.warn('freeCurve needs fixing. When called a lot, the browser freezes!');
-            // freeCurve(this._pointer);
+            // big performance problems (browser crashes!) when freeing emscripten's memory synchronously. 
+            // Doing it asynchronously seems to solve that completely.
+            var that = this;
+            setTimeout(function(){freeCurve(that._pointer);},10);
         }
     };
 
