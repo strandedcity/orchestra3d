@@ -215,7 +215,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             // parameters on the curve.
             // Would be nice if this happened in C-land to avoid copying the whole array sv, which turns out to be very long, into JS
             var segmentLength = this.getLength()/segmentCount,
-                closePointsByLinearSegmentApproximation = [],
+                closePointsByLinearSegmentApproximation = [this.getEndPoint()], // add endpoint so that results are in order
                 whichSegment = 1;
 
             for (var i=0; i < sv.length / 3 - 1; i++) {
@@ -247,9 +247,6 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
                     };
                 } 
             }
-
-            // Add endpoint:
-            closePointsByLinearSegmentApproximation.push(this.getEndPoint());
 
             var that = this;
             var paramsAtPoints = _.map(closePointsByLinearSegmentApproximation,function(approxPoint){
