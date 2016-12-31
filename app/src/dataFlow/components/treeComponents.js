@@ -120,6 +120,44 @@ define([
         "desc": "Cull (remove) indexed elements from a list"
     });
 
+    components.InsertItemsComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to modify"},
+                                {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "Items to insert. If no items are supplied, nulls will be inserted"},
+                                {required: true, shortName: "i", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Insertion index for each item"},
+                                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "If true, indices will be wrapped"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output"),
+                    componentPrettyName: "Ins"
+                })
+            );
+        },
+        recalculate: function(){
+            console.warn("TODO: Support 'wrap' option on insert-items component");
+            
+            // Ghop behavior: insert items starting at the end of the list. 
+            // Ie, if you enter data [1,2] and indices [0,0], you'll get output [1,2] not [2,1]
+            var result = DataMatcher([this.getInput("L"),this.getInput("I"),this.getInput("i"),this.getInput("W")],function(listIn,insertItems,indices,wrap){
+                var listOut = listIn.slice(0);
+                var reversedItems = insertItems.slice(0).reverse();
+                _.each(indices.slice(0).reverse(),function(indexValue,itemPosition){
+                    listOut.splice(indexValue, 0, reversedItems[itemPosition]);
+                });
+                return listOut;
+            });
+
+            this.getOutput("L").replaceData(result.tree);
+        }
+    },{
+        "label": "Insert Items",
+        "desc": "Insert a collection of items into a list"
+    });
+
     components.FlattenComponent = DataFlow.Component.extend({
         initialize: function(opts){
             //var output = new DataFlow.OutputMultiType({shortName: "L"});
