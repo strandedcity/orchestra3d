@@ -65,6 +65,14 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
             var connectionRoutes = [];
             var components = [];
             var that = this;
+            var maxCid = 0;
+            var updateMaxCid = function(idString){
+                var thisId=parseInt(idString.replace("c",""));
+                if (thisId > maxCid){
+                    //console.log('increased max cid to: '+thisId+" from "+maxCid);
+                    maxCid = thisId;
+                }
+            };
 
             _.each(json, function (cpt) {
                 // Prior JSON files will use CIDs as IDs to identify components.
@@ -72,7 +80,12 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 // but the unique counter starts over per session. Solution: increment the session's
                 // counter once per item that gets added to the project.
                 // see https://github.com/dobtco/formbuilder/issues/123
-                _.uniqueId();
+                // BUG! When you add a component, delete it, then add another and save, the uniqueId will be "2" not "1".
+                // When that definition is retrieved, _.uniqueId will only be called once, so the next created component will be
+                // "2", which duplicates the retrieved CID. So instead of blindly calling this once, I actually need to detect the
+                // largest ID I see, and call uniqueid that many times.
+                
+                updateMaxCid(cpt.id);
                 if (cpt.output) {
                     // CODE DEBT! "output" should be "outputs"...
                     cpt.outputs = cpt.output;
@@ -84,7 +97,7 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
 
                 // if the inputs are supposed to be connected to something, keep track of them for a moment
                 _.each(cpt.inputs, function (iptJSON) {
-                    _.uniqueId();
+                    updateMaxCid(iptJSON.id);
                     if (iptJSON.connections.length > 0) {
                         IOIdsForConnections[iptJSON.id] = component[iptJSON.shortName];
                         _.each(iptJSON.connections, function (connectedIptId) {
@@ -100,10 +113,13 @@ define(["underscore","backbone","dataFlow/dataFlow_loader"],function(_,Backbone,
                 // keep track of all outputs:
                 //IOIdsForConnections[cpt.output[0].id] = component.output;
                 _.each(component.outputs,function(out){
-                    _.uniqueId();
                     IOIdsForConnections[out.id] = out;
                 });
             });
+
+            // All components and IOs are initialized. Call "uniqueid" that many times
+            while (parseInt(_.uniqueId("c").replace("c","")) < maxCid) { /* The test actually does all the work here! */ }
+            //console.log('Next unique id will be: '+_.uniqueId("c"));
 
             // Now that all the component objects exist, they can be connected to each other:
             _.each(connectionRoutes,function(route){
