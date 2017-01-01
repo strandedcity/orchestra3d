@@ -1,8 +1,37 @@
 define([
     "underscore",
-    "dataFlow/core"
-],function(_,DataFlow){
+    "dataFlow/core",
+    "dataFlow/dataMatcher"
+],function(_,DataFlow,DataMatcher){
     var components = {};
+
+    components.BooleanCollectionComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Boolean Values"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Boolean Values"}
+                            ], opts, "output"),
+                    componentPrettyName: "Bool"
+                })
+            );
+        },
+        recalculate: function(){
+            // This is not exactly a noop: DataMatcher allows you to merge trees and align them
+            var result = DataMatcher([this.getInput("B")],function(b){
+                return b;
+            });
+
+            this.getOutput("B").replaceData(result.tree);
+        }
+    },{
+        "label": "Boolean",
+        "desc": "Contains a collection of boolean values"
+    });
+
     components.BooleanToggleComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.setupBooleanComponent(opts,true,true,"Boolean");

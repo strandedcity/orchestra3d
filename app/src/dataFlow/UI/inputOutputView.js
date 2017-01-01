@@ -60,7 +60,7 @@ define([
         this.click = function(x,y){
             console.warn("CLICK HANDLER DUPLICATES CODE IN COMPONENTVIEW. FIX!");
 
-            if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER) return;
+            if (that.model.type !== ENUMS.OUTPUT_TYPES.NUMBER && that.model.type !== ENUMS.OUTPUT_TYPES.BOOLEAN) return;
 
             // Show the table-number-enterer UI. It cleans up after itself.
             var data = that.model.get('persistedData') || new DataTree(),

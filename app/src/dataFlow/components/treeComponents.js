@@ -120,6 +120,70 @@ define([
         "desc": "Cull (remove) indexed elements from a list"
     });
 
+    components.CullPatternComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
+                                {required: true, shortName: "P", type: DataFlow.OUTPUT_TYPES.BOOLEAN, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling pattern"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output"),
+                    componentPrettyName: "Cull"
+                })
+            );
+        },
+        recalculate: function(){
+            var result = DataMatcher([this.getInput("L"),this.getInput("P")],function(listIn,cullPattern){
+                var len = cullPattern.length;
+                return _.filter(listIn,function(val,idx){
+                    // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
+                    // the culling pattern should repeat
+                    return cullPattern[idx % len]
+                });
+            });
+
+            this.getOutput("L").replaceData(result.tree);
+        }
+    },{
+        "label": "Cull Pattern",
+        "desc": "Cull (remove) indexed elements from a list using a repeating bit mask"
+    });
+
+
+    components.CullFrequencyComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
+                                {required: false, default: 2, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Cull frequency"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output"),
+                    componentPrettyName: "CullN"
+                })
+            );
+        },
+        recalculate: function(){
+            var result = DataMatcher([this.getInput("L"),this.getInput("N")],function(listIn,frequency){
+                return _.filter(listIn,function(val,idx){
+                    // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
+                    // the culling pattern should repeat
+                    return idx % frequency === 0;
+                });
+            });
+
+            this.getOutput("L").replaceData(result.tree);
+        }
+    },{
+        "label": "Cull Nth",
+        "desc": "Cull (remove) every Nth element in a list"
+    });
+
     components.InsertItemsComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
