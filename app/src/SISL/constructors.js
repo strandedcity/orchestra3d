@@ -384,6 +384,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
             // big performance problems (browser crashes!) when freeing emscripten's memory synchronously. 
             // Doing it asynchronously seems to solve that completely.
             var that = this;
+            console.trace();
             setTimeout(function(){freeCurve(that._pointer);},10);
         }
     };

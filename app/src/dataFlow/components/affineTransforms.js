@@ -33,8 +33,11 @@ define([
             var result = DataMatcher(
                 [this.getInput("G"),this.getInput("A"),this.getInput("B")],
                 function(g,a,b){
-                    var matrix = a.getChangeBasisMatrixForTransformationTo(b);
-                    var outputGeometry = g.applyMatrix4(matrix);
+                    var matrix = a.getChangeBasisMatrixForTransformationTo(b)
+                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                        geomCopy = typeof g.clone === "function" ? g.clone() : g; 
+                    
+                    var outputGeometry = geomCopy.applyMatrix4(matrix);
                     
                     return {
                         G: outputGeometry,
@@ -112,9 +115,11 @@ define([
                 [this.getInput("G"),this.getInput("A"),this.getInput("C"),this.getInput("X")],
                 function(geom,angle,center,axis){
                     // console.log('rotating '+geom + " by " + angle + " radians " + " along ", axis.toArray() + " around " + center.toArray());
-                    var matrix = geom.rotateAxisAndCenterMatrix(angle,axis,center);
+                    var matrix = geom.rotateAxisAndCenterMatrix(angle,axis,center),
+                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
                     return {
-                        G: geom.applyMatrix4(matrix),
+                        G: geomCopy.applyMatrix4(matrix),
                         X: matrix
                     }
                 });
@@ -154,7 +159,8 @@ define([
                 [this.getInput("G"),this.getInput("T")],
                 function(geom,translation){
                     var matrix = Geometry.Utils.translateMatrix(translation),
-                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
                     return {
                         G: geomCopy.applyMatrix4(matrix),
                         X: matrix

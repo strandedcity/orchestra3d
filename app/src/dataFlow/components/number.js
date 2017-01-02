@@ -16,10 +16,11 @@ define([
                 {required: false, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
+            var args = _.extend({
                 componentPrettyName: "Number"
+            }, opts || {},{
+                inputs: inputs,
+                outputs: output
             });
             this.base_init(args);
         },
