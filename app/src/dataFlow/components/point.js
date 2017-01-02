@@ -8,6 +8,33 @@ define([
     ],function(_,DataFlow,THREE,Preview,DataTree,DataMatcher){
         var components = {};
 
+        components.PointCollectionComponent = DataFlow.Component.extend({
+            initialize: function(opts){
+                this.base_init(
+                    _.extend(opts || {},{
+                        inputs: this.createIObjectsFromJSON([
+                                    {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT, desc: "Point Values"}
+                                ], opts, "inputs"),
+                        outputs: output = this.createIObjectsFromJSON([
+                                    {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT, desc: "Point Values"}
+                                ], opts, "output"),
+                        componentPrettyName: "Pt"
+                    })
+                );
+            },
+            recalculate: function(){
+                // This is not exactly a noop: DataMatcher allows you to merge trees and align them
+                var result = DataMatcher([this.getInput("B")],function(p){
+                    return p;
+                });
+
+                this.getOutput("P").replaceData(result.tree);
+            }
+        },{
+            "label": "Point",
+            "desc": "Contains a collection of 3d points"
+        });
+
         components.PointComponent = DataFlow.Component.extend({
             initialize: function(opts){
                 var output = this.createIObjectsFromJSON([
