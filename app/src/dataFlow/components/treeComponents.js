@@ -8,22 +8,19 @@ define([
 
     components.GraftComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            //var output = new DataFlow.OutputMultiType();
-            var output = this.createIObjectsFromJSON([
-                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "output");
-
-            //var inputs = [new DataFlow.OutputMultiType({required: true, shortName: "T"})];
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Graft"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Graft"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output")
+                })
+            );
         },
         recalculate: function(){
             // Note that this component is a "wildcard" type output. One approach could maintain more data fidelity by forcing types to remain the same
@@ -50,26 +47,21 @@ define([
 
     components.ShiftComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            //var output = new DataFlow.OutputMultiType({shortName: "L"});
-            var output = this.createIObjectsFromJSON([
-                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "output");
-
-            //var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
-            //var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
-            //var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true},
-                {required: false, shortName: "S", default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Shift"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Shift"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true},
+                                {required: false, shortName: "S", default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output")
+                })    
+            );
         },
         recalculate: function(){
             var result = DataMatcher([this.getInput("L"),this.getInput("S"),this.getInput("W")],function(listIn,shiftBy,wrap){
@@ -88,7 +80,10 @@ define([
     components.CullIndexComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Cull i"
+                }, opts || {},{
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
                                 {required: true, shortName: "i", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling indices"},
@@ -96,8 +91,7 @@ define([
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
-                            ], opts, "output"),
-                    componentPrettyName: "Cull i"
+                            ], opts, "output")
                 })
             );
         },
@@ -123,15 +117,17 @@ define([
     components.CullPatternComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Cull"
+                }, opts || {},{
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
                                 {required: true, shortName: "P", type: DataFlow.OUTPUT_TYPES.BOOLEAN, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling pattern"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
-                            ], opts, "output"),
-                    componentPrettyName: "Cull"
+                            ], opts, "output")
                 })
             );
         },
@@ -156,15 +152,17 @@ define([
     components.CullFrequencyComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({
+                    componentPrettyName: "CullN",
+                    preview: false
+                }, opts || {},{
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to Cull"},
                                 {required: false, default: 2, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Cull frequency"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
-                            ], opts, "output"),
-                    componentPrettyName: "CullN"
+                            ], opts, "output")
                 })
             );
         },
@@ -187,7 +185,10 @@ define([
     components.InsertItemsComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Ins"
+                }, opts || {},{
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "List to modify"},
                                 {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, isMaster: true, desc: "Items to insert. If no items are supplied, nulls will be inserted"},
@@ -196,8 +197,7 @@ define([
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
-                            ], opts, "output"),
-                    componentPrettyName: "Ins"
+                            ], opts, "output")
                 })
             );
         },
@@ -224,25 +224,20 @@ define([
 
     components.FlattenComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            //var output = new DataFlow.OutputMultiType({shortName: "L"});
-            var output = this.createIObjectsFromJSON([
-                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "output");
-
-            //var inputData = new DataFlow.OutputMultiType({required: true, shortName: "L"}); // Data to shift
-            //var shiftDir = new DataFlow.OutputNumber({required: false, shortName: "S", default: 1}); // Shift Direction
-            //var wrap = new DataFlow.OutputBoolean({required: false, shortName: "W", default: true}); // wrap data?
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD},
-                {required: false, shortName: "P", default: [0], type: DataFlow.OUTPUT_TYPES.ARRAY}
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Flatten"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Flatten"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD},
+                                {required: false, shortName: "P", default: [0], type: DataFlow.OUTPUT_TYPES.ARRAY}
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output")
+                })
+            );
         },
         recalculate: function(){
             /* T=input Tree Data, P = (optional) path to put flattened data on (default is [0] */
@@ -257,23 +252,21 @@ define([
 
     components.ListItemComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            //var output = new DataFlow.OutputMultiType({shortName: "L"});
-            var output = this.createIObjectsFromJSON([
-                {shortName: "i", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "output");
-
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST},
-                {required: false, shortName: "i", default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Item"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Item"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST},
+                                {required: false, shortName: "i", default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
+                                {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "i", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output")
+                })    
+            );
         },
         recalculate: function(){
             /* L=input list, i=item to retrieve, W=wrap list */
@@ -294,22 +287,21 @@ define([
 
     components.DuplicateDataComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = this.createIObjectsFromJSON([
-                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD}
-            ], opts, "output");
-
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
-                {required: false, shortName: "N", default: 2, type: DataFlow.OUTPUT_TYPES.NUMBER}, // number of duplicates
-                {required: false, shortName: "O", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // retain list order
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Dup"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Dup"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
+                                {required: false, shortName: "N", default: 2, type: DataFlow.OUTPUT_TYPES.NUMBER}, // number of duplicates
+                                {required: false, shortName: "O", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // retain list order
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD}
+                            ], opts, "output")
+                })
+            );
         },
         recalculate: function(){
             var result = DataMatcher([this.getInput("D"),this.getInput("N"),this.getInput("O")],function(data,numberOfDupes,retainOrder){
@@ -334,20 +326,19 @@ define([
 
     components.ListLengthComponent = DataFlow.Component.extend({
         initialize: function(opts){
-            var output = this.createIObjectsFromJSON([
-                {shortName: "L", type: DataFlow.OUTPUT_TYPES.NUMBER}
-            ], opts, "output");
-
-            var inputs = this.createIObjectsFromJSON([
-                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
-            ], opts, "inputs");
-
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
-                componentPrettyName: "Lng"
-            });
-            this.base_init(args);
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Lng"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST}, // data (as list)
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.NUMBER}
+                            ], opts, "output")
+                })
+            );
         },
         recalculate: function(){
             var result = DataMatcher([this.getInput("L")],function(list){
