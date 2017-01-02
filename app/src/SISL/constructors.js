@@ -71,6 +71,9 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         transformMatrixFromNormalAndPosition: function(normal,position){
             var quaternion = new THREE.Quaternion().setFromUnitVectors(unitZ.clone(),normal.clone().normalize());
                 return (new THREE.Matrix4()).compose(position.clone(),quaternion,unitScale);
+        },
+        translateMatrix: function(translation){
+            return new THREE.Matrix4().makeTranslation(translation.x,translation.y,translation.z);
         }
     };
 
@@ -99,10 +102,6 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         this.makeBasis(x,y,z);
         this.setPosition(a);
     };
-    Geo.Plane.prototype.translateMatrix = function(translation){
-        // duplicates a method currently in Geo.Curve!!
-        return new THREE.Matrix4().makeTranslation(translation.x,translation.y,translation.z);
-    };
     Geo.Plane.prototype.getChangeBasisMatrixForTransformationTo = function(anotherPlane){
         // Return a Matrix4 representing the full change-basis transformation from 'this' to 'anotherPlane', including
         // the translate aspect introduced by having an origin point for the plane
@@ -120,7 +119,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         var ae = anotherPlane.elements;
         var thisPosition = new THREE.Vector3(te[12],te[13],te[14]);
         var anotherPosition = new THREE.Vector3(ae[12],ae[13],ae[14]);
-        return composed.multiplyMatrices(matrixOffset, this.translateMatrix(thisPosition.multiplyScalar(-1))).premultiply(this.translateMatrix(anotherPosition));
+        return composed.multiplyMatrices(matrixOffset, Geo.Utils.translateMatrix(thisPosition.multiplyScalar(-1))).premultiply(Geo.Utils.translateMatrix(anotherPosition));
   
         // return matrixOffset;
     };
@@ -320,16 +319,14 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         getCurveOrder: function(){
             return curveOrder(this._pointer);
         },
-        translateMatrix: function(translation){
-            return new THREE.Matrix4().makeTranslation(translation.x,translation.y,translation.z);
-        },
         rotateAxisAndCenterMatrix: function(theta,axis,center) {
-            // return this.rotateAxisMatrix(theta,axis).multiply(this.translateMatrix(center.clone().multiplyScalar(-1)));
+            // TODO: This method should be in Geo.Utils
             var composed = new THREE.Matrix4();
-            return composed.multiplyMatrices(this.rotateAxisMatrix(theta,axis), this.translateMatrix(center.clone().multiplyScalar(-1))).premultiply(this.translateMatrix(center.clone()));
+            return composed.multiplyMatrices(this.rotateAxisMatrix(theta,axis), Geo.Utils.translateMatrix(center.clone().multiplyScalar(-1))).premultiply(Geo.Utils.translateMatrix(center.clone()));
         },
         rotateAxisMatrix: function(theta,axis){
             // Axis is optional. Omitting it will assume a rotation in the XY plane around the origin.
+            // TODO: This method should be in Geo.Utils
             var rotationAxis = axis ? axis.clone().normalize() : new THREE.Vector3(0,0,1),
             rotationMatrix = new THREE.Matrix4().makeRotationAxis ( rotationAxis, theta );
 

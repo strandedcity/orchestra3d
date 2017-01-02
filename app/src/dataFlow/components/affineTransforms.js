@@ -153,9 +153,10 @@ define([
             var result = DataMatcher(
                 [this.getInput("G"),this.getInput("T")],
                 function(geom,translation){
-                    var matrix = geom.translateMatrix(translation);
+                    var matrix = Geometry.Utils.translateMatrix(translation),
+                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
                     return {
-                        G: geom.applyMatrix4(matrix),
+                        G: geomCopy.applyMatrix4(matrix),
                         X: matrix
                     }
                 });
