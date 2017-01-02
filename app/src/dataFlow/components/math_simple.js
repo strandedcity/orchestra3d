@@ -179,6 +179,47 @@ define([
         "desc": "Returns the first input (a) raised to a power of the second input (b)."
     });
 
+
+    components.MassAdditionComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "MA"
+                }, opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "I", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Input values for mass addition (numbers or vectors)"}, 
+                            ], opts, "inputs"),
+                    outputs: this.createIObjectsFromJSON([
+                                {shortName: "R", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Result of Mass Addition"},
+                                {shortName: "Pr", type: DataFlow.OUTPUT_TYPES.WILD, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Partial Results"}
+                            ], opts, "output")
+                })
+            );
+        },
+        recalculate: function(){
+            console.warn("TODO: Mass addition should support vectors as well as numbers! Currently, it supports only numbers.");
+            var result = DataMatcher([this.getInput("I")],function(inputs){
+                var partialResults = [],
+                    runningTotal = 0;
+                _.each(inputs,function(val){
+                    runningTotal += val;
+                    partialResults.push(runningTotal);
+                });
+                return {
+                    R: runningTotal,
+                    Pr: partialResults
+                }
+            });
+
+            this.getOutput("R").replaceData(result.tree.map(function(data){return data.R}));
+            this.getOutput("Pr").replaceData(result.tree.map(function(data){return data.Pr}));
+        }
+    },{
+        "label": "Mass Addition",
+        "desc": "Perform mass addition of a list of items"
+    });
+
     return components;
 });
 
