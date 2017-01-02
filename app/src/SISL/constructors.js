@@ -130,6 +130,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     // SISLCurve *newCurve (vertex_count, curve_order, *knotvector, *vertices, ikind, dimension, icopy)
     // ikind: 1=polynomial b-spline, 2=rational b-spline, 3=polynomial bezier, 4=rational bezier
     // icopy: 0=Set pointer to input arrays, 1=Copy input arrays, 2=Set pointer and remember to free arrays.
+    
     Geo.Curve = function GeoCurve(){
         var that = this;
 
@@ -383,9 +384,42 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         destroy: function(){
             // big performance problems (browser crashes!) when freeing emscripten's memory synchronously. 
             // Doing it asynchronously seems to solve that completely.
+            // function getStackTrace () {
+
+            //     var stack;
+
+            //     try {
+            //         throw new Error('');
+            //     }
+            //     catch (error) {
+            //         stack = error.stack || '';
+            //     }
+
+            //     stack = stack.split('\n').map(function (line) { return line.trim(); });
+            //     return stack.splice(stack[0] == 'Error' ? 2 : 1);
+            // }
+
+            // var details = getStackTrace().join('\n');
+
             var that = this;
-            console.trace();
-            setTimeout(function(){freeCurve(that._pointer);},10);
+            setTimeout(function(){
+                if (that.DESTROYED) {
+                    // THIS IS BAD! BECAUSE SISL CURVES AREN'T ACTUALLY CLONED IN EVERY OPERATION, THEY VIOLATE THE FUNCTIONAL PARADIGM
+                    // PRESENT ELSEWHERE. IT'S POSSIBLE, THEN, FOR A DOWNSTREAM COMPONENT TO DESTROY SOMETHING AN UPSTREAM COMPONENT IS USING,
+                    // POSSIBLY JUST BY CLEARING VALUES IN THE DATA TREE
+                    console.warn("AN ATTEMPT WAS MADE TO DESTROY AN ALREADY-DESTROYED CURVE. THIS WILL CAUSE A MEMORY ALLOCATION ERROR, BUT CAN HAPPEN WHEN A JAVASCRIPT REFERENCE IS KEPT AFTER IT WAS SUPPOSED TO BE DROPPED.");
+                    return;
+                }
+                try {
+                    freeCurve(that._pointer);
+                    that.DESTROYED = true;
+                }
+                catch (e) {
+                    // console.log(details);
+                    console.warn("UNABLE TO DESTROY A CURVE! INVESTIGATE! " + that._pointer);
+                    // throw (e);
+                }
+            },10);
         }
     };
 
