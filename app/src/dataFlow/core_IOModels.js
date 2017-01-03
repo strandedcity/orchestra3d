@@ -27,6 +27,7 @@ define([
             this.required = _.isUndefined(args.required) ? true : args.required;
             this.type = args.type;
             this.default = _.isUndefined(args.default) ? null : args.default; // store default value if spec'd
+            this.containsNewData = _.isUndefined(args.containsNewData) ? true : false; // by default, this component will .destroy() its contents when its values are cleared
             this.shortName = args.shortName;
             this.values = new DataTree([]);
             if (!_.isUndefined(args.invisible)) this.set({"invisible": args.invisible});
@@ -101,17 +102,34 @@ define([
             return this.getTree().dataAtPath([0])[0];
         },
         clearValues: function(){
-            this.values.recurseTree(function(data,node){
-                _.each(data, function(object){
-                    // critical to manually free emscripten memory. Test by cyclically destroying a single curve. The pointer will be the same each time
-                    // if memory is being cleared out appropriately. log(geocurve._pointer) to see it in action
-                    if (!_.isEmpty(object) && typeof object.destroy === "function") object.destroy();
-                    else if (!_.isNull(object) && !_.isNumber(object) && !_.isArray(object)) {
-                        console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
-                    }
+            // It's critical to manually free emscripten memory. Test by cyclically destroying a single curve. 
+            // The pointer will be the same each time if memory is being cleared out appropriately. 
+            // log(geocurve._pointer) to see it in action
+            // HOWEVER: It's also critical NOT to .destroy() SISL objects just because lists are being rewritten
+            // because of things like shift() and graft() components (which re-structure referencing arrays and objects,
+            // but do not actually mutate the data inside). So inputs and outputs need to have some intelligence about
+            // their contents: they must know what it means to clear their values: either (A) destroy references only or
+            // (B) destroy references AND OBJECTS. This has to do with whether the output represents newly calculated data
+            // or just re-arranged data, which is a function of the containing component. So this is defined along with the
+            // IO's definition with the component. Note also that if this IO's role is an "INPUT", it is intrinsically
+            // not going to destroy incoming objects. Inputs are just "gatherers" for the component, they never manipulate
+            // contents of the incoming list beyond combination and tre remapping.
+            // So the full test here is:
+            // if ( is input OR is marked as not manipulating contained objects ) => SKIP destroy phase
+
+            if (this.modelType === "Output" && this.containsNewData === true) {
+                this.values.recurseTree(function(data,node){
+                    _.each(data, function(object){
+                        if (!_.isEmpty(object) && typeof object.destroy === "function") object.destroy();
+                        else if (!_.isNull(object) && !_.isNumber(object) && !_.isArray(object)) {
+                            console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
+                        }
+                    });
+                    node.data = []; // clear out all values
                 });
-                node.data = []; // clear out all values
-            });
+            }
+
+            // Regardless of memory clearing responsibilities, references should be dropped
             this.values = new DataTree();
         },
         _destroy: function(){

@@ -17,28 +17,13 @@ define([
                                 {required: true, shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
         },
         recalculate: function(){
-            // Note that this component is a "wildcard" type output. One approach could maintain more data fidelity by forcing types to remain the same
-            // per-component, but that requires a more complicated typing strategy on the way in and out of components that deal with the data trees directly.
-            // This can always be added later, but it's not critical first-order functionality
-
-            // grab the input, construct a new (grafted) tree.
-            //this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
-
-            // clearValues() should NOT try to destroy each object in the tree; the graft component just reorganizes the objects!
-            this.getOutput("T").values = this.getInput("T").getTree().graftedTree();
-
-            // Calling replaceData would call this automatically, but in this case we prefer not to call replaceData. See comment.
-            this._recalculate();
-        },
-        _recalculate: function(){
-            this.getOutput()._isNull = this.getOutput().getTree().isEmpty();
-            this.getOutput().trigger("change");
+            this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
         }
     },{
         "label": "Graft Tree",
@@ -58,7 +43,7 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })    
             );
@@ -90,7 +75,7 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Wrap indices to list range"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
@@ -126,7 +111,7 @@ define([
                                 {required: true, shortName: "P", type: DataFlow.OUTPUT_TYPES.BOOLEAN, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling pattern"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
@@ -161,7 +146,7 @@ define([
                                 {required: false, default: 2, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Cull frequency"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
@@ -196,7 +181,7 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "If true, indices will be wrapped"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
@@ -234,7 +219,7 @@ define([
                                 {required: false, shortName: "P", default: [0], type: DataFlow.OUTPUT_TYPES.ARRAY}
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "T", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
@@ -263,7 +248,7 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "i", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "i", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })    
             );
@@ -298,7 +283,7 @@ define([
                                 {required: false, shortName: "O", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // retain list order
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD}
+                                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
                             ], opts, "output")
                 })
             );
