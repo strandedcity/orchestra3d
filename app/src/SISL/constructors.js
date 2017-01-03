@@ -105,23 +105,7 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
     Geo.Plane.prototype.getChangeBasisMatrixForTransformationTo = function(anotherPlane){
         // Return a Matrix4 representing the full change-basis transformation from 'this' to 'anotherPlane', including
         // the translate aspect introduced by having an origin point for the plane
-        // Method: http://stackoverflow.com/questions/10176456/subtracting-two-4x4-matrices-is-this-possible
-        // From "this" (frame 0) to "anotherPlane" (frame X)
-        // matrixOffset = inverse(matrixAtFrame0) * matrixAtFrameX
-
-        // 1: Matrix Offset, handles rotation
-        var matrixOffset = new THREE.Matrix4(),
-        inverse = (new THREE.Matrix4()).getInverse(this);
-        matrixOffset.multiplyMatrices(inverse,anotherPlane);
-
-        var composed = new THREE.Matrix4();
-        var te = this.elements;
-        var ae = anotherPlane.elements;
-        var thisPosition = new THREE.Vector3(te[12],te[13],te[14]);
-        var anotherPosition = new THREE.Vector3(ae[12],ae[13],ae[14]);
-        return composed.multiplyMatrices(matrixOffset, Geo.Utils.translateMatrix(thisPosition.multiplyScalar(-1))).premultiply(Geo.Utils.translateMatrix(anotherPosition));
-  
-        // return matrixOffset;
+        return (new THREE.Matrix4()).getInverse(this).premultiply(anotherPlane);
     };
     Geo.Plane.prototype.destroy = function(){
         /* This is a no-op for now, but for completeness we should be able to clean up all non base-type objects */
