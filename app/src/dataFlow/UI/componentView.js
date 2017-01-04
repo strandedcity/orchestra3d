@@ -141,9 +141,14 @@ define([
         workspace.render();
 
         // With dom elements created, bind events:
+        this.listenTo(this.component,"change:preview",this.changePreviewState);
         this.listenTo(this.component,"change:sufficient",this.changeSufficiency);
         this.listenTo(this.component,"change:componentPrettyName",this.displayVals);
         this.listenTo(this.component,"removed",this.remove);
+
+        // Initial rendering states
+        this.changePreviewState();
+        this.changeSufficiency();
     };
 
     ComponentView.prototype.displayVals = function(){
@@ -160,14 +165,26 @@ define([
 
         var classToAdd;
         if (state === true) classToAdd = "sufficient";
-        if (state === false) classToAdd = "insufficient";
-        if (state === "error") classToAdd = "error";
+        else if (state === "error") classToAdd = "error";
+        else classToAdd = "insufficient";
 
         var displayDiv = this.getDisplayDiv();
         displayDiv.classList.remove("sufficient");
         displayDiv.classList.remove("insufficient");
         displayDiv.classList.remove("error");
         displayDiv.classList.add(classToAdd);
+    };
+
+    ComponentView.prototype.changePreviewState = function(){
+        // true or false, but default component display assumes preview on. There's only one CSS class to manage.
+        var state = this.component.get("preview"); 
+
+        var displayDiv = this.getDisplayDiv(),
+            previewOffClass = "previewOff";
+        displayDiv.classList.remove(previewOffClass);
+        if (state === false) {
+            displayDiv.classList.add(previewOffClass);
+        }
     };
 
     ComponentView.prototype.getDisplayDiv = function(){
