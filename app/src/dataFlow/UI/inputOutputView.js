@@ -114,9 +114,6 @@ define([
         // input-specific cleanup
         var that = this;
         _.each(this.connectionWires,function(wireView){that.glObject.parent.parent.remove(wireView)});
-        _.each(this.connectedOutputViews,function(outputView){
-            console.log("TODO: DISCONNECT LISTENERS FOR OUTPUTS WHEN REMOVING AN INPUT");
-        });
         this._remove();
     };
 

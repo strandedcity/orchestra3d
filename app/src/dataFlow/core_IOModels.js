@@ -270,10 +270,11 @@ define([
                 that.processIncomingChange.call(that,pulse);
             });
 
-            //// "connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
-            //this.listenTo(outputModel,"disconnectAll",function(outputModel){
-            //    that.disconnectOutput.call(that,outputModel);
-            //});
+            // "Connections" live entirely on INPUT objects, but still need to be removed when the connected OUTPUT objects are removed
+            // This cleans up connections on the RIGHT side of components when a component is removed from the middle of the graph
+            this.listenTo(outputModel,"disconnectAll",function(outputModel){
+               that.disconnectOutput.call(that,outputModel);
+            });
 
             //this.set({isNull: false},{silent: true}); // unset the "null" override
             this.trigger("connectedOutput", outputModel);
