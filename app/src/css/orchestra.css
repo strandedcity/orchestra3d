@@ -52,6 +52,15 @@ div.componentLabel {
     -ms-user-select: none;
     user-select: none;
 }
+
+/*
+Support for mixing status colors for separate properties: Preview, Sufficiency/Error, Selection
+https://css-tricks.com/tinted-images-multiple-backgrounds/
+Preview / Not = grey or white solid alpha image
+Sufficiency / Error = clear, orange, or red transparent .TOP.workspaceOverlay
+Selection = Thick green border
+*/
+
 div.componentLabel.insufficient {background-color: #ffca3d;}
 div.componentLabel.sufficient {background-color: #e8e8e8;}
 div.componentLabel.error {background-color: orangered;}

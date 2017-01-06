@@ -13,14 +13,14 @@ define([
     components.CurveCurveIntersectionComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var outputs = this.createIObjectsFromJSON([
-                {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT},
-                {shortName: "tA", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST},
-                {shortName: "tB", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST}
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Intersection points"},
+                {shortName: "tA", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Parameter values on first curve"},
+                {shortName: "tB", type: DataFlow.OUTPUT_TYPES.NUMBER, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Parameter values on second curve"}
             ], opts, "outputs");
 
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "A", required: true, type: DataFlow.OUTPUT_TYPES.CURVE},
-                {shortName: "B", required: true, type: DataFlow.OUTPUT_TYPES.CURVE}
+                {shortName: "A", required: true, type: DataFlow.OUTPUT_TYPES.CURVE, desc: "First curve"},
+                {shortName: "B", required: true, type: DataFlow.OUTPUT_TYPES.CURVE, desc: "Second curve"}
             ], opts, "inputs");
 
             var args = _.extend({
@@ -32,22 +32,19 @@ define([
             });
             this.base_init(args);
         },
-        recalculate: function(){
-            /* A = Curve1, B = Curve2 */
-            var result = DataMatcher([this.getInput("A"),this.getInput("B")],function(c1,c2){
-                // fill multiple output trees with return:
-                // {A: "data for tree A", B: "data for tree B"}
-                var intersections = Geometry.Intersections.CurveCurve(c1,c2);
-                intersections.p = _.map(intersections.t1,function(param){
-                    return c1.getPositionAt(param)
-                });
-                return intersections;
+        recalculate: function(c1,c2){
+            // fill multiple output trees with return:
+            // {A: "data for tree A", B: "data for tree B"}
+            var intersections = Geometry.Intersections.CurveCurve(c1,c2);
+            intersections.p = _.map(intersections.t1,function(param){
+                return c1.getPositionAt(param)
             });
-
-            this.getOutput("P").replaceData(result.tree.map(function(data){return data.p}));
-            this.getOutput("tA").replaceData(result.tree.map(function(data){return data.t1}));
-            this.getOutput("tB").replaceData(result.tree.map(function(data){return data.t2}));
-        },
+            return {
+                P: intersections.p,
+                tA: intersections.t1,
+                tB: intersections.t2
+            };
+        }
     },{
         "label": "Curve-Curve Intersection",
         "desc": "Finds intersections between two given curves."

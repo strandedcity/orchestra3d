@@ -121,7 +121,7 @@ define([
                 this.values.recurseTree(function(data,node){
                     _.each(data, function(object){
                         if (!_.isEmpty(object) && typeof object.destroy === "function") object.destroy();
-                        else if (!_.isNull(object) && !_.isNumber(object) && !_.isArray(object)) {
+                        else if (!_.isEmpty(object) && !_.isNumber(object) && !_.isArray(object)) {
                             console.warn("Can't destroy object type: " + typeof object + " / constructor: " + object.constructor.name);
                         }
                     });

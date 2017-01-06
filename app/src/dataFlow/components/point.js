@@ -22,13 +22,9 @@ define([
                     })
                 );
             },
-            recalculate: function(){
-                // This is not exactly a noop: DataMatcher allows you to merge trees and align them
-                var result = DataMatcher([this.getInput("B")],function(p){
-                    return p;
-                });
-
-                this.getOutput("P").replaceData(result.tree);
+            recalculate: function(b){
+                // Not exactly a noop.... this uses the datamatcher to realign and merge data trees
+                return {B:b};
             }
         },{
             "label": "Point",
@@ -43,7 +39,7 @@ define([
 
                 var args = _.extend({
                     componentPrettyName: "Point(x,y,z)",
-                    preview: false
+                    preview: true
                 },opts || {},{
                     inputs: this.prepareTwoNumericInputs(opts),
                     outputs: output
@@ -57,22 +53,9 @@ define([
                     {shortName: "Z", type: DataFlow.OUTPUT_TYPES.NUMBER}
                 ], opts, "inputs")
             },
-            recalculate: function(){
-                var resultObject = DataMatcher([this["X"],this["Y"],this["Z"]],function(x,y,z){
-                    return new THREE.Vector3(x,y,z);
-                });
-
-                this.getOutput("P").replaceData(resultObject.tree);
+            recalculate: function(x,y,z){
+                return {P : new THREE.Vector3(x,y,z)};
             },
-            // drawPreviews: function(){
-            //     var output = this.getOutput("P").getTree();
-            //     var points = output.flattenedTree().dataAtPath([0]);
-            //     if (this.previews[0]) {
-            //         this.previews[0].updatePoints(points);
-            //     } else {
-            //         this.previews[0] = new Preview.PointListPreview(points);
-            //     }
-            // },
             fetchPointCoordinates: function(){
                 /* TODO: THIS FUNCTION IS STUPID. It's handy for writing tests, maybe, but it doesn't deal with the data trees in any useful way. */
                 var outputs = this.getOutput().getTree().flattenedTree().dataAtPath([0]);
@@ -102,7 +85,10 @@ define([
                 });
 
                 this.base_init(args);
-            }
+            },
+            recalculate: function(x,y,z){
+                return {V : new THREE.Vector3(x,y,z)};
+            },
         },{
             "label": "Vector(x,y,z)",
             "desc": "Generates a new vector based on x, y, and z values"
@@ -129,16 +115,10 @@ define([
                 });
                 this.base_init(args);
             },
-            recalculate: function(){
-                this.getOutput("V").clearValues();
-
-                var result = DataMatcher([this["A"],this["B"],this["U"]],function(a,b,u){
-                    var endPt = b.clone().sub(a);
-                    if (u === true) {endPt.normalize();}
-                    return endPt;
-                });
-
-                this.getOutput("V").replaceData(result.tree);
+            recalculate: function(a,b,u){
+                var endPt = b.clone().sub(a);
+                var finalVal = u ? endPt.normalize() : endPt;
+                return {V: finalVal};
             }
         },{
             "label": "Vector(p1,p2)",
@@ -164,14 +144,8 @@ define([
                 },opts || {});
                 this.base_init(args);
             },
-            recalculate: function(){
-                this.getOutput("V").clearValues();
-
-                var result = DataMatcher([this["V"]],function(v){
-                    return v.clone().normalize();
-                });
-
-                this.getOutput("V").replaceData(result.tree);
+            recalculate: function(v){
+                return {V: v.clone().normalize()};
             }
         },{
             "label": "Vector Normalize",
@@ -199,14 +173,8 @@ define([
                 });
                 this.base_init(args);
             },
-            recalculate: function(){
-                this.getOutput("D").clearValues();
-
-                var result = DataMatcher([this["A"],this["B"]],function(a,b){
-                    return a.distanceTo(b);
-                });
-
-                this.getOutput("D").replaceData(result.tree);
+            recalculate: function(a,b){
+                return {D: a.distanceTo(b)};
             }
         },{
             "label": "Distance(p1,p2)",
@@ -235,10 +203,9 @@ define([
                 });
                 this.base_init(args);
             },
-            recalculate: function(){
-                // no-op since this component's purpose is display only
-            },
+            recalculateTrees: function(){/* // no-op since this component's purpose is display only */},
             drawPreviews: function(){
+                console.log('drawing previews');
                 this.clearPreviews(); // needed here since this component does not have a recalculate phase that deletes prior previews
                 var that=this,
                     vectors = this["V"].getTree(),
@@ -250,6 +217,7 @@ define([
                         that.previews.push(new Preview.VectorPreview(a,item));
                     });
                 });
+                vectors.log();
             }
         },{
             "label": "Vector Display",

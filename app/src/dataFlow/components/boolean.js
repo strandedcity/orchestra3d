@@ -8,24 +8,23 @@ define([
     components.BooleanCollectionComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({
+                    preview: false,
+                    componentPrettyName: "Bool"
+                }, opts || {},
+                {
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Boolean Values"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Boolean Values"}
-                            ], opts, "output"),
-                    componentPrettyName: "Bool"
+                            ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
+        recalculate: function(b){
             // This is not exactly a noop: DataMatcher allows you to merge trees and align them
-            var result = DataMatcher([this.getInput("B")],function(b){
-                return b;
-            });
-
-            this.getOutput("B").replaceData(result.tree);
+            return {B: b};
         }
     },{
         "label": "Boolean",
@@ -56,7 +55,7 @@ define([
             // Initially, the input must be copied to the output tree or the output will be empty
             this._handleInputChange();
         },
-        recalculate: function(){
+        recalculateTrees: function(){
             this.getOutput("B").replaceData(this.getInput("B").getTree().copy());
         }
     },{

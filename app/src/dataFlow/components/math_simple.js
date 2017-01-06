@@ -22,11 +22,7 @@ define([
                 outputs: output
             });
 
-            this.recalculate = function(){
-                var resultObject = DataMatcher(this.inputs,opts.simpleMathFunction);
-
-                this.getOutput("N").replaceData(resultObject.tree);
-            };
+            this.recalculate = opts.simpleMathFunction;
 
             this.base_init(args);
         },
@@ -52,7 +48,7 @@ define([
     components.MathMultiplyComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Multiply";
-            opts.simpleMathFunction = function(a,b){return a*b;};
+            opts.simpleMathFunction = function(a,b){return {N:a*b};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -65,7 +61,7 @@ define([
     components.MathDivideComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Divide";
-            opts.simpleMathFunction = function(a,b){return a/b;};
+            opts.simpleMathFunction = function(a,b){return {N:a/b};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -78,7 +74,7 @@ define([
     components.MathMaxComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Max";
-            opts.simpleMathFunction = function(a,b){return Math.max(a,b);};
+            opts.simpleMathFunction = function(a,b){return {N:Math.max(a,b)};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -91,7 +87,7 @@ define([
     components.MathMinComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Min";
-            opts.simpleMathFunction = function(a,b){return Math.min(a,b);};
+            opts.simpleMathFunction = function(a,b){return {N:Math.min(a,b)};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -104,7 +100,7 @@ define([
     components.MathAddComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Add";
-            opts.simpleMathFunction = function(a,b){return a+b;};
+            opts.simpleMathFunction = function(a,b){return {N:a+b};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -117,7 +113,7 @@ define([
     components.MathSubtractComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Subtract";
-            opts.simpleMathFunction = function(a,b){return a-b;};
+            opts.simpleMathFunction = function(a,b){return {N:a-b};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -130,7 +126,7 @@ define([
     components.MathSineComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Sine";
-            opts.simpleMathFunction = function(a){return Math.sin(a);};
+            opts.simpleMathFunction = function(a){return {N:Math.sin(a)};};
             opts.simpleMathInputCount = 1;
 
             this.simpleMathInitialize(opts);
@@ -143,7 +139,7 @@ define([
     components.MathCosineComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Cosine";
-            opts.simpleMathFunction = function(a){return Math.cos(a);};
+            opts.simpleMathFunction = function(a){return {N:Math.cos(a)};};
             opts.simpleMathInputCount = 1;
 
             this.simpleMathInitialize(opts);
@@ -156,7 +152,7 @@ define([
     components.MathTangentComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Tangent";
-            opts.simpleMathFunction = function(a){return Math.tan(a);};
+            opts.simpleMathFunction = function(a){return {N:Math.tan(a)};};
             opts.simpleMathInputCount = 1;
 
             this.simpleMathInitialize(opts);
@@ -169,7 +165,7 @@ define([
     components.MathExponentComponent = simpleMathComponent.extend({
         initialize: function(opts){
             opts.simpleMathName = "Exponent";
-            opts.simpleMathFunction = function(a,b){return Math.pow(a,b);};
+            opts.simpleMathFunction = function(a,b){return {N:Math.pow(a,b)};};
             opts.simpleMathInputCount = 2;
 
             this.simpleMathInitialize(opts);
@@ -197,23 +193,17 @@ define([
                 })
             );
         },
-        recalculate: function(){
-            console.warn("TODO: Mass addition should support vectors as well as numbers! Currently, it supports only numbers.");
-            var result = DataMatcher([this.getInput("I")],function(inputs){
-                var partialResults = [],
-                    runningTotal = 0;
-                _.each(inputs,function(val){
-                    runningTotal += val;
-                    partialResults.push(runningTotal);
-                });
-                return {
-                    R: runningTotal,
-                    Pr: partialResults
-                }
+        recalculate: function(inputs){
+            var partialResults = [],
+                runningTotal = 0;
+            _.each(inputs,function(val){
+                runningTotal += val;
+                partialResults.push(runningTotal);
             });
-
-            this.getOutput("R").replaceData(result.tree.map(function(data){return data.R}));
-            this.getOutput("Pr").replaceData(result.tree.map(function(data){return data.Pr}));
+            return {
+                R: runningTotal,
+                Pr: partialResults
+            }
         }
     },{
         "label": "Mass Addition",

@@ -24,7 +24,7 @@ define([
             });
             this.base_init(args);
         },
-        recalculate: function(){
+        recalculateTrees: function(){
             this.getOutput("N").replaceData(this.getInput("N").getTree().copy());
         }
     },{
@@ -36,42 +36,33 @@ define([
         initialize: function(opts){
             //var output = new DataFlow.OutputNumber({shortName: "S"});
             var output = this.createIObjectsFromJSON([
-                {shortName: "S", type: DataFlow.OUTPUT_TYPES.NUMBER}
+                {shortName: "S", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Series"}
             ], opts, "output");
 
             /* S = start of series, N = step size, C = # of values in series */
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {shortName: "N", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {shortName: "C", required:false, default: 10, type: DataFlow.OUTPUT_TYPES.NUMBER}
+                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "First number in series"},
+                {shortName: "N", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Step size"},
+                {shortName: "C", required:false, default: 10, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Count of numbers in series"}
             ], opts, "inputs");
 
-            var args = _.extend(opts || {},{
-                inputs: inputs,
-                outputs: output,
+            var args = _.extend({
                 componentPrettyName: "Series",
                 preview: false
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
             });
             this.base_init(args);
             this.recalculate(); // since it doesn't need any inputs to have valid output
         },
-        recalculate: function(){
-            var resultObject = DataMatcher([this["S"],this["N"],this["C"]],function(s,n,c){
-                var seriesArr = [], count = 0;
-                while (count < c) {
-                    seriesArr.push(s+n*count);
-                    count++;
-                }
-                return seriesArr;
-            });
-
-            // TODO: Figure out how Series components deal with lists. This is a hack.
-            var final = new DataTree();
-            resultObject.tree.recurseTree(function(data,node){
-                final.setDataAtPath(data[0],node.getPath());
-            });
-
-            this.getOutput("S").replaceData(final);
+        recalculate: function(s,n,c){
+            var seriesArr = [], count = 0;
+            while (count < c) {
+                seriesArr.push(s+n*count);
+                count++;
+            }
+            return {S: seriesArr};
         }
     },{
         "label": "Series",
@@ -82,15 +73,15 @@ define([
         initialize: function(opts){
             //var output = new DataFlow.OutputNumber({shortName: "N", default: 0.5});
             var output = this.createIObjectsFromJSON([
-                {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER}
+                {shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Value"}
             ], opts, "output");
 
             /* S = start of series, N = step size, C = # of values in series */
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER},
-                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN},
-                {shortName: "N", required:false, default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER, invisible: true}
+                {shortName: "S", required:false, default: 0, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Start"},
+                {shortName: "E", required:false, default: 1, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "End"},
+                {shortName: "I", required:false, default: false, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Integers"},
+                {shortName: "N", required:false, default: 0.5, type: DataFlow.OUTPUT_TYPES.NUMBER, invisible: true, desc: "Value"}
             ], opts, "inputs");
 
             var args = _.extend({
@@ -107,7 +98,7 @@ define([
             tree.setDataAtPath([val],[0]);
             this.getInput("N").assignPersistedData(tree);
         },
-        recalculate: function(){
+        recalculateTrees: function(){
             // Value is chosen directly in the UI, not calculated from inputs. Value is assigned directly to
             // "persistedData" on INPUT "N", then "recalculate" ensures that this value is actually inside the acceptable range
             // before assigning to the OUTPUT "N".

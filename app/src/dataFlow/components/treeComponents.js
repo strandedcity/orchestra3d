@@ -22,7 +22,7 @@ define([
                 })
             );
         },
-        recalculate: function(){
+        recalculateTrees: function(){
             this.getOutput("T").replaceData(this.getInput("T").getTree().graftedTree());
         }
     },{
@@ -43,19 +43,15 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN}
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })    
             );
         },
-        recalculate: function(){
-            var result = DataMatcher([this.getInput("L"),this.getInput("S"),this.getInput("W")],function(listIn,shiftBy,wrap){
-                var listOut = listIn.slice(shiftBy);
-                if (wrap) listOut = listOut.concat(listIn.slice(0, shiftBy));
-                return listOut;
-            });
-
-            this.getOutput("L").replaceData(result.tree);
+        recalculate: function(listIn,shiftBy,wrap){
+            var listOut = listIn.slice(shiftBy);
+            if (wrap) listOut = listOut.concat(listIn.slice(0, shiftBy));
+            return {L: listOut};
         }
     },{
         "label": "Shift List",
@@ -75,24 +71,19 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "Wrap indices to list range"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
-            console.warn("TODO: Support 'wrap' option on cull-index component");
-            var result = DataMatcher([this.getInput("L"),this.getInput("i"),this.getInput("W")],function(listIn,cullIndices,wrap){
-                var listOut = [];
-                _.each(listIn,function(val,idx){
-                    if (!_.contains(cullIndices,idx)) {
-                        listOut.push(val);
-                    }
-                })
-                return listOut;
-            });
-
-            this.getOutput("L").replaceData(result.tree);
+        recalculate: function(listIn,cullIndices,wrap){
+            var listOut = [];
+            _.each(listIn,function(val,idx){
+                if (!_.contains(cullIndices,idx)) {
+                    listOut.push(val);
+                }
+            })
+            return {L: listOut};
         }
     },{
         "label": "Cull Index",
@@ -111,22 +102,19 @@ define([
                                 {required: true, shortName: "P", type: DataFlow.OUTPUT_TYPES.BOOLEAN, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Culling pattern"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
-            var result = DataMatcher([this.getInput("L"),this.getInput("P")],function(listIn,cullPattern){
-                var len = cullPattern.length;
-                return _.filter(listIn,function(val,idx){
-                    // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
-                    // the culling pattern should repeat
-                    return cullPattern[idx % len]
-                });
+        recalculate: function(listIn,cullPattern){
+            var len = cullPattern.length;
+            var culled = _.filter(listIn,function(val,idx){
+                // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
+                // the culling pattern should repeat
+                return cullPattern[idx % len]
             });
-
-            this.getOutput("L").replaceData(result.tree);
+            return {L: culled};
         }
     },{
         "label": "Cull Pattern",
@@ -146,21 +134,17 @@ define([
                                 {required: false, default: 2, shortName: "N", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Cull frequency"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
-            var result = DataMatcher([this.getInput("L"),this.getInput("N")],function(listIn,frequency){
-                return _.filter(listIn,function(val,idx){
-                    // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
-                    // the culling pattern should repeat
-                    return idx % frequency === 0;
-                });
-            });
-
-            this.getOutput("L").replaceData(result.tree);
+        recalculate: function(listIn,frequency){
+            return {L: _.filter(listIn,function(val,idx){
+                // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
+                // the culling pattern should repeat
+                return idx % frequency === 0;
+            })};
         }
     },{
         "label": "Cull Nth",
@@ -181,26 +165,23 @@ define([
                                 {required: false, shortName: "W", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN, desc: "If true, indices will be wrapped"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
-                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "L", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
+        recalculate: function(listIn,insertItems,indices,wrap){
             console.warn("TODO: Support 'wrap' option on insert-items component");
             
             // Ghop behavior: insert items starting at the end of the list. 
             // Ie, if you enter data [1,2] and indices [0,0], you'll get output [1,2] not [2,1]
-            var result = DataMatcher([this.getInput("L"),this.getInput("I"),this.getInput("i"),this.getInput("W")],function(listIn,insertItems,indices,wrap){
-                var listOut = listIn.slice(0);
-                var reversedItems = insertItems.slice(0).reverse();
-                _.each(indices.slice(0).reverse(),function(indexValue,itemPosition){
-                    listOut.splice(indexValue, 0, reversedItems[itemPosition]);
-                });
-                return listOut;
+            
+            var listOut = listIn.slice(0);
+            var reversedItems = insertItems.slice(0).reverse();
+            _.each(indices.slice(0).reverse(),function(indexValue,itemPosition){
+                listOut.splice(indexValue, 0, reversedItems[itemPosition]);
             });
-
-            this.getOutput("L").replaceData(result.tree);
+            return {L: listOut};
         }
     },{
         "label": "Insert Items",
@@ -224,7 +205,7 @@ define([
                 })
             );
         },
-        recalculate: function(){
+        recalculateTrees: function(){
             /* T=input Tree Data, P = (optional) path to put flattened data on (default is [0] */
             console.warn("PATH input is ignored for now");
             var flattened = this.getInput("T").getTree().flattenedTree(false); // makes a copy!
@@ -253,17 +234,13 @@ define([
                 })    
             );
         },
-        recalculate: function(){
+        recalculate: function(list,item,wrap){
             /* L=input list, i=item to retrieve, W=wrap list */
-            var result = DataMatcher([this.getInput("L"),this.getInput("i"),this.getInput("W")],function(list,item,wrap){
-                if (!_.isArray(list)) return null;
-                if (!wrap && list.length <= item) return null;
+            if (!_.isArray(list)) return null;
+            if (!wrap && list.length <= item) return null;
 
-                // wrap is true, so we're going to return something! "wrapping" is easy, using a modulo
-                return list[item % list.length];
-            });
-
-            this.getOutput("i").replaceData(result.tree);
+            // wrap is true, so we're going to return something! "wrapping" is easy, using a modulo
+            return {i: list[item % list.length]};
         }
     },{
         "label": "Extract Item from List",
@@ -283,26 +260,21 @@ define([
                                 {required: false, shortName: "O", default: true, type: DataFlow.OUTPUT_TYPES.BOOLEAN} // retain list order
                             ], opts, "inputs"),
                     outputs: this.createIObjectsFromJSON([
-                                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false}
+                                {shortName: "D", type: DataFlow.OUTPUT_TYPES.WILD, containsNewData: false, interpretAs: DataFlow.INTERPRET_AS.LIST}
                             ], opts, "output")
                 })
             );
         },
-        recalculate: function(){
-            var result = DataMatcher([this.getInput("D"),this.getInput("N"),this.getInput("O")],function(data,numberOfDupes,retainOrder){
-                if (!_.isArray(data)) return null;
-                console.warn("RETAIN ORDER FALSE NOT SUPPORTED");
-                
-                var duppedList = [];
-                for (var i=0; i<numberOfDupes; i++){
-                    duppedList = duppedList.concat(data);
-                }
+        recalculate: function(data,numberOfDupes,retainOrder){
+            if (!_.isArray(data)) return null;
+            console.warn("RETAIN ORDER FALSE NOT SUPPORTED");
+            
+            var duppedList = [];
+            for (var i=0; i<numberOfDupes; i++){
+                duppedList = duppedList.concat(data);
+            }
 
-                return duppedList;
-            });
-
-            console.warn("THIS IS A BAD CORNER TO CUT -- the function to return data 'as a list' should not live inside of .map()");
-            this.getOutput("D").replaceData(result.tree.map(function(d){return d;}));
+            return {D: duppedList};
         }
     },{
         "label": "Duplicate Data",
@@ -325,14 +297,10 @@ define([
                 })
             );
         },
-        recalculate: function(){
-            var result = DataMatcher([this.getInput("L")],function(list){
-                if (!_.isArray(list)) return null;
-                
-                return list.length;
-            });
-
-            this.getOutput("L").replaceData(result.tree);
+        recalculate: function(list){
+            if (!_.isArray(list)) return null;
+            
+            return {L: list.length};
         }
     },{
         "label": "List Length",

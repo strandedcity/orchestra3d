@@ -5,8 +5,9 @@ define([
     "dataFlow/pulse",
     "dataFlow/enums",
     "dataFlow/UI/geometryPreviews",
-    "SISL/sisl_loader"
-],function(_,Backbone, IOModels, Pulse, ENUMS, Preview, Geometry){
+    "SISL/sisl_loader",
+    "dataFlow/dataMatcher"
+],function(_,Backbone, IOModels, Pulse, ENUMS, Preview, Geometry, DataMatcher){
 
 
     var component = Backbone.Model.extend({
@@ -31,6 +32,14 @@ define([
 
         modelType: "Component",
         initialize: function(){
+            // Components need to recalculate by exactly one of thow methods. Make sure exactly one is defined.
+            var r1 = typeof this.recalculateTrees === "function", r2 = typeof this.recalculate === "function";
+            var noCalculationFunction = !r1 && !r2;
+            var twoCalculationFunctions = r1 && r2;
+            if (noCalculationFunction || twoCalculationFunctions) {
+                throw new Error(this.get('componentPrettyName') + " needs either .recalculate() or .recalculateTrees(), but not both!");
+            }
+
             this.base_init.apply(this, arguments);
         },
         createIObjectsFromJSON: function(schemaListJSON,opts,dataKey){
@@ -182,8 +191,26 @@ define([
             //
             this.set({'sufficient': !isNullNow});
             if (!isNullNow) {
-                this.recalculate();
+                // For testing, this must remain. There are problems spying on the 'subclassed' recalculate functions
                 this.simulatedRecalculate();
+
+                if (typeof this.recalculateTrees === "function") {
+                    // this component has no effect on the data; just how it's referenced. Avoid running a full dataMatcher
+                    // and recalculation phase, and just re-tree the data instead.
+                    // This 'alternate recalculation' phase may not be the best coding practice, but it so greatly improves
+                    // the contents of the regular .recalculate() functions (which can then be passed straight to the data matcher)
+                    // that I think the trade-off is worth it.
+                    this.recalculateTrees();
+                } else {
+                    // Datamatcher is required. Component.recalculate() must be a function *for* the data mapper!
+                    var result = DataMatcher(this.inputs, this.recalculate, this.outputs);
+
+                    // If the calculation produced errors, display the status and errors to the user
+                    if (result.errors.length > 0) {
+                        this.set({'sufficient': "error"});
+                        console.log(result.errors);
+                    }
+                }
             } else {
 
                 //console.log("NULL");
@@ -218,68 +245,21 @@ define([
                 return out.getTree().isEmpty();
             });
         },
-//        recalculateIfReady: function(){
-//            // Previews are not hidden unless they need to be (ie, unless the whole component has them nulled out.
-//            // They'll be updated if necessary, and hidden when null or or user request
-//            //this.clearPreviews();
-//
-//            // poll inputs to check status. Recalculate sufficiency, since this reflects a change in inputs
-//            if (this._calculateSufficiency() === true) {
-//                this.recalculate();
-//            } else {
-//                _.each(this.outputs,function(out){
-//                    out.setNull(true);
-//                });
-//                this.clearPreviews();
-//            }
-//        },
-//        _calculateSufficiency: function(){
-//            var sufficient = true;
-//
-//            // next, verify that none of the inputs are nulled-out:
-//            if (this._hasRequiredInputs === true){
-//                _.each(this.inputs,function(input){
-//                    if ((input.getTree().isEmpty() === true || input.isNull()) && input.required === true) {
-//                        sufficient = false;
-//                    }
-//                });
-//            }
-//
-//            // some output values, when inputs can come straight from the user (ie, numbers, booleans, functions), don't require any inputs
-//            // However, in this case, the output value must be actually set before the component can be called sufficient
-//            if (this.get('hasRequiredInputs') === false && _.isNull(this.getOutput().getTree())) {
-//                sufficient = false;
-//            }
-//
-//            // If an input is null, the output is null too, and no calculation should occur.
-//            //if (!sufficient) this.output.setNull(true);
-//            this.set({'sufficient': sufficient});
-//
-//            return sufficient;
-//        },
         simulatedRecalculate: function(){
             // MUST REMAIN A NO-OP
             // if (!_.isUndefined(window.jasmine)) throw new Error("simulatedRecalculate is just for spying in jasmine.");
         },
-        recalculate: function(){
-            console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
-        },
-        _recalculate: function(){
-            // run whatever calculations are necessary, if all inputs are available
-            console.warn(this.get('componentPrettyName')+ ' calls the deprecated method _recalculate()');
-//            if (this.get('preview') === true) {
-//                this.drawPreviews();
-//            }
-//
-//            // if there's no data on the first output, consider the calculation a loss. This COULD cause some issue with some components, but
-//            // is probably fine. Not sure if there's a better way to test this, even, without knowing specifically what that component is supposed
-//            // to be doing
-//            var firstOutputEmpty = this.getOutput().getTree().isEmpty();
-//            _.each(this.outputs,function(out){
-//                out.setNull(firstOutputEmpty);
-//                //out.trigger('change');
-//            });
-        },
+        // recalculate: function(){
+        //     console.warn("DataFlow.Component.recalculate() was called directly. This method should be overridden for all component types.");
+        // },
+        // recalculateTrees: function(tree){
+        //     // 'Graft' and 'Flatten' and 'Reverse' and 'Simplify' are normally IO-level operations. Ie,
+        //     // "Graft" applies to an input, or an output, and is persisted accordingly. When these tree-level
+        //     // operations are done to individual IO's, the DataMatcher takes them into account while running
+        //     // .recalculate(). But when the whole component *is* a tree manipulation, no recalculation should
+        //     // even occur. In this case, the input and output are the same data, but referenced differently.
+        //     return tree;
+        // },
         fetchOutputs: function(){
             /* This function is stupid. It may be useful for writing tests, but it doesn't deal with the data trees in any useful way */
             return this.getOutput().getTree().flattenedTree().dataAtPath([0]);

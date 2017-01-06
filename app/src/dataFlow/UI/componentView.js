@@ -10,7 +10,7 @@ define([
 
     /* Almost all components will use the regular ol' component view. But as other view types evolve, they can be employed easily here */
     function ComponentViewSelector(component){
-        if (_.isUndefined(component) || _.isUndefined(component.recalculate) ) {
+        if (_.isUndefined(component) || (_.isUndefined(component.recalculate) && _.isUndefined(component.recalculateTrees)) ) {
             throw new Error('ComponentView objects must be instantiated with the DataFlow.Component which they represent');
         }
 

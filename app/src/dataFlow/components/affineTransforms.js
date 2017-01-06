@@ -29,24 +29,17 @@ define([
                 })
             );
         },
-        recalculate: function(){
-            var result = DataMatcher(
-                [this.getInput("G"),this.getInput("A"),this.getInput("B")],
-                function(g,a,b){
-                    var matrix = a.getChangeBasisMatrixForTransformationTo(b)
-                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
-                        geomCopy = typeof g.clone === "function" ? g.clone() : g; 
-                    
-                    var outputGeometry = geomCopy.applyMatrix4(matrix);
-                    
-                    return {
-                        G: outputGeometry,
-                        X: matrix
-                    };
-                });
-                
-            this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
-            this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
+        recalculate: function(g,a,b){
+            var matrix = a.getChangeBasisMatrixForTransformationTo(b),
+                // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                geomCopy = typeof g.clone === "function" ? g.clone() : g; 
+            
+            var outputGeometry = geomCopy.applyMatrix4(matrix);
+            
+            return {
+                G: outputGeometry,
+                X: matrix
+            };
         }
     },{
         "label": "Orient",
@@ -71,15 +64,10 @@ define([
                 })    
             );
         },
-        recalculate: function(){
-            var result = DataMatcher(
-                [this.getInput("A"),this.getInput("B"),this.getInput("C")],
-                function(a,b,c){
-                    var p = new Geometry.Plane();
-                    p.setFromCoplanarPoints(a,b,c);
-                    return p;
-                });
-            this.getOutput("Pl").replaceData(result.tree);
+        recalculate: function(a,b,c){
+            var p = new Geometry.Plane();
+            p.setFromCoplanarPoints(a,b,c);
+            return {Pl: p};
         }
     },{
         "label": "Plane 3-Point",
@@ -90,15 +78,15 @@ define([
     components.GeometryRotateAxisAndCenterComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
-                {shortName: "G", type: DataFlow.OUTPUT_TYPES.WILD},     // rotated geometry
-                {shortName: "X", type: DataFlow.OUTPUT_TYPES.MATRIX4}   // the transform matrix
+                {shortName: "G", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Rotated geometry"},     // rotated geometry
+                {shortName: "X", type: DataFlow.OUTPUT_TYPES.MATRIX4, desc: "Transformation matrix"}   // the transform matrix
             ], opts, "output");
 
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "G", required: true, type: DataFlow.OUTPUT_TYPES.WILD},                                         // Base geometry
-                {shortName: "A", required: false, default: Math.PI/2, type: DataFlow.OUTPUT_TYPES.NUMBER},                  // Angle, radians
-                {shortName: "C", required: false, default: new Geometry.Point(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT},   // Center of Rotation
-                {shortName: "X", required: false, default: new Geometry.Point(0,0,1), type: DataFlow.OUTPUT_TYPES.POINT}    // Axis of Rotation                
+                {shortName: "G", required: true, type: DataFlow.OUTPUT_TYPES.WILD, desc: "Base geometry"},                                         // Base geometry
+                {shortName: "A", required: false, default: Math.PI/2, type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Angle in radians"},                  // Angle, radians
+                {shortName: "C", required: false, default: new Geometry.Point(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT, desc: "Center of rotation"},   // Center of Rotation
+                {shortName: "X", required: false, default: new Geometry.Point(0,0,1), type: DataFlow.OUTPUT_TYPES.POINT, desc: "Axis of rotation"}    // Axis of Rotation                
             ], opts, "inputs");
 
             var args = _.extend({
@@ -110,22 +98,15 @@ define([
             });
             this.base_init(args);
         },
-        recalculate: function(){
-            var result = DataMatcher(
-                [this.getInput("G"),this.getInput("A"),this.getInput("C"),this.getInput("X")],
-                function(geom,angle,center,axis){
-                    // console.log('rotating '+geom + " by " + angle + " radians " + " along ", axis.toArray() + " around " + center.toArray());
-                    var matrix = geom.rotateAxisAndCenterMatrix(angle,axis,center),
-                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
-                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
-                    return {
-                        G: geomCopy.applyMatrix4(matrix),
-                        X: matrix
-                    }
-                });
-
-            this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
-            this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
+        recalculate: function(geom,angle,center,axis){
+            // console.log('rotating '+geom + " by " + angle + " radians " + " along ", axis.toArray() + " around " + center.toArray());
+            var matrix = geom.rotateAxisAndCenterMatrix(angle,axis,center),
+                // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
+            return {
+                G: geomCopy.applyMatrix4(matrix),
+                X: matrix
+            }
         }
     },{
         "label": "Rotate 3D",
@@ -136,13 +117,13 @@ define([
     components.GeometryMoveComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
-                {shortName: "G", type: DataFlow.OUTPUT_TYPES.WILD},     // rotated geometry
-                {shortName: "X", type: DataFlow.OUTPUT_TYPES.MATRIX4}   // the transform matrix
+                {shortName: "G", type: DataFlow.OUTPUT_TYPES.WILD, desc: "Moved geometry"},     // rotated geometry
+                {shortName: "X", type: DataFlow.OUTPUT_TYPES.MATRIX4, desc: "Transformation matrix"}   // the transform matrix
             ], opts, "output");
 
             var inputs = this.createIObjectsFromJSON([
-                {shortName: "G", required: true, type: DataFlow.OUTPUT_TYPES.WILD},                                         // Base geometry
-                {shortName: "T", required: false, default: new Geometry.Point(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT},   // Translation Vector              
+                {shortName: "G", required: true, type: DataFlow.OUTPUT_TYPES.WILD, desc: "Base geometry"},                                         // Base geometry
+                {shortName: "T", required: false, default: new Geometry.Point(0,0,0), type: DataFlow.OUTPUT_TYPES.POINT, desc: "Translation vector"},   // Translation Vector              
             ], opts, "inputs");
 
             var args = _.extend({
@@ -154,21 +135,14 @@ define([
             });
             this.base_init(args);
         },
-        recalculate: function(){
-            var result = DataMatcher(
-                [this.getInput("G"),this.getInput("T")],
-                function(geom,translation){
-                    var matrix = Geometry.Utils.translateMatrix(translation),
-                        // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
-                        geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
-                    return {
-                        G: geomCopy.applyMatrix4(matrix),
-                        X: matrix
-                    }
-                });
-
-            this.getOutput("G").replaceData(result.tree.map(function(data){return data.G}));
-            this.getOutput("X").replaceData(result.tree.map(function(data){return data.X}));
+        recalculate: function(geom,translation){
+            var matrix = Geometry.Utils.translateMatrix(translation),
+                // if .applyMatrix4 is inherited from THREEJS, it will translate the object in place (which we don't want)
+                geomCopy = typeof geom.clone === "function" ? geom.clone() : geom; 
+            return {
+                G: geomCopy.applyMatrix4(matrix),
+                X: matrix
+            }
         }
     },{
         "label": "Move",
