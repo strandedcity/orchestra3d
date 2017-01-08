@@ -273,6 +273,9 @@ define([
             var previewOutputs = this.getPreviewOutputs(); // plural, though components can't currently display more than one type
             var geom = previewOutputs[0].getTree().flattenedTree().dataAtPath([0]);
             var type = previewOutputs[0].type;
+            var constructors = {};
+                constructors[ENUMS.OUTPUT_TYPES.CURVE] = "CurveListPreview";
+                constructors[ENUMS.OUTPUT_TYPES.POINT] = "PointListPreview";
             var preview;
 
             // When more than one output is previewable, gather its data into the same list
@@ -297,35 +300,15 @@ define([
                     });
                 }
             }
-
-            switch (type) {
-                case ENUMS.OUTPUT_TYPES.POINT:
-                        if (this.previews[0]) {
-                            this.previews[0].updatePoints(geom);
-                        } else {
-                            this.previews[0] = new Preview.PointListPreview(geom);
-                        }
-                    break;
-                
-                case ENUMS.OUTPUT_TYPES.CURVE:
-                        if (_.isArray(this.previews) && this.previews.length > 0) {
-                            preview = this.previews[0];
-
-                            // update the preview geometry
-                            preview.updateCurveList(geom);
-                            preview.show();
-                        }
-                        else {
-                            preview = new Preview.CurveListPreview(geom);
-                            this.previews = [preview];
-                        }
-                    break;
             
-                default:
-                        console.warn("UNPREVIEWABLE TYPE: " + type)
-                    break;
+            if (this.previews[0] && this.previews[0].constructor === Preview[constructors[type]]) {
+                // console.log(this.previews[0],typeof this.previews[0], this.previews[0].constructor);
+                this.previews[0].updateGeometry(geom);
+            } else {
+                console.warn("New preview type mismatches previous preview type. Destroy old previews?");
+                var constructor = Preview[constructors[type]];
+                this.previews[0] = new constructor(geom);
             }
-
 
         },
         destroyPreviews: function(){

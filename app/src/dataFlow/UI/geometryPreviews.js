@@ -20,7 +20,7 @@ define([
 
         this.curveList = curveList;
 
-        _.bindAll(this, "remove","updateCurveList");
+        _.bindAll(this, "remove","updateGeometry");
 
         this.material = new THREE.LineBasicMaterial({
             color: 0xff00f0
@@ -50,7 +50,7 @@ define([
             delete this.line;
         }
     };
-    CurveListPreview.prototype.updateCurveList = function(curveList){
+    CurveListPreview.prototype.updateGeometry = function(curveList){
         this.curveList = curveList;
         this.remove();
         this.line = new THREE.LineSegments(this.draw(),this.material);
@@ -164,7 +164,7 @@ define([
             viewer.render();
         },100);
     };
-    PointListPreview.prototype.updatePoints = function(points){
+    PointListPreview.prototype.updateGeometry = function(points){
         viewer.scene.remove(this.system);
         this.drawPoints(points);
     };
