@@ -315,6 +315,46 @@ define([
         "desc": "Extract the end points of a curve"
     });
 
+    
+    components.ExtractControlPoints = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Control points"},
+                {shortName: "W", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Weights of controls points"},
+                {shortName: "K", type: DataFlow.OUTPUT_TYPES.POINT, interpretAs: DataFlow.INTERPRET_AS.LIST, desc: "Knot vector of this NURBS curve"}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "C", required: true, type: DataFlow.OUTPUT_TYPES.CURVE, desc: "Curve"}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "CP",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(curve){
+            var points = curve.getControlPoints();
+            console.warn("WEIGHTS not supported. To support it, we must retrieve rcoef from the SISLCurve Definition. See SISL Docs.")
+            // See SISL docs page 127, section 5.1
+            // rcoef:  Pointer to the array of rational vertices and weights, size in (idim + 1).
+            return {
+                P: points,
+                W: _.map(points,function(p){return null;}),
+                K: curve.getKnotVector
+            }
+        }
+    },{
+        "label": "Extract Control Points",
+        "desc": "Extract the NURBS control points and knots of a curve"
+    });
+
+    
+
     return components;
 });
 
