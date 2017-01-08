@@ -22,6 +22,11 @@ define(["jquery","componentSearcher","backbone","underscore"],function($,Compone
                 that.fetchUser.call(that);
                 that.render.call(that);
                 that.initSearchbar('componentChooser');
+
+                // When no project is open, you get an error when trying to add a component to the workspace.
+                // That's counter-intuitive. Just open a new one at load time.
+                // Defer, so the event listeners in app.js are ready
+                _.defer(function(){that.newProject();}); 
             });
         },
         setUser: function(user){
