@@ -181,6 +181,40 @@ define([
             "desc": "Measures the distance between two supplied points"
         });
 
+        /* Distance between two points */
+        components.PointDeconstructComponent = components.PointComponent.extend({
+            initialize: function(opts){
+                var output = this.createIObjectsFromJSON([
+                    {required: true, shortName: "X", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "X component"},
+                    {required: true, shortName: "Y", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Y component"},
+                    {required: true, shortName: "Z", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Z component"}
+                ], opts, "outputs");
+
+                var inputs = this.createIObjectsFromJSON([
+                    {shortName: "P", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Input point"}
+                ], opts, "inputs");
+
+                var args = _.extend({
+                    componentPrettyName: "pDecon",
+                    preview: false
+                },opts || {},{
+                    inputs: inputs,
+                    outputs: output
+                });
+                this.base_init(args);
+            },
+            recalculate: function(p){
+                return {
+                    X: p.x,
+                    Y: p.y,
+                    Z: p.z,
+                };
+            }
+        },{
+            "label": "Deconstruct Point",
+            "desc": "Deconstruct a point into its component parts"
+        });
+
         /*  A special component displays the vectors. This is because the 'anchor' property
             belongs to the preview alone, and is not part of the vector's mathematical properties.
          */
