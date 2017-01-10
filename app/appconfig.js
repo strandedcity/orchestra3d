@@ -30,6 +30,12 @@ requirejs.config({
         'OrbitControls': {
             deps: ['threejs']
         },
+        'SVGRenderer': {
+            deps: ['threejs']
+        },
+        'Projector': {
+            deps: ['threejs']
+        },
         'CSS3DRenderer': {
             deps: ['threejs']
         },
@@ -43,6 +49,8 @@ requirejs.config({
         viewer: 'src/viewer',
         threejs: 'src/viewer/three.wrapper',
         OrbitControls: 'src/viewer/OrbitControls',
+        SVGRenderer: 'src/viewer/SVGRenderer',
+        Projector: 'src/viewer/Projector',
         navbar: 'src/application/navbar',
         componentSearcher: 'src/application/componentSearcher',
 

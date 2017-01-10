@@ -15,6 +15,7 @@ define([
             'contextmenu input': "keepMenu",
             'click a.previewToggle': "togglePreview",
             'click a.deleteComponent': "deleteComponent",
+            'click a.exportSVG': "exportSVG",
             'keyup input': "editComponentPrettyName"
         },
         template: template,
@@ -47,6 +48,9 @@ define([
         },
         deleteComponent: function(){
             this.model.destroy();
+        },
+        exportSVG: function(){
+            this.model.exportGeometry("SVG");
         },
         render: function(x,y){
             var html = this.template(this.model.toJSON());

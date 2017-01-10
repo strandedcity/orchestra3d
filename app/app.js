@@ -4,6 +4,7 @@ require(["appconfig"],function(){
             'SISL/sisl_loader',
             'dataFlow/dataFlow_loader',
             "viewer/modelView",
+            "viewer/fileExporter",
             "dataFlow/UI/workspaceView",
             "navbar", // File, Model, Settings, Login, etc.... the top bar
             "dataFlow/UI/componentView",
@@ -15,6 +16,7 @@ require(["appconfig"],function(){
             Geo,
             dataFlow,
             viewer,
+            FileExporter,
             workspace,
             Nav,
             ComponentView,
@@ -38,45 +40,6 @@ require(["appconfig"],function(){
 
             function App(){
 
-//                var dir = new THREE.Vector3( 1, 0, 0 );
-//                var origin = new THREE.Vector3( 0, 0, 0 );
-//                var length =3;
-//                var hex = 0xffff00;
-//
-//                var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
-//                viewer.scene.add( arrowHelper );
-//
-//                var destdir = (new THREE.Vector3(0.5,0.5,-0.5)).normalize(),
-//                    destOrigin = new THREE.Vector3(1,1,1);
-//                var arr2 = new THREE.ArrowHelper(destdir,destOrigin,length,hex);
-//                viewer.scene.add(arr2);
-//
-//
-//                // get the quaternion rotation between these vectors:
-//                // http://stackoverflow.com/questions/25199173/how-to-find-rotation-matrix-between-two-vectors-in-three-js
-//                var quaternion = new THREE.Quaternion().setFromUnitVectors( dir, destdir );
-//
-//                var diff = destOrigin.sub(origin);
-//                var composed = (new THREE.Matrix4()).compose(diff,quaternion,new THREE.Vector3(1,1,1));
-
-
-
-/////////////////////////////////// PAIRS WITH THIS WHERE CURVE IS ACCESSIBLE
-///////////////////////////////////
-//                this["V"].values.recurseTree(function(pointList,node){
-//                    var movedPoints = [];
-//                    _.each(pointList,function(pt){
-//                        var coords = pt.toArray();
-//                        var oldPt = new THREE.Vector3(coords[0],coords[1],coords[2]);
-//
-//                        oldPt.applyMatrix4( composed );
-//                        var newpt = new Geometry.Point(oldPt.x,oldPt.y,oldPt.z);
-//                        movedPoints.push(newpt);
-//                    });
-//                    var c = new Geometry.Curve(movedPoints,degree,periodic);
-//                    that.previews.push(new Preview.CurvePreview(c));
-//                });
-
                 this.init();
             }
 
@@ -94,6 +57,7 @@ require(["appconfig"],function(){
 
                 viewer.createScene(); // viewer class shouldn't initialize itself; it should be testable without being in the DOM
                 workspace.createWorkspace();
+                this.exporter = FileExporter(viewer);
 
                 // Create the navbar, and listen for it to add new components to the workspace
                 var that = this,
@@ -118,26 +82,20 @@ require(["appconfig"],function(){
                     that.newComponent.call(that,component);
                 });
 
-                // Demonstration programs... Helpful to have handy for testing
-                //this.NURBSCurveTest();
-                //this.loadJSONProject('example_gridOfPoints.json?');
-                //this.loadJSONProject('curveWithVectorsTest.json?');
-//                this.loadJSONProject('example_lamp.json?');
-//                this.loadParseProject("JnbJpY8YjG");
-                // this.loadParseProject("lU5ZVtZCzl"); // "Just a Circle"
-//                this.loadParseProject("xehmUDz4Lk"); // "Just a Point"
-
-
-
                 viewer.render();
             };
 
             App.prototype.newComponent = function(component){
-                var position = component.position || workspace.getCurrentVisibleCenterPoint(),
-                    cptObject = dataFlow.createComponentByName(component["functionName"],{
-                        position: position
-                    });
+                var that=this,
+                    position = component.position || workspace.getCurrentVisibleCenterPoint(),
+                        cptObject = dataFlow.createComponentByName(component["functionName"],{
+                            position: position
+                        });
                 this.currentProject.addComponentToProject(cptObject);
+
+                // Handle "bake" equivalents: export STL, SVG, OBJ, Rendered Image, etc
+                cptObject.on('requestFileExport',function(o){that.exporter.export(o);});
+                
                 new ComponentView(cptObject);
             };
 
@@ -275,11 +233,15 @@ require(["appconfig"],function(){
             };
 
             App.prototype.loadWorkspace = function(proj){
+                var that = this;
                 this.navbar.setProject(proj);
                 this.currentProject = proj;
 
                 // Draw Componets, Inputs and Outputs in workspace:
                 _.each(proj.get('components'),function(cpt){
+                    // Attach file export capabilities
+                    cpt.on('requestFileExport',function(o){that.exporter.export(o);});
+
                     new ComponentView(cpt);
                 });
 
