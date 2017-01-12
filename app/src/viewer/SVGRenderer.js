@@ -347,10 +347,13 @@ THREE.SVGRenderer = function () {
 
 		_svgNode = getLineNode( _lineCount ++ );
 
-		_svgNode.setAttribute( 'x1', v1.positionScreen.x );
-		_svgNode.setAttribute( 'y1', v1.positionScreen.y );
-		_svgNode.setAttribute( 'x2', v2.positionScreen.x );
-		_svgNode.setAttribute( 'y2', v2.positionScreen.y );
+		// Orchestra3D uses the SVG renderer as an exporter, not a renderer.
+		// Accordingly, the position of exported elements should correspond to the drawing canvas,
+		// not the screen center.
+		_svgNode.setAttribute( 'x1', v1.positionScreen.x + _svgWidthHalf);
+		_svgNode.setAttribute( 'y1', v1.positionScreen.y + _svgHeightHalf);
+		_svgNode.setAttribute( 'x2', v2.positionScreen.x + _svgWidthHalf);
+		_svgNode.setAttribute( 'y2', v2.positionScreen.y + _svgHeightHalf);
 
 		if ( material instanceof THREE.LineBasicMaterial ) {
 

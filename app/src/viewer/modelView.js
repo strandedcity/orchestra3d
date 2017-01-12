@@ -5,7 +5,9 @@ define(["threejs","OrbitControls"],function(){
 
         // This module loads three.js, then provides a function to perform the basic setup of a scene. It returns three.js variables needed to access that scene.
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, this.width/this.height, 0.1, 1000);
+        this.perspectiveCamera = new THREE.PerspectiveCamera(75, this.width/this.height, 0.1, 1000);
+        this.orthoCamera = new THREE.OrthographicCamera( this.width / - 2, this.width / 2, this.height / 2, this.height / - 2, 1, 1000 );
+        this.camera = this.perspectiveCamera;
         this.renderer = new THREE.WebGLRenderer({ antialiasing: true });
         //this.createScene(); // the app must do this, to avoid rendering a blank window during tests.
 
@@ -30,6 +32,56 @@ define(["threejs","OrbitControls"],function(){
         this.setupScene();
     };
 
+    ModelSpace.prototype.setOrtho = function(ortho){
+        this.camera = ortho ? this.orthoCamera : this.perspectiveCamera;
+    };
+
+    ModelSpace.prototype.setStandardView = function(orientation){
+        // Add other 'standard' views? See .toTopView() in
+        // https://threejs.org/examples/js/cameras/CombinedCamera.js
+        // to save time adding camera rotations.
+        if (!_.contains(["TOP"],orientation)) throw new Error("TOP is currently the only standard view.");
+
+        this.camera.lookAt(new THREE.Vector3(0,0,0));
+        this.camera.position.x = 0;
+        this.camera.position.y = 0;
+        this.camera.position.z = 0;
+
+        switch(orientation) {
+            case "TOP":
+                this.camera.position.y=1;
+                this.camera.rotation.x = - Math.PI / 2;
+                this.camera.rotation.y = 0;
+                this.camera.rotation.z = 0;
+                break;
+        }
+        this.camera.updateProjectionMatrix();
+    };
+
+    ModelSpace.prototype.setUnitsAndScale = function(units,scale){
+        // apply to ortho camera only
+        this.setOrtho(true);
+
+        // means that one drawing unit, in orthographic views, will be 10 points in the output SVG. 1pt = 2.83464566929134, 1 inch = 72pts, etc.
+        var zoom = 1;
+
+        // if units are mm, we want each drawing unit to divide by 2.83
+        switch(units){
+            case "mm":
+                zoom *= 2.83464566929134;
+                break;
+
+            case "in":
+                zoom *= 72; // 72 pts per inch
+        }
+
+        // if scale is 1/2, we want to multiply by that ratio
+        zoom *= scale;
+
+        this.camera.zoom = zoom;
+
+        this.camera.updateProjectionMatrix();
+    };
 
     ModelSpace.prototype.toJSON = function(){
         // This method is in charge of storing any customized properties of the scene presentation, so it

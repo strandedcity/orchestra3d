@@ -30,15 +30,28 @@ define(["threejs"],function(){
         // svgrenderer, exporting that svg to a text file for download
         // The catch is using the current viewer's camera, but removing certain objects (eg: the grid) from
         // the scene.
+
         var that = this;
         require(["Projector","SVGRenderer"],function(Projector,SVGRenderer){
+            // all geometry must somehow fit on the screen in order to be rendered by the SVG renderer. 
+            // But that means I don't get the scale I want.
+            // So I'll scale DOWN to get all the data in the export, then scale back UP by changing the width and height
+            // of the SVG itself.
+            var SCALE = 1, ZOOM = 0.2;
+            console.warn("HARD-CODED SCALE AND ZOOM SET FOR SVG EXPORT. SHOULD BE CONFIGURABLE");
+
+            that.modelView.setOrtho(true);
+            that.modelView.setStandardView("TOP");
+            that.modelView.setUnitsAndScale("in",(SCALE*ZOOM)); 
+            that.reset(); // Make sure we aren't referencing an old camera or renderer
+
             var renderer = new THREE.SVGRenderer();
                 renderer.setClearColor( 0xffffff );
-                renderer.setSize( that.width,that.height );
+                renderer.setSize( that.width/(SCALE*ZOOM),that.height/(SCALE*ZOOM));
                 renderer.setQuality( 'high' );
             document.body.appendChild( renderer.domElement );
             console.warn("THE SUPPLIED ELEMENTS ARE IGNORED AT EXPORT TIME");
-            renderer.render( that.modelView.scene, that.camera );
+            renderer.render( that.modelView.scene, that.modelView.orthoCamera );
 
 
             // Download the SVG
@@ -71,6 +84,10 @@ define(["threejs"],function(){
 
             // remove the SVG Renderer. Not needed until next time!    
             document.body.removeChild(renderer.domElement);
+
+            // Reset the viewer
+            that.modelView.setOrtho(false);
+            that.modelView.render();
         });
 
     };
