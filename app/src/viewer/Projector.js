@@ -74,7 +74,11 @@ THREE.RenderableLine = function () {
 
 };
 
-//
+THREE.RenderablePolyline = function(){
+	this.vertices = [];
+	this.material = null;
+	this.closed = false;
+}
 
 THREE.RenderableSprite = function () {
 
@@ -649,6 +653,17 @@ THREE.Projector = function () {
 					}
 
 				} else if ( geometry instanceof THREE.Geometry ) {
+					// Some special objects, lines, paths, and curves, will be projected "whole"
+					// so they can be rendered as actual constructions in the SVG renderer. Ie,
+					// if I want a polyline to be a continuous line instead of separate pieces, or I want
+					// to render a curve using SVG's curve methods, I need to project the whole object
+					var projectWholeObject = object.type === "Line"; // Accomodate other "projectables" here!
+
+					if (projectWholeObject) {
+						var _pline = new THREE.RenderablePolyline();
+						if (geometry.vertices[0].distanceTo(geometry.vertices[geometry.vertices.length-1])<0.0001) _pline.closed = true;
+						_renderData.elements.push( _pline );
+					}
 
 					_modelViewProjectionMatrix.multiplyMatrices( _viewProjectionMatrix, _modelMatrix );
 
@@ -658,14 +673,20 @@ THREE.Projector = function () {
 
 					v1 = getNextVertexInPool();
 					v1.positionScreen.copy( vertices[ 0 ] ).applyMatrix4( _modelViewProjectionMatrix );
-
+					if (projectWholeObject) {
+						_pline.vertices.push(v1);
+						_pline.material = object.material;
+					}
 					var step = object instanceof THREE.LineSegments ? 2 : 1;
 
 					for ( var v = 1, vl = vertices.length; v < vl; v ++ ) {
 
 						v1 = getNextVertexInPool();
 						v1.positionScreen.copy( vertices[ v ] ).applyMatrix4( _modelViewProjectionMatrix );
-
+						if (projectWholeObject) {
+							_pline.vertices.push(v1);
+							continue;
+						}
 						if ( ( v + 1 ) % step > 0 ) continue;
 
 						v2 = _vertexPool[ _vertexCount - 2 ];

@@ -72,7 +72,7 @@ define([
                     prevPointInCurve = (new THREE.Vector3()).fromArray(curve.getPositionAt(minParameter).toArray());
 
                 //degree = this.getCurveOrder()-1;
-                if (curve.getCurveOrder()-1 === 1) {
+                if (curve.getDegree() === 1) {
                     // straight lines. Use the control points directly.
                     var controlPoints = curve.getControlPoints();
                     for (var i=1; i<controlPoints.length; i++){

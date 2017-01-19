@@ -157,6 +157,9 @@ THREE.SVGRenderer = function () {
 		_elements = _renderData.elements;
 		_lights = _renderData.lights;
 
+		// {elements: [THREE.RenderableLine,... all the individual line segments], lights: [], objects: []}
+		// added "polylines" which are drawn continuously
+
 		_normalViewMatrix.getNormalMatrix( camera.matrixWorldInverse );
 
 		calculateLights( _lights );
@@ -192,6 +195,8 @@ THREE.SVGRenderer = function () {
 
 				}
 
+			} else if (element instanceof THREE.RenderablePolyline){
+				renderPline(element,material);
 			} else if ( element instanceof THREE.RenderableFace ) {
 
 				_v1 = element.v1; _v2 = element.v2; _v3 = element.v3;
@@ -340,7 +345,34 @@ THREE.SVGRenderer = function () {
 		}
 
 		_svg.appendChild( _svgNode );
+	}
 
+	function renderPline (polyline,material){
+		_svgNode = getPathNode( _pathCount ++ );
+
+		// build "d" attribute with a series of line segments. Start with an "M" command to the line start,
+		// do a bunch of "L" commands for each segment, then (optionally) end with a "z" command to close the path
+		var pathData = "";// = "M " + (polyline[0].positionScreen.x + _svgWidthHalf) + " " + (polyline[0].positionScreen.y + _svgHeightHalf) + " ";
+		for (var i=0; i<polyline.vertices.length; i++){
+			var command = i > 0 ? "L ": "M ";
+			pathData = pathData + 
+				command + 
+				((polyline.vertices[i].positionScreen.x+1) * _svgWidthHalf) + 
+				" " + 
+				((polyline.vertices[i].positionScreen.y-1) * -_svgHeightHalf) + 
+				" ";
+		}
+		if (polyline.closed) {
+			pathData = pathData + " Z";
+		} 
+
+		// assing the path data to the node
+		_svgNode.setAttribute( 'd', pathData );
+
+		if ( material instanceof THREE.LineBasicMaterial ) {
+			_svgNode.setAttribute( 'style', 'fill: none; stroke: ' + material.color.getStyle() + '; stroke-width: ' + material.linewidth + '; stroke-opacity: ' + material.opacity + '; stroke-linecap: ' + material.linecap + '; stroke-linejoin: ' + material.linejoin );
+			_svg.appendChild( _svgNode );
+		}
 	}
 
 	function renderLine( v1, v2, element, material ) {

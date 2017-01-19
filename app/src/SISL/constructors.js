@@ -304,6 +304,9 @@ define(["SISL/sisl_loader","SISL/module_utils","underscore","threejs"],function(
         getCurveOrder: function(){
             return curveOrder(this._pointer);
         },
+        getDegree: function(){
+            return this.getCurveOrder() - 1;
+        },
         rotateAxisAndCenterMatrix: function(theta,axis,center) {
             // TODO: This method should be in Geo.Utils
             var composed = new THREE.Matrix4();
