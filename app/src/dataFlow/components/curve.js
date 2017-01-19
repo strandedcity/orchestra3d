@@ -280,6 +280,61 @@ define([
         "desc": "Create a polyline connecting a number of points"
     });
 
+
+    components.Rectangle3Pt = DataFlow.Component.extend({
+        initialize: function(opts){
+            var output = this.createIObjectsFromJSON([
+                {shortName: "R", type: DataFlow.OUTPUT_TYPES.CURVE, desc: "Rectangle defined by A, B and C"},
+                {shortName: "L", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Length of rectangle curve"}
+            ], opts, "output");
+
+            var inputs = this.createIObjectsFromJSON([
+                {shortName: "A", required: true, type: DataFlow.OUTPUT_TYPES.POINT, desc: "First corner of rectangle"}, 
+                {shortName: "B", required: true, type: DataFlow.OUTPUT_TYPES.POINT, desc: "Second corner of rectangle"}, 
+                {shortName: "C", required: true, type: DataFlow.OUTPUT_TYPES.POINT, desc: "Point along rectangle edge opposite to AB"}
+            ], opts, "inputs");
+
+            var args = _.extend({
+                componentPrettyName: "Rec 3Pt",
+                preview: true
+            },opts || {},{
+                inputs: inputs,
+                outputs: output
+            });
+            this.base_init(args);
+        },
+        recalculate: function(p1,p2,p3){
+            // Construct 
+            // We have points A & B supplied by the user; we need to find C & D, which are just A&B translated orthogonally
+            // Project p3 onto the line connecting p1=>p2, then connect p3 with its projection.
+            // use .projectOnVector()
+            // 1) Subtract p1 from p2 and p3 (so we're working at the origin)
+            // 2) project p3 onto p2
+            // 3) Construct the "edge" vector, connecting this projection to p3
+            // 4) Add "edge" vector to original A & B to get C & D
+
+            var points = [p1,p2];
+
+            var originP2 = p2.clone().sub(p1),
+                originP3 = p3.clone().sub(p1);
+
+            var edge = originP3.clone().sub(originP3.projectOnVector(originP2));
+
+            points.push(p2.clone().add(edge));
+            points.push(p1.clone().add(edge));
+            points.push(p1); // close the curve
+
+            var rect = new Geometry.Curve().fromControlPointsDegreeKnots(points,1);
+            return {
+                R: rect,
+                L: rect.getLength()
+            }
+        }
+    },{
+        "label": "Rectangle 3Pt",
+        "desc": "Create a rectangle from three points"
+    });
+
     components.CurveEndPoints = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
