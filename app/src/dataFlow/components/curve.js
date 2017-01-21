@@ -7,6 +7,29 @@ define([
 ],function(_,DataFlow,Geometry,Preview,DataMatcher){
     var components = {};
 
+    components.CurveCollectionComponent = DataFlow.Component.extend({
+        initialize: function(opts){
+            this.base_init(
+                _.extend(opts || {},{
+                    inputs: this.createIObjectsFromJSON([
+                                {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.CURVE, desc: "Curves"}
+                            ], opts, "inputs"),
+                    outputs: output = this.createIObjectsFromJSON([
+                                {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.CURVE, containsNewData: false, desc: "Curves"}
+                            ], opts, "output"),
+                    componentPrettyName: "Crv"
+                })
+            );
+        },
+        recalculate: function(b){
+            // Not exactly a noop.... this uses the datamatcher to realign and merge data trees
+            return {B:b};
+        }
+    },{
+        "label": "Curve",
+        "desc": "Contains a collection of curves"
+    });
+
     components.CurveControlPointComponent = DataFlow.Component.extend({
         initialize: function(opts){
             var output = this.createIObjectsFromJSON([
