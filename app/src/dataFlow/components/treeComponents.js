@@ -143,7 +143,7 @@ define([
             return {L: _.filter(listIn,function(val,idx){
                 // figure out which item in the cull pattern this index aligns to. There can be more items in listIn, in which case
                 // the culling pattern should repeat
-                return idx % frequency === 0;
+            return (idx+1) % frequency !== 0;
             })};
         }
     },{
