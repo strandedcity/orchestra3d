@@ -78,7 +78,14 @@ THREE.RenderablePolyline = function(){
 	this.vertices = [];
 	this.material = null;
 	this.closed = false;
-}
+
+	var that = this;
+	this.nextVertex = function(){
+		var v = new THREE.RenderableVertex();
+		that.vertices.push(v);
+		return v;		
+	}
+};
 
 THREE.RenderableSprite = function () {
 
@@ -106,6 +113,7 @@ THREE.Projector = function () {
 	_vertex, _vertexCount, _vertexPool = [], _vertexPoolLength = 0,
 	_face, _faceCount, _facePool = [], _facePoolLength = 0,
 	_line, _lineCount, _linePool = [], _linePoolLength = 0,
+	_pline, _plineCount, _plinePool = [], _plinePoolLength = 0,
 	_sprite, _spriteCount, _spritePool = [], _spritePoolLength = 0,
 
 	_renderData = { objects: [], lights: [], elements: [] },
@@ -324,6 +332,7 @@ THREE.Projector = function () {
 
 		_faceCount = 0;
 		_lineCount = 0;
+		_plineCount = 0;
 		_spriteCount = 0;
 
 		_renderData.elements.length = 0;
@@ -660,9 +669,8 @@ THREE.Projector = function () {
 					var projectWholeObject = object.type === "Line"; // Accomodate other "projectables" here!
 
 					if (projectWholeObject) {
-						var _pline = new THREE.RenderablePolyline();
+						_pline = getNextPLineInPool();
 						if (geometry.vertices[0].distanceTo(geometry.vertices[geometry.vertices.length-1])<0.0001) _pline.closed = true;
-						_renderData.elements.push( _pline );
 					}
 
 					_modelViewProjectionMatrix.multiplyMatrices( _viewProjectionMatrix, _modelMatrix );
@@ -674,8 +682,9 @@ THREE.Projector = function () {
 					v1 = getNextVertexInPool();
 					v1.positionScreen.copy( vertices[ 0 ] ).applyMatrix4( _modelViewProjectionMatrix );
 					if (projectWholeObject) {
-						_pline.vertices.push(v1);
+						_pline.nextVertex().positionScreen.copy(v1.positionScreen);
 						_pline.material = object.material;
+						_renderData.elements.push( _pline );
 					}
 					var step = object instanceof THREE.LineSegments ? 2 : 1;
 
@@ -684,7 +693,7 @@ THREE.Projector = function () {
 						v1 = getNextVertexInPool();
 						v1.positionScreen.copy( vertices[ v ] ).applyMatrix4( _modelViewProjectionMatrix );
 						if (projectWholeObject) {
-							_pline.vertices.push(v1);
+							_pline.nextVertex().positionScreen.copy(v1.positionScreen);
 							continue;
 						}
 						if ( ( v + 1 ) % step > 0 ) continue;
@@ -834,6 +843,20 @@ THREE.Projector = function () {
 		}
 
 		return _linePool[ _lineCount ++ ];
+
+	}
+
+	function getNextPLineInPool() {
+		if ( _plineCount === _plinePoolLength ) {
+			var pline = new THREE.RenderablePolyline();
+			_plinePool.push( pline );
+			_plinePoolLength ++;
+			_plineCount ++;
+			return pline;
+
+		}
+
+		return _plinePool[ _plineCount ++ ];
 
 	}
 

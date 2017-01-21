@@ -73,7 +73,7 @@ define(["underscore","threejs"],function(_){
             var object3d = that.drawingRouter(geometryItem,material);
             exportScene.add(object3d);
         });
-
+        
         return exportScene;
     };
 
