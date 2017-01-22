@@ -40,7 +40,7 @@ define([
     CurveListPreview.prototype.show = function(){
         // Hide doesn't destroy the geometry for good, it just removes it from the scene so it can be reused later if needed.
         if (!_.isUndefined(this.line)) {
-            viewer.scene.add(this.line);
+            if (!_.contains(viewer.scene,this.line)) viewer.scene.add(this.line);
             viewer.render();
         }
     };
@@ -54,8 +54,7 @@ define([
         this.curveList = curveList;
         this.remove();
         this.line = new THREE.LineSegments(this.draw(),this.material);
-        // this.line.geometry = this.draw(this.line);
-        viewer.render();
+        this.show(); // When a new 'geometry' is created, it hasn't been added to the scene. We always need to .render(), we sometimes need to .add()
         return this.line;
     };
     CurveListPreview.prototype.draw = function(line){

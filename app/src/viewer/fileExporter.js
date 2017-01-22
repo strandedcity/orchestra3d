@@ -9,7 +9,6 @@ define(["underscore","threejs"],function(_){
     }
 
     FileExporter.prototype.export = function(options){
-        console.log('attempting to export ', options);
         if (options.type = "SVG") this.downloadSVG(options.geometry);
     };
 
