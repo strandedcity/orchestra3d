@@ -10,14 +10,13 @@ define([
     components.CurveCollectionComponent = DataFlow.Component.extend({
         initialize: function(opts){
             this.base_init(
-                _.extend(opts || {},{
+                _.extend({componentPrettyName: "Crv"},opts || {},{
                     inputs: this.createIObjectsFromJSON([
                                 {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.CURVE, desc: "Curves"}
                             ], opts, "inputs"),
                     outputs: output = this.createIObjectsFromJSON([
                                 {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.CURVE, containsNewData: false, desc: "Curves"}
-                            ], opts, "output"),
-                    componentPrettyName: "Crv"
+                            ], opts, "output")
                 })
             );
         },

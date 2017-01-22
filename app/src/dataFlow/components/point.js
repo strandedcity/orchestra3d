@@ -11,14 +11,13 @@ define([
         components.PointCollectionComponent = DataFlow.Component.extend({
             initialize: function(opts){
                 this.base_init(
-                    _.extend(opts || {},{
+                    _.extend({componentPrettyName: "Pt"},opts || {},{
                         inputs: this.createIObjectsFromJSON([
                                     {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT, desc: "Point Values"}
                                 ], opts, "inputs"),
                         outputs: output = this.createIObjectsFromJSON([
                                     {required: true, shortName: "B", type: DataFlow.OUTPUT_TYPES.POINT, containsNewData: false, desc: "Point Values"}
-                                ], opts, "output"),
-                        componentPrettyName: "Pt"
+                                ], opts, "output")
                     })
                 );
             },
