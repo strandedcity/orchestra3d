@@ -190,7 +190,7 @@ define([
                 ], opts, "outputs");
 
                 var inputs = this.createIObjectsFromJSON([
-                    {shortName: "P", type: DataFlow.OUTPUT_TYPES.NUMBER, desc: "Input point"}
+                    {shortName: "P", type: DataFlow.OUTPUT_TYPES.POINT, desc: "Input point"}
                 ], opts, "inputs");
 
                 var args = _.extend({

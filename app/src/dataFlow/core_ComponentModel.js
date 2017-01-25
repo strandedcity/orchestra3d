@@ -48,14 +48,18 @@ define([
                 constructorMap = {
                     outputs: IOModels["Output"],
                     inputs: IOModels["Input"]
-                };
+                },
+                that=this;
             // "schemaList" we trust -- it's part of the program.
             // "inputList" we don't -- it's data that gets saved with the files
             // Basically we take the schema, ask the inputlist if it has anything that modifies those inputs in appropriate ways, and move on.
 
             var correspondingUserData = _.isUndefined(opts) ? {} : _.isUndefined(opts[dataKey]) ? {} : opts[dataKey];
             _.each(_.values(schemaListJSON),function(spec){
-                var providedData = _.findWhere(correspondingUserData, {shortName: spec.shortName, type: spec.type});
+                var providedData = _.findWhere(correspondingUserData, {shortName: spec.shortName});
+                if (!_.isEmpty(providedData) && providedData.type !== spec.type) {
+                    console.warn("Datatype mismatch between persisted datatype and "+ that.componentName +" definition. This indicates a namespace collision, or a change to a component's definition after it was used to persist data. Saved connections to this component may fail!")
+                }
                 var outputObject = new constructorMap[dataKey](_.extend(providedData || {},spec));
                 objectList.push(outputObject);
             });
