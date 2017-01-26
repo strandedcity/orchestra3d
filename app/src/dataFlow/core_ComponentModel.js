@@ -302,7 +302,10 @@ define([
             } else {
                 console.warn("New preview type mismatches previous preview type. Destroy old previews?");
                 var constructor = Preview[constructors[type]];
-                this.previews[0] = new constructor(geom);
+                // Check before constructing the preview. Things like numbers don't have previews,
+                // and will throw "Uncaught TypeError: constructor is not a constructor" if
+                // we try to create previews for them.
+                if (typeof constructor === "function") this.previews[0] = new constructor(geom);
             }
 
         },
