@@ -21,6 +21,9 @@ WebGL-Powered Parametric Modeling Interface. Includes a JavaScript Port of SISL 
     "PORT": ####,
     "DASHBOARD_PORT": ####,
     "DASHBOARD_USER": "dashboard-username",
-    "DASHBOARD_PASS": "password-for-dashboard-user"
+    "DASHBOARD_PASS": "password-for-dashboard-user",
+
+    "STATIC_FILE_SERVER": true, // Should not be used in production, but convenient for local development
+    "STATIC_FILE_PORT": 9000 // Use the web app at http://localhost:9000 when developing locally
 }
 ```

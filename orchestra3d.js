@@ -3,6 +3,7 @@ var ParseServer = require('parse-server').ParseServer;
 var ParseDashboard = require('parse-dashboard');
 var appConfig = require('./secrets/orchestraConfig.json');
 var SimpleSendGridAdapter = require('parse-server-sendgrid-adapter');
+var httpServer = require('http');
 
 // Start Express
 var app = express();
@@ -57,10 +58,8 @@ var api = new ParseServer({
 });
 
 app.use('/', api);
-
-var httpServer = require('http').createServer(app);
-httpServer.listen(appConfig.PORT);
-
+httpServer.createServer(app).listen(appConfig.PORT);
+console.log("Orchestra3d API Running at http://localhost:" + appConfig.PORT);
 
 // make the Parse Dashboard available at /dashboard
 var allowInsecureHTTP = false;
@@ -83,6 +82,17 @@ var dashboard = new ParseDashboard({
 
 var dash=express();
 dash.use('/',dashboard);
+httpServer.createServer(dash).listen(appConfig.DASHBOARD_PORT);
+console.log("Admin Dashboard Running at http://localhost:" + appConfig.DASHBOARD_PORT);
 
-var httpDashboard = require('http').createServer(dash);
-httpDashboard.listen(appConfig.DASHBOARD_PORT);
+// Serve the Orchestra3D web application over yet another port
+// This isn't a prod setup, but it's convenient while developing.
+if (appConfig.STATIC_FILE_SERVER === true && typeof appConfig.STATIC_FILE_PORT === "number") {
+    const orchestra=express();
+    orchestra.use(express.static("app"));
+    httpServer.createServer(orchestra).listen(appConfig.STATIC_FILE_PORT);
+
+    console.log("Static file server running. Browse Orchestra3d at http://localhost:" + appConfig.STATIC_FILE_PORT);
+}
+
+console.log("=======================\n");
