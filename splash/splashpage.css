@@ -91,7 +91,7 @@ input.componentLike:focus {
         display: none;
     }
     body {
-        background: url(background-compressed.svgz);
+        background: url(background-compressed.svg);
         background-size: auto 120%;
         background-repeat: no-repeat;
     }
