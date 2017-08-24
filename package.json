@@ -21,8 +21,8 @@
   "dependencies": {
     "express": "4.14.0",
     "parse-server-sendgrid-adapter": "^1.0.0",
-    "parse-server": "^2.2.23",
-    "parse-dashboard": "^1.0.11"
+    "parse-server": "^2.5.3",
+    "parse-dashboard": "^1.1.0"
   },
   "main": "orchestra3d.js",
   "homepage": "http://orchestra3d.io"
