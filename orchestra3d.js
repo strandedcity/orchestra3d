@@ -13,9 +13,11 @@ var api = new ParseServer({
     databaseURI: appConfig.DB_URI,
     appId: appConfig.APP_ID,
     masterKey: appConfig.MASTER_KEY,
-    clientKey: appConfig.CLIENT_KEY,
-    javascriptKey: appConfig.JS_KEY,
-    restAPIKey: appConfig.REST_KEY,
+    // Including these keys, which came from legacy parse.com, causes problems for later versions of parse-server
+    // https://github.com/parse-community/parse-dashboard/issues/602
+    // clientKey: appConfig.CLIENT_KEY,
+    // javascriptKey: appConfig.JS_KEY,
+    // restAPIKey: appConfig.REST_KEY,
     cloud: './cloud/main.js',
     serverURL: appConfig.SERVER_URL,
     allowClientClassCreation: true,
